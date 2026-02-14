@@ -28,7 +28,7 @@ export const staffSchema = z.object({
     .nullable(),
   
   status: z.enum(["ACTIVE", "INACTIVE"], {
-    errorMap: () => ({ message: "Status must be ACTIVE or INACTIVE" }),
+    message: "Status must be ACTIVE or INACTIVE",
   }),
 });
 

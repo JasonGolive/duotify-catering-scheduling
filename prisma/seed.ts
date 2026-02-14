@@ -67,7 +67,10 @@ async function main() {
 
   for (const staff of staffData) {
     await prisma.staff.create({
-      data: staff,
+      data: {
+        ...staff,
+        status: staff.status as "ACTIVE" | "INACTIVE",
+      },
     });
   }
 

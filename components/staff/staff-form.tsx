@@ -34,7 +34,7 @@ const staffFormSchema = z.object({
     .string()
     .min(10, "Phone number must be at least 10 digits")
     .regex(/^[\d\s\-+()]+$/, "Phone number contains invalid characters"),
-  perEventSalary: z.coerce
+  perEventSalary: z
     .number()
     .positive("Salary must be positive")
     .max(100000, "Salary cannot exceed $100,000"),
