@@ -135,22 +135,22 @@
 
 ### API Endpoints for User Story 2
 
-- [ ] T049 [US2] Create POST staff API endpoint in `app/api/v1/staff/route.ts` with validation, duplicate phone check, and return 201 Created (manager role required)
+- [X] T049 [US2] Create POST staff API endpoint in `app/api/v1/staff/route.ts` with validation, duplicate phone check, and return 201 Created (manager role required)
 
 ### UI Components for User Story 2
 
-- [ ] T050 [US2] Create StaffForm component in `components/staff/staff-form.tsx` using React Hook Form with Zod validation for add/edit operations
-- [ ] T051 [US2] Configure form inputs in StaffForm with mobile-optimized keyboard types: type="tel" for phone, type="number" for salary, type="text" for name
-- [ ] T052 [US2] Add real-time validation display in StaffForm showing error messages below each field when validation fails
-- [ ] T053 [US2] Add loading and disabled states to form submit button to prevent double-submission
+- [X] T050 [US2] Create StaffForm component in `components/staff/staff-form.tsx` using React Hook Form with Zod validation for add/edit operations
+- [X] T051 [US2] Configure form inputs in StaffForm with mobile-optimized keyboard types: type="tel" for phone, type="number" for salary, type="text" for name
+- [X] T052 [US2] Add real-time validation display in StaffForm showing error messages below each field when validation fails
+- [X] T053 [US2] Add loading and disabled states to form submit button to prevent double-submission
 
 ### Pages for User Story 2
 
-- [ ] T054 [US2] Create add new staff page in `app/(dashboard)/staff/new/page.tsx` with StaffForm component and success toast on creation
-- [ ] T055 [US2] Add "Add New Staff" button to staff list page header in `app/(dashboard)/staff/page.tsx` linking to /staff/new
-- [ ] T056 [US2] Implement staff creation mutation in `app/(dashboard)/staff/new/page.tsx` using TanStack Query with optimistic updates
-- [ ] T057 [US2] Add navigation after successful staff creation: redirect to staff list with success toast message
-- [ ] T058 [US2] Handle duplicate phone number error with clear message: "A staff member with this phone number already exists"
+- [X] T054 [US2] Create add new staff page in `app/(dashboard)/staff/new/page.tsx` with StaffForm component and success toast on creation
+- [X] T055 [US2] Add "Add New Staff" button to staff list page header in `app/(dashboard)/staff/page.tsx` linking to /staff/new
+- [X] T056 [US2] Implement staff creation mutation in `app/(dashboard)/staff/new/page.tsx` using TanStack Query with optimistic updates
+- [X] T057 [US2] Add navigation after successful staff creation: redirect to staff list with success toast message
+- [X] T058 [US2] Handle duplicate phone number error with clear message: "A staff member with this phone number already exists"
 
 **Checkpoint**: User Story 2 complete - Managers can add new staff members with full validation
 
