@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User entity (authentication & authorization)
+model User {
+  id         String   @id // Clerk user ID
+  email      String   @unique
+  role       Role
+  firstName  String?
+  lastName   String?
+  imageUrl   String?
+  
+  // Relationship to Staff (optional - managers don't have staff records)
+  staff      Staff?
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("users")
+}
+
+// Staff entity (core business object)
+model Staff {
+  id             String   @id @default(cuid())
+  name           String   @db.VarChar(100)
+  phone          String   @unique @db.VarChar(20)
+  perEventSalary Decimal  @db.Decimal(10, 2)
+  notes          String?  @db.Text
+  status         Status   @default(ACTIVE)
+  
+  // Relationship to User (optional - staff may exist before login account created)
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([name])
+  @@map("staff")
+}
+
+// Enums
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Role {
+  MANAGER
+  STAFF
+}

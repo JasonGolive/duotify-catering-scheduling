@@ -1,0 +1,529 @@
+openapi: 3.0.3
+info:
+  title: Staff Management API
+  description: API for managing catering service staff members
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: https://api.example.com/api/v1
+    description: Production server
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Staff
+    description: Staff management operations
+
+paths:
+  /staff:
+    get:
+      summary: List all staff members
+      tags: [Staff]
+      operationId: listStaff
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by employment status
+          required: false
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE]
+        - name: limit
+          in: query
+          description: Maximum number of results
+          required: false
+          schema:
+            type: integer
+            default: 500
+            maximum: 500
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Staff'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new staff member
+      tags: [Staff]
+      operationId: createStaff
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffInput'
+      responses:
+        '201':
+          description: Staff member created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+                  message:
+                    type: string
+                    example: Staff member created successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /staff/{id}:
+    get:
+      summary: Get staff member by ID
+      tags: [Staff]
+      operationId: getStaffById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Staff member ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update staff member
+      tags: [Staff]
+      operationId: updateStaff
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Staff member ID
+          required: true
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          description: Optimistic locking timestamp
+          required: false
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffUpdate'
+      responses:
+        '200':
+          description: Staff member updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete staff member
+      tags: [Staff]
+      operationId: deleteStaff
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Staff member ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Staff member deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deletedId:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /staff/me:
+    get:
+      summary: Get own profile (staff member)
+      tags: [Staff]
+      operationId: getOwnProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StaffProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk session token
+
+  schemas:
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier (CUID)
+          example: clx1234567890
+        name:
+          type: string
+          description: Full name of staff member
+          example: John Smith
+          minLength: 1
+          maxLength: 100
+        phone:
+          type: string
+          description: Contact phone number (unique)
+          example: 555-123-4567
+          minLength: 10
+        perEventSalary:
+          type: number
+          format: decimal
+          description: Payment per catering event
+          example: 150.00
+          minimum: 0.01
+          maximum: 100000.00
+        notes:
+          type: string
+          nullable: true
+          description: Additional notes about staff member
+          example: Experienced server, available weekends
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          description: Employment status
+          example: ACTIVE
+        user:
+          $ref: '#/components/schemas/User'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: 2025-01-15T10:30:00.000Z
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last modification timestamp
+          example: 2025-02-10T14:20:00.000Z
+      required:
+        - id
+        - name
+        - phone
+        - perEventSalary
+        - status
+        - createdAt
+        - updatedAt
+
+    StaffInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[a-zA-Z\s\-']+$
+          example: Alice Johnson
+        phone:
+          type: string
+          minLength: 10
+          pattern: ^[\d\s\-+()]+$
+          example: 555-234-5678
+        perEventSalary:
+          type: number
+          format: decimal
+          minimum: 0.01
+          maximum: 100000.00
+          example: 175.00
+        notes:
+          type: string
+          nullable: true
+          example: New hire, needs training
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          default: ACTIVE
+          example: ACTIVE
+      required:
+        - name
+        - phone
+        - perEventSalary
+
+    StaffUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[a-zA-Z\s\-']+$
+        phone:
+          type: string
+          minLength: 10
+          pattern: ^[\d\s\-+()]+$
+        perEventSalary:
+          type: number
+          format: decimal
+          minimum: 0.01
+          maximum: 100000.00
+        notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+
+    StaffProfile:
+      type: object
+      description: Staff member's own profile (excludes user relationship)
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        perEventSalary:
+          type: number
+        notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Clerk user ID
+          example: user_abc123
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        firstName:
+          type: string
+          nullable: true
+          example: John
+        lastName:
+          type: string
+          nullable: true
+          example: Smith
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: https://example.com/avatar.jpg
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: Validation Error
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid input data
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+      required:
+        - error
+        - message
+
+  responses:
+    BadRequest:
+      description: Bad request - validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Validation Error
+            message: Invalid input data
+            details:
+              - field: name
+                message: Name is required
+              - field: phone
+                message: Invalid phone format
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            message: Authentication required
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Forbidden
+            message: Insufficient permissions
+
+    NotFound:
+      description: Not found - resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Not Found
+            message: Staff member not found
+
+    Conflict:
+      description: Conflict - duplicate resource or dependency issue
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Conflict
+            message: A staff member with this phone number already exists
+
+    PreconditionFailed:
+      description: Precondition failed - optimistic locking failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Precondition Failed
+            message: Record was modified by another user
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Internal Server Error
+            message: An unexpected error occurred
