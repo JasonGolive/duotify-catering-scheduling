@@ -7,6 +7,9 @@ import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
+// Disable static generation - requires authentication
+export const dynamic = "force-dynamic";
+
 export default function NewStaffPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
