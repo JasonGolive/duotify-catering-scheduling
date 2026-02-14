@@ -100,23 +100,23 @@
 
 ### API Endpoints for User Story 1
 
-- [ ] T038 [P] [US1] Create GET all staff API endpoint in `app/api/v1/staff/route.ts` (list with optional status filter, manager role required)
-- [ ] T039 [P] [US1] Create GET staff by ID API endpoint in `app/api/v1/staff/[id]/route.ts` (single staff detail, manager role required)
-- [ ] T040 [P] [US1] Create GET own profile API endpoint in `app/api/v1/staff/me/route.ts` (staff member's own data, staff role allowed)
+- [X] T038 [P] [US1] Create GET all staff API endpoint in `app/api/v1/staff/route.ts` (list with optional status filter, manager role required)
+- [X] T039 [P] [US1] Create GET staff by ID API endpoint in `app/api/v1/staff/[id]/route.ts` (single staff detail, manager role required)
+- [X] T040 [P] [US1] Create GET own profile API endpoint in `app/api/v1/staff/me/route.ts` (staff member's own data, staff role allowed)
 
 ### UI Components for User Story 1
 
-- [ ] T041 [P] [US1] Create StaffCard component in `components/staff/staff-card.tsx` for mobile card view with name, phone, salary, status badge
-- [ ] T042 [P] [US1] Create StaffTable component in `components/staff/staff-table.tsx` for desktop table view with sortable columns
-- [ ] T043 [P] [US1] Create StaffListView component in `components/staff/staff-list-view.tsx` that switches between table (desktop) and cards (mobile) based on screen size
-- [ ] T044 [P] [US1] Create StatusBadge component in `components/staff/status-badge.tsx` with color-coded ACTIVE (green) and INACTIVE (gray) variants
+- [X] T041 [P] [US1] Create StaffCard component in `components/staff/staff-card.tsx` for mobile card view with name, phone, salary, status badge
+- [X] T042 [P] [US1] Create StaffTable component in `components/staff/staff-table.tsx` for desktop table view with sortable columns
+- [X] T043 [P] [US1] Create StaffListView component in `components/staff/staff-list-view.tsx` that switches between table (desktop) and cards (mobile) based on screen size
+- [X] T044 [P] [US1] Create StatusBadge component in `components/staff/status-badge.tsx` with color-coded ACTIVE (green) and INACTIVE (gray) variants
 
 ### Pages for User Story 1
 
-- [ ] T045 [US1] Create staff list page in `app/(dashboard)/staff/page.tsx` as Server Component fetching staff data and rendering StaffListView
-- [ ] T046 [US1] Create staff profile page in `app/(dashboard)/profile/page.tsx` for staff members to view their own information (read-only)
-- [ ] T047 [US1] Add staff list data fetching hook in `app/(dashboard)/staff/page.tsx` using TanStack Query with 60-second cache
-- [ ] T048 [US1] Implement responsive layout in staff list page with mobile-first styling (single column on mobile, table on desktop)
+- [X] T045 [US1] Create staff list page in `app/(dashboard)/staff/page.tsx` as Server Component fetching staff data and rendering StaffListView
+- [X] T046 [US1] Create staff profile page in `app/(dashboard)/profile/page.tsx` for staff members to view their own information (read-only)
+- [X] T047 [US1] Add staff list data fetching hook in `app/(dashboard)/staff/page.tsx` using TanStack Query with 60-second cache
+- [X] T048 [US1] Implement responsive layout in staff list page with mobile-first styling (single column on mobile, table on desktop)
 
 **Checkpoint**: User Story 1 complete - Managers can view all staff, staff can view own profile, works on all devices
 
