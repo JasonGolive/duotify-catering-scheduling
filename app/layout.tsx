@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: "Staff management system for Duotify catering services",
 };
 
+// Disable static generation for all pages (Clerk requires runtime)
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: {
