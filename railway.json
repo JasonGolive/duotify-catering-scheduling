@@ -4,7 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run db:deploy && npx next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "startCommand": "npm run db:deploy && npm start",
     "restartPolicyType": "NEVER"
   }
 }
+
