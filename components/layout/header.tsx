@@ -19,13 +19,13 @@ export function Header({ onMenuClick }: HeaderProps) {
           onClick={onMenuClick}
         >
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+          <span className="sr-only">開關選單</span>
         </Button>
         
         <div className="mr-4 hidden md:flex">
           <a href="/staff" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
-              Duotify Membership
+              外燴人員管理系統
             </span>
           </a>
         </div>

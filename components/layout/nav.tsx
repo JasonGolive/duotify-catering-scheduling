@@ -16,7 +16,7 @@ export function Nav({ role, className }: NavProps) {
   const managerLinks = [
     {
       href: "/staff",
-      label: "Staff Directory",
+      label: "員工目錄",
       icon: Users,
     },
   ];
@@ -24,7 +24,7 @@ export function Nav({ role, className }: NavProps) {
   const staffLinks = [
     {
       href: "/profile",
-      label: "My Profile",
+      label: "我的資料",
       icon: User,
     },
   ];

@@ -19,18 +19,18 @@ export default function NewStaffPage() {
 
     try {
       await api.post("/api/v1/staff", data);
-      toast.success("Staff member added successfully!");
+      toast.success("員工新增成功！");
       router.push("/staff");
       router.refresh();
     } catch (error: any) {
       console.error("Error creating staff:", error);
       
       if (error.status === 409) {
-        toast.error("A staff member with this phone number already exists");
+        toast.error("此電話號碼已有員工使用");
       } else if (error.status === 400) {
-        toast.error("Please check the form for errors");
+        toast.error("請檢查表單是否有錯誤");
       } else {
-        toast.error("Failed to add staff member. Please try again.");
+        toast.error("新增員工失敗，請重試");
       }
     } finally {
       setIsSubmitting(false);
@@ -44,17 +44,17 @@ export default function NewStaffPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add New Staff Member</h1>
+        <h1 className="text-3xl font-bold tracking-tight">新增員工</h1>
         <p className="text-muted-foreground">
-          Create a new staff profile for your catering service
+          為您的外燴服務建立新的員工資料
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Staff Information</CardTitle>
+          <CardTitle>員工資料</CardTitle>
           <CardDescription>
-            Enter the details for the new staff member. Fields marked with * are required.
+            請輸入新員工的詳細資料。標示 * 的欄位為必填。
           </CardDescription>
         </CardHeader>
         <CardContent>

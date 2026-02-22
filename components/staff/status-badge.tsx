@@ -6,6 +6,11 @@ interface StatusBadgeProps {
   className?: string;
 }
 
+const statusLabels = {
+  ACTIVE: "在職",
+  INACTIVE: "離職",
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <Badge
@@ -17,7 +22,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         className
       )}
     >
-      {status}
+      {statusLabels[status]}
     </Badge>
   );
 }

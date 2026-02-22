@@ -35,7 +35,7 @@ export function StaffCard({ staff, onClick }: StaffCardProps) {
         </div>
         <div className="flex items-center text-sm font-medium">
           <DollarSign className="mr-2 h-4 w-4" />
-          {formatCurrency(staff.perEventSalary)} per event
+          {formatCurrency(staff.perEventSalary)} / 場
         </div>
       </CardContent>
     </Card>

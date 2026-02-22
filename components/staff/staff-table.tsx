@@ -28,17 +28,17 @@ export function StaffTable({ staff, onRowClick }: StaffTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Per Event Salary</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>姓名</TableHead>
+            <TableHead>電話</TableHead>
+            <TableHead>每場薪資</TableHead>
+            <TableHead>狀態</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {staff.length === 0 ? (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-muted-foreground">
-                No staff members found.
+                尚無員工資料
               </TableCell>
             </TableRow>
           ) : (

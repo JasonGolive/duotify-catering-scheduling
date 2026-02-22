@@ -23,21 +23,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Form schema - matches backend validation but without transform for phone
+// Form schema - matches backend validation
 const staffFormSchema = z.object({
   name: z
     .string()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters")
-    .regex(/^[a-zA-Z\s\-']+$/, "Name can only contain letters, spaces, hyphens, and apostrophes"),
+    .min(1, "姓名為必填")
+    .max(100, "姓名不能超過 100 個字元"),
   phone: z
     .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .regex(/^[\d\s\-+()]+$/, "Phone number contains invalid characters"),
-  perEventSalary: z
+    .min(10, "電話號碼至少需要 10 位數字")
+    .regex(/^[\d\s\-+()]+$/, "電話號碼格式不正確"),
+  perEventSalary: z.coerce
     .number()
-    .positive("Salary must be positive")
-    .max(100000, "Salary cannot exceed $100,000"),
+    .positive("薪資必須為正數")
+    .max(1000000, "薪資不能超過 NT$1,000,000"),
   notes: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]),
 });
@@ -76,9 +75,9 @@ export function StaffForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name *</FormLabel>
+              <FormLabel>姓名 *</FormLabel>
               <FormControl>
-                <Input placeholder="John Smith" {...field} />
+                <Input placeholder="王小明" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,17 +89,17 @@ export function StaffForm({
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone *</FormLabel>
+              <FormLabel>電話 *</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder="(555) 123-4567"
+                  placeholder="0912-345-678"
                   inputMode="tel"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Enter phone number with or without formatting
+                請輸入手機或市話號碼
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -112,18 +111,18 @@ export function StaffForm({
           name="perEventSalary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Per Event Salary *</FormLabel>
+              <FormLabel>每場薪資 (TWD) *</FormLabel>
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="150.00"
-                  step="0.01"
-                  inputMode="decimal"
+                  placeholder="2000"
+                  step="1"
+                  inputMode="numeric"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Amount paid per catering event (in dollars)
+                每場活動的薪資金額（新台幣）
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -135,16 +134,16 @@ export function StaffForm({
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Status *</FormLabel>
+              <FormLabel>狀態 *</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder="選擇狀態" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="ACTIVE">在職</SelectItem>
+                  <SelectItem value="INACTIVE">離職</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -157,10 +156,10 @@ export function StaffForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>備註</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Additional notes about this staff member..."
+                  placeholder="關於此員工的其他備註..."
                   className="min-h-[100px]"
                   {...field}
                 />
@@ -176,7 +175,7 @@ export function StaffForm({
             disabled={isSubmitting}
             className="flex-1 sm:flex-none"
           >
-            {isSubmitting ? "Saving..." : initialData ? "Update Staff" : "Add Staff"}
+            {isSubmitting ? "儲存中..." : initialData ? "更新員工" : "新增員工"}
           </Button>
           {onCancel && (
             <Button
@@ -186,7 +185,7 @@ export function StaffForm({
               disabled={isSubmitting}
               className="flex-1 sm:flex-none"
             >
-              Cancel
+              取消
             </Button>
           )}
         </div>

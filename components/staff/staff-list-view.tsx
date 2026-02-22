@@ -32,7 +32,7 @@ export function StaffListView({ staff }: StaffListViewProps) {
       <div className="grid gap-4 md:hidden">
         {staff.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
-            No staff members found.
+            尚無員工資料
           </p>
         ) : (
           staff.map((member) => (

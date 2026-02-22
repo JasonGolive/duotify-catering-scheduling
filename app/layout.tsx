@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { zhTW } from "@clerk/localizations";
 import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Duotify Membership - Staff Management",
-  description: "Staff management system for Duotify catering services",
+  title: "外燴人員管理系統 - Duotify",
+  description: "Duotify 外燴服務員工管理系統",
 };
 
 // Disable static generation for all pages (Clerk requires runtime)
@@ -17,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
+    <ClerkProvider localization={zhTW}>
+      <html lang="zh-TW">
         <body>
           <Providers>{children}</Providers>
         </body>

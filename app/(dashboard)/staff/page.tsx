@@ -52,15 +52,15 @@ export default async function StaffPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Staff Directory</h1>
+          <h1 className="text-3xl font-bold tracking-tight">員工目錄</h1>
           <p className="text-muted-foreground">
-            Manage your catering service staff members
+            管理您的外燴服務員工
           </p>
         </div>
         <Button asChild>
           <Link href="/staff/new">
             <Plus className="mr-2 h-4 w-4" />
-            Add New Staff
+            新增員工
           </Link>
         </Button>
       </div>
