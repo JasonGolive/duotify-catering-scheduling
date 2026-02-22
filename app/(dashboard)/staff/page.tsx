@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { requireManager } from "@/lib/auth";
+import { isAuthenticated, isManager } from "@/lib/auth";
 import { StaffListView } from "@/components/staff/staff-list-view";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -9,11 +9,25 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default async function StaffPage() {
-  try {
-    // Require manager role
-    await requireManager();
-  } catch {
+  // Check if user is authenticated
+  const authenticated = await isAuthenticated();
+  if (!authenticated) {
     redirect("/sign-in");
+  }
+
+  // Check if user is a manager
+  const manager = await isManager();
+  if (!manager) {
+    // User is logged in but not a manager - show access denied
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-8">
+        <h1 className="text-2xl font-bold text-red-600">存取被拒絕</h1>
+        <p className="mt-4 text-gray-600">您沒有權限存取此頁面。需要管理員權限。</p>
+        <Link href="/" className="mt-6 text-blue-600 hover:underline">
+          返回首頁
+        </Link>
+      </div>
+    );
   }
 
   // Fetch all staff from database
