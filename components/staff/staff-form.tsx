@@ -33,10 +33,7 @@ const staffFormSchema = z.object({
     .string()
     .min(10, "電話號碼至少需要 10 位數字")
     .regex(/^[\d\s\-+()]+$/, "電話號碼格式不正確"),
-  perEventSalary: z.coerce
-    .number()
-    .positive("薪資必須為正數")
-    .max(1000000, "薪資不能超過 NT$1,000,000"),
+  perEventSalary: z.number().positive("薪資必須為正數").max(1000000, "薪資不能超過 NT$1,000,000"),
   notes: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]),
 });
@@ -67,9 +64,20 @@ export function StaffForm({
     },
   });
 
+  const handleSubmit = async (data: StaffFormValues) => {
+    // Ensure perEventSalary is a number
+    const processedData = {
+      ...data,
+      perEventSalary: typeof data.perEventSalary === "string" 
+        ? parseFloat(data.perEventSalary) || 0 
+        : data.perEventSalary,
+    };
+    await onSubmit(processedData);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -119,6 +127,7 @@ export function StaffForm({
                   step="1"
                   inputMode="numeric"
                   {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
                 />
               </FormControl>
               <FormDescription>
