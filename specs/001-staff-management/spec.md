@@ -133,7 +133,18 @@ Managers need the ability to remove staff members who are no longer with the org
 
 ### Key Entities *(include if feature involves data)*
 
-- **Staff Member**: Represents a catering service employee with attributes including name (text, required), phone number (text, required, validated), per-event salary (numeric, required, positive), notes (text, optional, unlimited length), and status (boolean: active or inactive, default active). Each staff member is uniquely identifiable and can be associated with user accounts for access control.
+- **Staff Member**: Represents a catering service employee with attributes including:
+  - name (text, required) - 姓名
+  - phone number (text, required, validated) - 電話
+  - skill (enum: FRONT/HOT/DECK, required, default: FRONT) - 職能
+    - FRONT (外場): Front-of-house service
+    - HOT (熱台): Hot station cooking
+    - DECK (階可): Deck/prep work
+  - per-event salary (numeric, required, positive) - 每場薪資 (TWD)
+  - notes (text, optional, unlimited length) - 備註
+  - status (boolean: active or inactive, default active) - 狀態（在職/離職）
+  
+  Each staff member is uniquely identifiable and can be associated with user accounts for access control.
 
 - **User Account**: Represents system users with different permission levels. Managers have full access (create, read, update, delete) to all staff records. Staff have read-only access to their own profile information only.
 

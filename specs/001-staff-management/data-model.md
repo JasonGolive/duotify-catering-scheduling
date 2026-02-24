@@ -42,6 +42,7 @@ Relationship: One-to-One (optional)
 | `id` | String (CUID) | PRIMARY KEY | Unique identifier for staff member |
 | `name` | String | NOT NULL, LENGTH(1-100) | Full name of staff member |
 | `phone` | String | NOT NULL, UNIQUE | Contact phone number (serves as natural key) |
+| `skill` | Enum | NOT NULL, DEFAULT('FRONT') | Job skill: FRONT (外場), HOT (熱台), or DECK (階可) |
 | `perEventSalary` | Decimal(10,2) | NOT NULL, CHECK(>0) | Payment amount per catering event |
 | `notes` | Text | NULLABLE | Additional notes/comments about the staff member |
 | `status` | Enum | NOT NULL, DEFAULT('ACTIVE') | Employment status: ACTIVE or INACTIVE |
@@ -55,6 +56,7 @@ Relationship: One-to-One (optional)
 - Unique index on `userId` (one-to-one relationship)
 - Index on `status` (for filtering active/inactive staff)
 - Index on `name` (for search operations)
+- Index on `skill` (for filtering by job skill)
 
 **Validation Rules** (enforced at application layer):
 ```typescript
@@ -86,6 +88,14 @@ status:
   - Enum: 'ACTIVE' | 'INACTIVE'
   - Default: 'ACTIVE'
   - Cannot be null
+
+skill:
+  - Enum: 'FRONT' | 'HOT' | 'DECK'
+  - Default: 'FRONT'
+  - Cannot be null
+  - FRONT = 外場 (Front-of-house service)
+  - HOT = 熱台 (Hot station cooking)
+  - DECK = 階可 (Deck/prep work)
 ```
 
 **State Transitions**:
@@ -170,6 +180,7 @@ model Staff {
   id             String   @id @default(cuid())
   name           String   @db.VarChar(100)
   phone          String   @unique @db.VarChar(20)
+  skill          Skill    @default(FRONT)
   perEventSalary Decimal  @db.Decimal(10, 2)
   notes          String?  @db.Text
   status         Status   @default(ACTIVE)
@@ -183,6 +194,7 @@ model Staff {
 
   @@index([status])
   @@index([name])
+  @@index([skill])
   @@map("staff")
 }
 
@@ -213,6 +225,12 @@ enum Status {
 enum Role {
   MANAGER
   STAFF
+}
+
+enum Skill {
+  FRONT   // 外場
+  HOT     // 熱台
+  DECK    // 階可
 }
 ```
 

@@ -33,10 +33,17 @@ const staffFormSchema = z.object({
     .string()
     .min(10, "電話號碼至少需要 10 位數字")
     .regex(/^[\d\s\-+()]+$/, "電話號碼格式不正確"),
+  skill: z.enum(["FRONT", "HOT", "DECK"]),
   perEventSalary: z.number().positive("薪資必須為正數").max(1000000, "薪資不能超過 NT$1,000,000"),
   notes: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]),
 });
+
+const skillLabels: Record<string, string> = {
+  FRONT: "外場",
+  HOT: "熱台",
+  DECK: "階可",
+};
 
 type StaffFormValues = z.infer<typeof staffFormSchema>;
 
@@ -58,6 +65,7 @@ export function StaffForm({
     defaultValues: {
       name: initialData?.name || "",
       phone: initialData?.phone || "",
+      skill: initialData?.skill || "FRONT",
       perEventSalary: initialData?.perEventSalary || 0,
       notes: initialData?.notes || "",
       status: initialData?.status || "ACTIVE",
@@ -108,6 +116,32 @@ export function StaffForm({
               </FormControl>
               <FormDescription>
                 請輸入手機或市話號碼
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="skill"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>職能 *</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="選擇職能" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="FRONT">{skillLabels.FRONT}</SelectItem>
+                  <SelectItem value="HOT">{skillLabels.HOT}</SelectItem>
+                  <SelectItem value="DECK">{skillLabels.DECK}</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                員工的主要工作職能
               </FormDescription>
               <FormMessage />
             </FormItem>

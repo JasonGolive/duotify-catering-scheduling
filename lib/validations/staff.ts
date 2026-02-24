@@ -7,8 +7,7 @@ export const staffSchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters")
-    .regex(/^[a-zA-Z\s\-']+$/, "Name can only contain letters, spaces, hyphens, and apostrophes"),
+    .max(100, "Name must be less than 100 characters"),
   
   phone: z
     .string()
@@ -16,11 +15,14 @@ export const staffSchema = z.object({
     .regex(phoneRegex, "Phone number contains invalid characters")
     .transform((val) => val.replace(/[\s\-+()]/g, "")), // Normalize: remove formatting
   
+  skill: z.enum(["FRONT", "HOT", "DECK"], {
+    message: "Skill must be FRONT, HOT, or DECK",
+  }),
+  
   perEventSalary: z
     .number()
     .positive("Salary must be positive")
-    .max(100000, "Salary cannot exceed $100,000")
-    .multipleOf(0.01, "Salary can have at most 2 decimal places"),
+    .max(1000000, "Salary cannot exceed NT$1,000,000"),
   
   notes: z
     .string()
@@ -35,6 +37,7 @@ export const staffSchema = z.object({
 // For creating a new staff member (status defaults to ACTIVE if not provided)
 export const createStaffSchema = staffSchema.extend({
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+  skill: z.enum(["FRONT", "HOT", "DECK"]).default("FRONT"),
 });
 
 // For updating staff (all fields optional except id)

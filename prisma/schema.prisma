@@ -33,6 +33,7 @@ model Staff {
   id             String   @id @default(cuid())
   name           String   @db.VarChar(100)
   phone          String   @unique @db.VarChar(20)
+  skill          Skill    @default(FRONT)
   perEventSalary Decimal  @db.Decimal(10, 2)
   notes          String?  @db.Text
   status         Status   @default(ACTIVE)
@@ -46,6 +47,7 @@ model Staff {
 
   @@index([status])
   @@index([name])
+  @@index([skill])
   @@map("staff")
 }
 
@@ -58,4 +60,10 @@ enum Status {
 enum Role {
   MANAGER
   STAFF
+}
+
+enum Skill {
+  FRONT   // 外場
+  HOT     // 熱台
+  DECK    // 階可
 }

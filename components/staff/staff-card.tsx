@@ -3,13 +3,20 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "./status-badge";
 import { formatPhone, formatCurrency } from "@/lib/utils";
-import { Phone, DollarSign } from "lucide-react";
+import { Phone, DollarSign, Briefcase } from "lucide-react";
+
+const skillLabels: Record<string, string> = {
+  FRONT: "外場",
+  HOT: "熱台",
+  DECK: "階可",
+};
 
 interface StaffCardProps {
   staff: {
     id: string;
     name: string;
     phone: string;
+    skill?: "FRONT" | "HOT" | "DECK";
     perEventSalary: number | string;
     status: "ACTIVE" | "INACTIVE";
   };
@@ -33,6 +40,12 @@ export function StaffCard({ staff, onClick }: StaffCardProps) {
           <Phone className="mr-2 h-4 w-4" />
           {formatPhone(staff.phone)}
         </div>
+        {staff.skill && (
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Briefcase className="mr-2 h-4 w-4" />
+            {skillLabels[staff.skill] || staff.skill}
+          </div>
+        )}
         <div className="flex items-center text-sm font-medium">
           <DollarSign className="mr-2 h-4 w-4" />
           {formatCurrency(staff.perEventSalary)} / 場

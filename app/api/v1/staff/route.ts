@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         phone: normalizedPhone,
+        skill: validatedData.skill || "FRONT",
         perEventSalary: validatedData.perEventSalary,
         notes: validatedData.notes || null,
         status: validatedData.status,
