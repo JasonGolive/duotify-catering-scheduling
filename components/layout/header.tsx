@@ -1,42 +1,76 @@
 "use client";
 
+import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Nav } from "./nav";
+import Link from "next/link";
 
 interface HeaderProps {
-  onMenuClick?: () => void;
+  role?: "MANAGER" | "STAFF";
 }
 
-export function Header({ onMenuClick }: HeaderProps) {
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onMenuClick}
-        >
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">開關選單</span>
-        </Button>
-        
-        <div className="mr-4 hidden md:flex">
-          <a href="/staff" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
-              外燴人員管理系統
-            </span>
-          </a>
-        </div>
+export function Header({ role }: HeaderProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none"></div>
-          <nav className="flex items-center">
-            <UserButton afterSignOutUrl="/" />
-          </nav>
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <span className="sr-only">開關選單</span>
+          </Button>
+          
+          <div className="mr-4 hidden md:flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <span className="hidden font-bold sm:inline-block">
+                外燴人員管理系統
+              </span>
+            </Link>
+          </div>
+
+          <div className="flex-1 md:hidden">
+            <Link href="/" className="font-bold text-sm">
+              外燴人員管理系統
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-end space-x-2">
+            <nav className="flex items-center">
+              <UserButton afterSignOutUrl="/" />
+            </nav>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && role && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div 
+            className="fixed inset-0 bg-black/50" 
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed top-14 left-0 bottom-0 w-64 bg-background border-r p-4 overflow-y-auto">
+            <Nav role={role} className="mt-2" />
+            <div className="mt-6 pt-6 border-t">
+              <Link 
+                href="/" 
+                className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                返回首頁
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
