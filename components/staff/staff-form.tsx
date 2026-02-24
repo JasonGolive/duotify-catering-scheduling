@@ -42,7 +42,7 @@ const staffFormSchema = z.object({
 const skillLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "階可",
+  DECK: "皆可",
 };
 
 type StaffFormValues = z.infer<typeof staffFormSchema>;

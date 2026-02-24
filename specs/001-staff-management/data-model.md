@@ -42,7 +42,7 @@ Relationship: One-to-One (optional)
 | `id` | String (CUID) | PRIMARY KEY | Unique identifier for staff member |
 | `name` | String | NOT NULL, LENGTH(1-100) | Full name of staff member |
 | `phone` | String | NOT NULL, UNIQUE | Contact phone number (serves as natural key) |
-| `skill` | Enum | NOT NULL, DEFAULT('FRONT') | Job skill: FRONT (外場), HOT (熱台), or DECK (階可) |
+| `skill` | Enum | NOT NULL, DEFAULT('FRONT') | Job skill: FRONT (外場), HOT (熱台), or DECK (皆可) |
 | `perEventSalary` | Decimal(10,2) | NOT NULL, CHECK(>0) | Payment amount per catering event |
 | `notes` | Text | NULLABLE | Additional notes/comments about the staff member |
 | `status` | Enum | NOT NULL, DEFAULT('ACTIVE') | Employment status: ACTIVE or INACTIVE |
@@ -95,7 +95,7 @@ skill:
   - Cannot be null
   - FRONT = 外場 (Front-of-house service)
   - HOT = 熱台 (Hot station cooking)
-  - DECK = 階可 (Deck/prep work)
+  - DECK = 皆可 (All-rounder/flexible)
 ```
 
 **State Transitions**:
@@ -230,7 +230,7 @@ enum Role {
 enum Skill {
   FRONT   // 外場
   HOT     // 熱台
-  DECK    // 階可
+  DECK    // 皆可
 }
 ```
 

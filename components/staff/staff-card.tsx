@@ -8,7 +8,7 @@ import { Phone, DollarSign, Briefcase } from "lucide-react";
 const skillLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "階可",
+  DECK: "皆可",
 };
 
 interface StaffCardProps {

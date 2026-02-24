@@ -139,7 +139,7 @@ Managers need the ability to remove staff members who are no longer with the org
   - skill (enum: FRONT/HOT/DECK, required, default: FRONT) - 職能
     - FRONT (外場): Front-of-house service
     - HOT (熱台): Hot station cooking
-    - DECK (階可): Deck/prep work
+    - DECK (皆可): All-rounder/flexible
   - per-event salary (numeric, required, positive) - 每場薪資 (TWD)
   - notes (text, optional, unlimited length) - 備註
   - status (boolean: active or inactive, default active) - 狀態（在職/離職）
