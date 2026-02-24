@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "外燴人員管理系統 - Duotify",
+  title: "北歐餐桌到府私廚",
   description: "Duotify 外燴服務員工管理系統",
 };
 

@@ -34,16 +34,8 @@ export function Header({ role }: HeaderProps) {
             <span className="sr-only">開關選單</span>
           </Button>
           
-          <div className="mr-4 hidden md:flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="hidden font-bold sm:inline-block">
-                外燴人員管理系統
-              </span>
-            </Link>
-          </div>
-
-          <div className="flex-1 md:hidden">
-            <span className="font-bold text-sm">外燴人員管理系統</span>
+          <div className="flex-1 flex justify-center">
+            <span className="font-bold text-sm md:text-base">北歐餐桌到府私廚</span>
           </div>
 
           <div className="flex items-center justify-end space-x-2">

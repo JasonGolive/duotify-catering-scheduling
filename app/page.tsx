@@ -12,7 +12,7 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold">外燴人員管理系統</h1>
+      <h1 className="text-4xl font-bold">北歐餐桌到府私廚</h1>
       <p className="mt-4 text-lg text-gray-600">Duotify 員工管理平台</p>
       
       <div className="mt-8 flex gap-4">
