@@ -32,15 +32,18 @@ export default function EditStaffPage() {
     async function fetchStaff() {
       try {
         const response = await fetch(`/api/v1/staff/${staffId}`);
-        if (!response.ok) {
-          throw new Error("找不到員工資料");
-        }
         const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || "找不到員工資料");
+        }
+        
         setStaff({
           ...data.staff,
           perEventSalary: parseFloat(data.staff.perEventSalary),
         });
       } catch (err) {
+        console.error("Fetch staff error:", err);
         setError(err instanceof Error ? err.message : "載入失敗");
       } finally {
         setIsLoading(false);

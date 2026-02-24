@@ -37,6 +37,7 @@ export default async function StaffPage() {
       id: true,
       name: true,
       phone: true,
+      skill: true,
       perEventSalary: true,
       status: true,
     },
