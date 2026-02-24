@@ -52,12 +52,20 @@ export function Header({ role }: HeaderProps) {
 
       {/* Mobile menu overlay */}
       {mobileMenuOpen && role && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-50 md:hidden">
           <div 
             className="fixed inset-0 bg-black/50" 
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed top-14 left-0 bottom-0 w-64 bg-background border-r p-4 overflow-y-auto">
+          <div className="fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-gray-900 shadow-xl p-4 pt-16 overflow-y-auto">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-3 left-3"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
             <Nav role={role} className="mt-2" />
             <div className="mt-6 pt-6 border-t">
               <Link 
