@@ -12,20 +12,7 @@ export default function NewEventPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (data: {
-    name: string;
-    date: string;
-    startTime?: string;
-    endTime?: string;
-    location: string;
-    address?: string;
-    expectedGuests?: number | null;
-    contactName?: string;
-    contactPhone?: string;
-    eventType: string;
-    notes?: string;
-    status: string;
-  }) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/v1/events", {
@@ -50,7 +37,7 @@ export default function NewEventPage() {
   };
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container max-w-3xl py-8">
       <div className="mb-6">
         <Button variant="ghost" asChild>
           <Link href="/events">

@@ -13,13 +13,22 @@ interface EventData {
   name: string;
   date: string;
   startTime?: string | null;
-  endTime?: string | null;
+  venueId?: string | null;
   location: string;
   address?: string | null;
-  expectedGuests?: number | null;
+  adultsCount?: number | null;
+  childrenCount?: number | null;
+  vegetarianCount?: number | null;
   contactName?: string | null;
   contactPhone?: string | null;
   eventType: "WEDDING" | "YEAREND" | "SPRING" | "BIRTHDAY" | "CORPORATE" | "OTHER";
+  totalAmount?: number | null;
+  depositAmount?: number | null;
+  depositMethod?: "TRANSFER" | "CASH" | "HOTEL_PAID" | "OTHER" | null;
+  depositDate?: string | null;
+  balanceAmount?: number | null;
+  balanceMethod?: "TRANSFER" | "CASH" | "HOTEL_PAID" | "OTHER" | null;
+  balanceDate?: string | null;
   notes?: string | null;
   status: "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 }
@@ -44,9 +53,15 @@ export default function EditEventPage() {
           throw new Error(data.error || "找不到活動資料");
         }
 
+        const evt = data.event;
         setEvent({
-          ...data.event,
-          date: new Date(data.event.date).toISOString().split("T")[0],
+          ...evt,
+          date: new Date(evt.date).toISOString().split("T")[0],
+          totalAmount: evt.totalAmount ? Number(evt.totalAmount) : null,
+          depositAmount: evt.depositAmount ? Number(evt.depositAmount) : null,
+          depositDate: evt.depositDate ? new Date(evt.depositDate).toISOString().split("T")[0] : null,
+          balanceAmount: evt.balanceAmount ? Number(evt.balanceAmount) : null,
+          balanceDate: evt.balanceDate ? new Date(evt.balanceDate).toISOString().split("T")[0] : null,
         });
       } catch (err) {
         console.error("Fetch event error:", err);
@@ -59,20 +74,7 @@ export default function EditEventPage() {
     fetchEvent();
   }, [eventId]);
 
-  const handleSubmit = async (data: {
-    name: string;
-    date: string;
-    startTime?: string;
-    endTime?: string;
-    location: string;
-    address?: string;
-    expectedGuests?: number | null;
-    contactName?: string;
-    contactPhone?: string;
-    eventType: string;
-    notes?: string;
-    status: string;
-  }) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     setIsSubmitting(true);
     try {
       const response = await fetch(`/api/v1/events/${eventId}`, {
@@ -122,7 +124,7 @@ export default function EditEventPage() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container max-w-3xl py-8">
       <div className="mb-6">
         <Button variant="ghost" asChild>
           <Link href="/events">
@@ -142,13 +144,22 @@ export default function EditEventPage() {
               name: event.name,
               date: event.date,
               startTime: event.startTime || "",
-              endTime: event.endTime || "",
+              venueId: event.venueId || "",
               location: event.location,
               address: event.address || "",
-              expectedGuests: event.expectedGuests,
+              adultsCount: event.adultsCount,
+              childrenCount: event.childrenCount,
+              vegetarianCount: event.vegetarianCount,
               contactName: event.contactName || "",
               contactPhone: event.contactPhone || "",
               eventType: event.eventType,
+              totalAmount: event.totalAmount,
+              depositAmount: event.depositAmount,
+              depositMethod: event.depositMethod,
+              depositDate: event.depositDate || "",
+              balanceAmount: event.balanceAmount,
+              balanceMethod: event.balanceMethod,
+              balanceDate: event.balanceDate || "",
               notes: event.notes || "",
               status: event.status,
             }}

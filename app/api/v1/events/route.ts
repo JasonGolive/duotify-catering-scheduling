@@ -7,6 +7,7 @@ import { z } from "zod";
 /**
  * GET /api/v1/events
  * Get all events (Manager only)
+ * Supports: ?status=CONFIRMED&type=WEDDING&sort=asc
  */
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const statusFilter = searchParams.get("status");
     const typeFilter = searchParams.get("type");
+    const sortOrder = searchParams.get("sort") || "asc"; // 預設日期由近至遠
 
     // Build where clause
     const where: Record<string, unknown> = {};
@@ -27,7 +29,10 @@ export async function GET(request: NextRequest) {
 
     const events = await prisma.event.findMany({
       where,
-      orderBy: { date: "desc" },
+      orderBy: { date: sortOrder === "desc" ? "desc" : "asc" },
+      include: {
+        venue: true,
+      },
     });
 
     return NextResponse.json({ events }, { status: 200 });
@@ -57,20 +62,41 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createEventSchema.parse(body);
 
+    // 自動計算尾款：若未提供則為 總金額 - 訂金
+    let balanceAmount = validatedData.balanceAmount;
+    if (validatedData.totalAmount && validatedData.depositAmount && !balanceAmount) {
+      balanceAmount = validatedData.totalAmount - validatedData.depositAmount;
+    }
+
+    // 自動將狀態設為已完成：若尾款已支付
+    let status = validatedData.status;
+    if (validatedData.balanceDate && validatedData.balanceMethod) {
+      status = "COMPLETED";
+    }
+
     const event = await prisma.event.create({
       data: {
         name: validatedData.name,
         date: new Date(validatedData.date),
         startTime: validatedData.startTime || null,
-        endTime: validatedData.endTime || null,
+        venueId: validatedData.venueId || null,
         location: validatedData.location,
         address: validatedData.address || null,
-        expectedGuests: validatedData.expectedGuests || null,
+        adultsCount: validatedData.adultsCount || null,
+        childrenCount: validatedData.childrenCount || null,
+        vegetarianCount: validatedData.vegetarianCount || null,
         contactName: validatedData.contactName || null,
         contactPhone: validatedData.contactPhone || null,
         eventType: validatedData.eventType,
+        totalAmount: validatedData.totalAmount || null,
+        depositAmount: validatedData.depositAmount || null,
+        depositMethod: validatedData.depositMethod || null,
+        depositDate: validatedData.depositDate ? new Date(validatedData.depositDate) : null,
+        balanceAmount: balanceAmount || null,
+        balanceMethod: validatedData.balanceMethod || null,
+        balanceDate: validatedData.balanceDate ? new Date(validatedData.balanceDate) : null,
         notes: validatedData.notes || null,
-        status: validatedData.status,
+        status: status,
       },
     });
 

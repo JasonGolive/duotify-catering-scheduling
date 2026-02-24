@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// 支付方式
+export const paymentMethodEnum = z.enum(["TRANSFER", "CASH", "HOTEL_PAID", "OTHER"]);
+
 // Event validation schemas
 export const eventSchema = z.object({
   name: z
@@ -15,23 +18,33 @@ export const eventSchema = z.object({
     .optional()
     .nullable(),
   
-  endTime: z
-    .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "時間格式不正確 (HH:mm)")
-    .optional()
-    .nullable(),
-  
+  // 場地
+  venueId: z.string().optional().nullable(),
   location: z
     .string()
     .min(1, "地點為必填")
     .max(200, "地點不能超過 200 個字元"),
-  
   address: z.string().optional().nullable(),
   
-  expectedGuests: z
+  // 訂餐人數
+  adultsCount: z
     .number()
     .int("人數必須為整數")
-    .positive("人數必須為正數")
+    .min(0, "人數不能為負數")
+    .max(10000, "人數不能超過 10,000")
+    .optional()
+    .nullable(),
+  childrenCount: z
+    .number()
+    .int("人數必須為整數")
+    .min(0, "人數不能為負數")
+    .max(10000, "人數不能超過 10,000")
+    .optional()
+    .nullable(),
+  vegetarianCount: z
+    .number()
+    .int("人數必須為整數")
+    .min(0, "人數不能為負數")
     .max(10000, "人數不能超過 10,000")
     .optional()
     .nullable(),
@@ -50,6 +63,19 @@ export const eventSchema = z.object({
   
   eventType: z.enum(["WEDDING", "YEAREND", "SPRING", "BIRTHDAY", "CORPORATE", "OTHER"]),
   
+  // 金額
+  totalAmount: z.number().min(0, "金額不能為負數").optional().nullable(),
+  
+  // 訂金
+  depositAmount: z.number().min(0, "金額不能為負數").optional().nullable(),
+  depositMethod: paymentMethodEnum.optional().nullable(),
+  depositDate: z.string().optional().nullable(),
+  
+  // 尾款
+  balanceAmount: z.number().min(0, "金額不能為負數").optional().nullable(),
+  balanceMethod: paymentMethodEnum.optional().nullable(),
+  balanceDate: z.string().optional().nullable(),
+  
   notes: z.string().optional().nullable(),
   
   status: z.enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
@@ -65,3 +91,15 @@ export const updateEventSchema = eventSchema.partial();
 export type EventInput = z.infer<typeof eventSchema>;
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;
+
+// Venue validation schemas
+export const venueSchema = z.object({
+  name: z
+    .string()
+    .min(1, "場地名稱為必填")
+    .max(200, "場地名稱不能超過 200 個字元"),
+  address: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+});
+
+export type VenueInput = z.infer<typeof venueSchema>;

@@ -85,19 +85,66 @@ enum EventStatus {
   CANCELLED     // 已取消
 }
 
+enum PaymentMethod {
+  TRANSFER      // 匯款
+  CASH          // 現金
+  HOTEL_PAID    // 民宿代付
+  OTHER         // 其他
+}
+
+// Venue entity (常用場地主檔)
+model Venue {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(200)
+  address   String?  @db.Text
+  notes     String?  @db.Text
+  
+  events    Event[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("venues")
+}
+
 // Event entity (catering event/function)
 model Event {
   id             String       @id @default(cuid())
   name           String       @db.VarChar(200)
   date           DateTime     @db.Date
   startTime      String?      @db.VarChar(5)  // HH:mm format
-  endTime        String?      @db.VarChar(5)  // HH:mm format
-  location       String       @db.VarChar(200)
+  
+  // 場地
+  venueId        String?
+  venue          Venue?       @relation(fields: [venueId], references: [id])
+  location       String       @db.VarChar(200)  // 可手動輸入或從場地帶入
   address        String?      @db.Text
-  expectedGuests Int?
+  
+  // 訂餐人數
+  adultsCount    Int?         // 大人
+  childrenCount  Int?         // 小孩
+  vegetarianCount Int?        // 素食
+  
+  // 聯絡資訊
   contactName    String?      @db.VarChar(100)
   contactPhone   String?      @db.VarChar(20)
+  
+  // 活動類型
   eventType      EventType    @default(OTHER)
+  
+  // 金額
+  totalAmount    Decimal?     @db.Decimal(10, 0)  // 訂單總金額
+  
+  // 訂金
+  depositAmount  Decimal?     @db.Decimal(10, 0)  // 訂金金額
+  depositMethod  PaymentMethod?                   // 訂金支付方式
+  depositDate    DateTime?    @db.Date            // 訂金支付日期
+  
+  // 尾款
+  balanceAmount  Decimal?     @db.Decimal(10, 0)  // 尾款金額
+  balanceMethod  PaymentMethod?                   // 尾款支付方式
+  balanceDate    DateTime?    @db.Date            // 尾款支付日期
+  
   notes          String?      @db.Text
   status         EventStatus  @default(PENDING)
   
@@ -107,5 +154,6 @@ model Event {
   @@index([date])
   @@index([status])
   @@index([eventType])
+  @@index([venueId])
   @@map("events")
 }

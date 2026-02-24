@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Wallet } from "lucide-react";
 
 const eventTypeLabels: Record<string, string> = {
   WEDDING: "婚宴",
@@ -35,11 +35,13 @@ interface EventCardProps {
     name: string;
     date: string;
     startTime?: string | null;
-    endTime?: string | null;
     location: string;
-    expectedGuests?: number | null;
+    adultsCount?: number | null;
+    childrenCount?: number | null;
+    vegetarianCount?: number | null;
     eventType: string;
     status: string;
+    totalAmount?: number | null;
   };
   onClick?: () => void;
 }
@@ -51,6 +53,15 @@ export function EventCard({ event, onClick }: EventCardProps) {
     day: "numeric",
     weekday: "short",
   });
+
+  // 計算總人數
+  const totalGuests = (event.adultsCount || 0) + (event.childrenCount || 0);
+
+  // 格式化金額
+  const formatAmount = (amount: number | null | undefined) => {
+    if (!amount) return null;
+    return `TWD ${amount.toLocaleString()}`;
+  };
 
   return (
     <Card
@@ -73,20 +84,28 @@ export function EventCard({ event, onClick }: EventCardProps) {
           <Calendar className="mr-2 h-4 w-4" />
           {formattedDate}
         </div>
-        {(event.startTime || event.endTime) && (
+        {event.startTime && (
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="mr-2 h-4 w-4" />
-            {event.startTime || "--:--"} ~ {event.endTime || "--:--"}
+            {event.startTime}
           </div>
         )}
         <div className="flex items-center text-sm text-muted-foreground">
           <MapPin className="mr-2 h-4 w-4" />
           {event.location}
         </div>
-        {event.expectedGuests && (
+        {totalGuests > 0 && (
           <div className="flex items-center text-sm text-muted-foreground">
             <Users className="mr-2 h-4 w-4" />
-            預計 {event.expectedGuests} 人
+            {event.adultsCount || 0} 大人
+            {event.childrenCount ? ` / ${event.childrenCount} 小孩` : ""}
+            {event.vegetarianCount ? ` (素${event.vegetarianCount})` : ""}
+          </div>
+        )}
+        {event.totalAmount && (
+          <div className="flex items-center text-sm font-medium text-green-700">
+            <Wallet className="mr-2 h-4 w-4" />
+            {formatAmount(event.totalAmount)}
           </div>
         )}
       </CardContent>

@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { EventStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-export default async function EventsPage() {
+interface EventsPageProps {
+  searchParams: Promise<{ status?: string }>;
+}
+
+export default async function EventsPage({ searchParams }: EventsPageProps) {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
     redirect("/sign-in");
@@ -27,25 +32,39 @@ export default async function EventsPage() {
     );
   }
 
+  const params = await searchParams;
+  const statusFilter = params.status || "CONFIRMED"; // 預設顯示已確認
+
+  // Build where clause
+  const where = statusFilter === "ALL" ? {} : { status: statusFilter as EventStatus };
+
   const events = await prisma.event.findMany({
-    orderBy: { date: "desc" },
+    where,
+    orderBy: { date: "asc" }, // 日期由近至遠
     select: {
       id: true,
       name: true,
       date: true,
       startTime: true,
-      endTime: true,
       location: true,
-      expectedGuests: true,
+      adultsCount: true,
+      childrenCount: true,
+      vegetarianCount: true,
       eventType: true,
       status: true,
+      totalAmount: true,
+      depositAmount: true,
+      balanceAmount: true,
     },
   });
 
-  // Convert Date to string for client components
+  // Convert Date and Decimal to string for client components
   const formattedEvents = events.map((event) => ({
     ...event,
     date: event.date.toISOString(),
+    totalAmount: event.totalAmount ? Number(event.totalAmount) : null,
+    depositAmount: event.depositAmount ? Number(event.depositAmount) : null,
+    balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
   }));
 
   return (
@@ -65,7 +84,7 @@ export default async function EventsPage() {
         </Button>
       </div>
 
-      <EventListView events={formattedEvents} />
+      <EventListView events={formattedEvents} currentStatus={statusFilter} />
     </div>
   );
 }

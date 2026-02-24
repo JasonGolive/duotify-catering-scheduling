@@ -19,6 +19,9 @@ export async function GET(
 
     const event = await prisma.event.findUnique({
       where: { id },
+      include: {
+        venue: true,
+      },
     });
 
     if (!event) {
@@ -66,12 +69,46 @@ export async function PUT(
       return NextResponse.json({ error: "找不到活動資料" }, { status: 404 });
     }
 
+    // 自動計算尾款：若未提供則為 總金額 - 訂金
+    let balanceAmount = validatedData.balanceAmount;
+    if (validatedData.totalAmount && validatedData.depositAmount && !balanceAmount) {
+      balanceAmount = validatedData.totalAmount - validatedData.depositAmount;
+    }
+
+    // 自動將狀態設為已完成：若尾款已支付
+    let status = validatedData.status;
+    if (validatedData.balanceDate && validatedData.balanceMethod) {
+      status = "COMPLETED";
+    }
+
     // Update event
     const updatedEvent = await prisma.event.update({
       where: { id },
       data: {
-        ...validatedData,
+        name: validatedData.name,
         date: validatedData.date ? new Date(validatedData.date) : undefined,
+        startTime: validatedData.startTime,
+        venueId: validatedData.venueId,
+        location: validatedData.location,
+        address: validatedData.address,
+        adultsCount: validatedData.adultsCount,
+        childrenCount: validatedData.childrenCount,
+        vegetarianCount: validatedData.vegetarianCount,
+        contactName: validatedData.contactName,
+        contactPhone: validatedData.contactPhone,
+        eventType: validatedData.eventType,
+        totalAmount: validatedData.totalAmount,
+        depositAmount: validatedData.depositAmount,
+        depositMethod: validatedData.depositMethod,
+        depositDate: validatedData.depositDate ? new Date(validatedData.depositDate) : undefined,
+        balanceAmount: balanceAmount,
+        balanceMethod: validatedData.balanceMethod,
+        balanceDate: validatedData.balanceDate ? new Date(validatedData.balanceDate) : undefined,
+        notes: validatedData.notes,
+        status: status,
+      },
+      include: {
+        venue: true,
       },
     });
 
