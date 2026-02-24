@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, User } from "lucide-react";
+import { Users, User, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -18,6 +18,11 @@ export function Nav({ role, className }: NavProps) {
       href: "/staff",
       label: "員工目錄",
       icon: Users,
+    },
+    {
+      href: "/events",
+      label: "活動管理",
+      icon: Calendar,
     },
   ];
 

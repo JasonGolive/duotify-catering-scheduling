@@ -65,5 +65,47 @@ enum Role {
 enum Skill {
   FRONT   // 外場
   HOT     // 熱台
-  DECK    // 階可
+  DECK    // 皆可
+}
+
+enum EventType {
+  WEDDING     // 婚宴
+  YEAREND     // 尾牙
+  SPRING      // 春酒
+  BIRTHDAY    // 生日宴
+  CORPORATE   // 企業活動
+  OTHER       // 其他
+}
+
+enum EventStatus {
+  PENDING       // 待確認
+  CONFIRMED     // 已確認
+  IN_PROGRESS   // 進行中
+  COMPLETED     // 已完成
+  CANCELLED     // 已取消
+}
+
+// Event entity (catering event/function)
+model Event {
+  id             String       @id @default(cuid())
+  name           String       @db.VarChar(200)
+  date           DateTime     @db.Date
+  startTime      String?      @db.VarChar(5)  // HH:mm format
+  endTime        String?      @db.VarChar(5)  // HH:mm format
+  location       String       @db.VarChar(200)
+  address        String?      @db.Text
+  expectedGuests Int?
+  contactName    String?      @db.VarChar(100)
+  contactPhone   String?      @db.VarChar(20)
+  eventType      EventType    @default(OTHER)
+  notes          String?      @db.Text
+  status         EventStatus  @default(PENDING)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([date])
+  @@index([status])
+  @@index([eventType])
+  @@map("events")
 }
