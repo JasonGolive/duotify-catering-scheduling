@@ -304,17 +304,15 @@ export function EventForm({
             <CardTitle>場地資訊</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormItem>
-              <FormLabel>選擇常用場地</FormLabel>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">選擇常用場地</label>
               <Select
                 onValueChange={handleVenueChange}
                 value={form.watch("venueId") || undefined}
               >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="選擇場地或新增" />
-                  </SelectTrigger>
-                </FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="選擇場地或新增" />
+                </SelectTrigger>
                 <SelectContent>
                   {venues.map((venue) => (
                     <SelectItem key={venue.id} value={venue.id}>
@@ -324,7 +322,7 @@ export function EventForm({
                   <SelectItem value="NEW">+ 新增場地</SelectItem>
                 </SelectContent>
               </Select>
-            </FormItem>
+            </div>
 
             {showNewVenue && (
               <div className="space-y-2 p-4 border rounded-lg bg-muted/50">
