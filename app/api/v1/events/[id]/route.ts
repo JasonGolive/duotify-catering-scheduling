@@ -89,30 +89,42 @@ export async function PUT(
       status = "COMPLETED";
     }
 
+    // Helper to convert date string to Date or null
+    const toDateOrNull = (dateStr: string | null | undefined) => {
+      if (!dateStr || dateStr === "") return null;
+      return new Date(dateStr);
+    };
+
+    // Helper to convert empty string to null
+    const toNullIfEmpty = <T>(value: T | "" | null | undefined): T | null => {
+      if (value === "" || value === undefined) return null;
+      return value as T;
+    };
+
     // Update event
     const updatedEvent = await prisma.event.update({
       where: { id },
       data: {
         name: validatedData.name,
         date: validatedData.date ? new Date(validatedData.date) : undefined,
-        startTime: validatedData.startTime,
-        venueId: validatedData.venueId,
+        startTime: toNullIfEmpty(validatedData.startTime),
+        venueId: toNullIfEmpty(validatedData.venueId),
         location: validatedData.location,
-        address: validatedData.address,
-        adultsCount: validatedData.adultsCount,
-        childrenCount: validatedData.childrenCount,
-        vegetarianCount: validatedData.vegetarianCount,
-        contactName: validatedData.contactName,
-        contactPhone: validatedData.contactPhone,
+        address: toNullIfEmpty(validatedData.address),
+        adultsCount: validatedData.adultsCount ?? null,
+        childrenCount: validatedData.childrenCount ?? null,
+        vegetarianCount: validatedData.vegetarianCount ?? null,
+        contactName: toNullIfEmpty(validatedData.contactName),
+        contactPhone: toNullIfEmpty(validatedData.contactPhone),
         eventType: validatedData.eventType,
-        totalAmount: validatedData.totalAmount,
-        depositAmount: validatedData.depositAmount,
-        depositMethod: validatedData.depositMethod,
-        depositDate: validatedData.depositDate ? new Date(validatedData.depositDate) : undefined,
-        balanceAmount: balanceAmount,
-        balanceMethod: validatedData.balanceMethod,
-        balanceDate: validatedData.balanceDate ? new Date(validatedData.balanceDate) : undefined,
-        notes: validatedData.notes,
+        totalAmount: validatedData.totalAmount ?? null,
+        depositAmount: validatedData.depositAmount ?? null,
+        depositMethod: toNullIfEmpty(validatedData.depositMethod),
+        depositDate: toDateOrNull(validatedData.depositDate),
+        balanceAmount: balanceAmount ?? null,
+        balanceMethod: toNullIfEmpty(validatedData.balanceMethod),
+        balanceDate: toDateOrNull(validatedData.balanceDate),
+        notes: toNullIfEmpty(validatedData.notes),
         status: status,
       },
       include: {
@@ -120,7 +132,15 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ event: updatedEvent }, { status: 200 });
+    // Convert Decimal to number for JSON serialization
+    const serializedEvent = {
+      ...updatedEvent,
+      totalAmount: updatedEvent.totalAmount ? Number(updatedEvent.totalAmount) : null,
+      depositAmount: updatedEvent.depositAmount ? Number(updatedEvent.depositAmount) : null,
+      balanceAmount: updatedEvent.balanceAmount ? Number(updatedEvent.balanceAmount) : null,
+    };
+
+    return NextResponse.json({ event: serializedEvent }, { status: 200 });
   } catch (error) {
     console.error("Error updating event:", error);
 

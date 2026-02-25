@@ -70,6 +70,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createEventSchema.parse(body);
 
+    // Helper to convert date string to Date or null
+    const toDateOrNull = (dateStr: string | null | undefined) => {
+      if (!dateStr || dateStr === "") return null;
+      return new Date(dateStr);
+    };
+
+    // Helper to convert empty string to null
+    const toNullIfEmpty = <T>(value: T | "" | null | undefined): T | null => {
+      if (value === "" || value === undefined) return null;
+      return value as T;
+    };
+
     // 自動計算尾款：若未提供則為 總金額 - 訂金
     let balanceAmount = validatedData.balanceAmount;
     if (validatedData.totalAmount && validatedData.depositAmount && !balanceAmount) {
@@ -86,29 +98,37 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         date: new Date(validatedData.date),
-        startTime: validatedData.startTime || null,
-        venueId: validatedData.venueId || null,
+        startTime: toNullIfEmpty(validatedData.startTime),
+        venueId: toNullIfEmpty(validatedData.venueId),
         location: validatedData.location,
-        address: validatedData.address || null,
-        adultsCount: validatedData.adultsCount || null,
-        childrenCount: validatedData.childrenCount || null,
-        vegetarianCount: validatedData.vegetarianCount || null,
-        contactName: validatedData.contactName || null,
-        contactPhone: validatedData.contactPhone || null,
+        address: toNullIfEmpty(validatedData.address),
+        adultsCount: validatedData.adultsCount ?? null,
+        childrenCount: validatedData.childrenCount ?? null,
+        vegetarianCount: validatedData.vegetarianCount ?? null,
+        contactName: toNullIfEmpty(validatedData.contactName),
+        contactPhone: toNullIfEmpty(validatedData.contactPhone),
         eventType: validatedData.eventType,
-        totalAmount: validatedData.totalAmount || null,
-        depositAmount: validatedData.depositAmount || null,
-        depositMethod: validatedData.depositMethod || null,
-        depositDate: validatedData.depositDate ? new Date(validatedData.depositDate) : null,
-        balanceAmount: balanceAmount || null,
-        balanceMethod: validatedData.balanceMethod || null,
-        balanceDate: validatedData.balanceDate ? new Date(validatedData.balanceDate) : null,
-        notes: validatedData.notes || null,
+        totalAmount: validatedData.totalAmount ?? null,
+        depositAmount: validatedData.depositAmount ?? null,
+        depositMethod: toNullIfEmpty(validatedData.depositMethod),
+        depositDate: toDateOrNull(validatedData.depositDate),
+        balanceAmount: balanceAmount ?? null,
+        balanceMethod: toNullIfEmpty(validatedData.balanceMethod),
+        balanceDate: toDateOrNull(validatedData.balanceDate),
+        notes: toNullIfEmpty(validatedData.notes),
         status: status,
       },
     });
 
-    return NextResponse.json({ event }, { status: 201 });
+    // Convert Decimal to number for JSON serialization
+    const serializedEvent = {
+      ...event,
+      totalAmount: event.totalAmount ? Number(event.totalAmount) : null,
+      depositAmount: event.depositAmount ? Number(event.depositAmount) : null,
+      balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
+    };
+
+    return NextResponse.json({ event: serializedEvent }, { status: 201 });
   } catch (error) {
     console.error("Error creating event:", error);
 
