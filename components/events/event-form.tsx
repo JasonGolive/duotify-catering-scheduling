@@ -308,7 +308,7 @@ export function EventForm({
               <FormLabel>選擇常用場地</FormLabel>
               <Select
                 onValueChange={handleVenueChange}
-                value={form.watch("venueId") || ""}
+                value={form.watch("venueId") || undefined}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -550,7 +550,7 @@ export function EventForm({
                       <FormLabel>支付方式</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || ""}
+                        value={field.value || undefined}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -577,7 +577,7 @@ export function EventForm({
                     <FormItem>
                       <FormLabel>支付日期</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -618,7 +618,7 @@ export function EventForm({
                       <FormLabel>支付方式</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || ""}
+                        value={field.value || undefined}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -645,7 +645,7 @@ export function EventForm({
                     <FormItem>
                       <FormLabel>支付日期</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -54,13 +54,17 @@ export default function EditEventPage() {
         }
 
         const evt = data.event;
+        if (!evt) {
+          throw new Error("找不到活動資料");
+        }
+
         setEvent({
           ...evt,
-          date: new Date(evt.date).toISOString().split("T")[0],
-          totalAmount: evt.totalAmount ? Number(evt.totalAmount) : null,
-          depositAmount: evt.depositAmount ? Number(evt.depositAmount) : null,
+          date: evt.date ? new Date(evt.date).toISOString().split("T")[0] : "",
+          totalAmount: evt.totalAmount != null ? Number(evt.totalAmount) : null,
+          depositAmount: evt.depositAmount != null ? Number(evt.depositAmount) : null,
           depositDate: evt.depositDate ? new Date(evt.depositDate).toISOString().split("T")[0] : null,
-          balanceAmount: evt.balanceAmount ? Number(evt.balanceAmount) : null,
+          balanceAmount: evt.balanceAmount != null ? Number(evt.balanceAmount) : null,
           balanceDate: evt.balanceDate ? new Date(evt.balanceDate).toISOString().split("T")[0] : null,
         });
       } catch (err) {
