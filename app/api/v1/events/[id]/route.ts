@@ -28,7 +28,15 @@ export async function GET(
       return NextResponse.json({ error: "找不到活動資料" }, { status: 404 });
     }
 
-    return NextResponse.json({ event }, { status: 200 });
+    // Convert Decimal to number for JSON serialization
+    const serializedEvent = {
+      ...event,
+      totalAmount: event.totalAmount ? Number(event.totalAmount) : null,
+      depositAmount: event.depositAmount ? Number(event.depositAmount) : null,
+      balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
+    };
+
+    return NextResponse.json({ event: serializedEvent }, { status: 200 });
   } catch (error) {
     console.error("Error fetching event:", error);
 

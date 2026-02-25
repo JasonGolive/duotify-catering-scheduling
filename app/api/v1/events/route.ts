@@ -35,7 +35,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ events }, { status: 200 });
+    // Convert Decimal to number for JSON serialization
+    const serializedEvents = events.map((event) => ({
+      ...event,
+      totalAmount: event.totalAmount ? Number(event.totalAmount) : null,
+      depositAmount: event.depositAmount ? Number(event.depositAmount) : null,
+      balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
+    }));
+
+    return NextResponse.json({ events: serializedEvents }, { status: 200 });
   } catch (error) {
     console.error("Error fetching events:", error);
 
