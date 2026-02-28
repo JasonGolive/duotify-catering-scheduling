@@ -173,14 +173,12 @@ export default function SalaryPage() {
         日期: "2026-03-01",
         上班時間: "09:00",
         下班時間: "14:00",
-        補助: 200,
-        備註: "開車",
       },
     ];
     const ws = XLSX.utils.json_to_sheet(template);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "打工記錄");
-    XLSX.writeFile(wb, "打工記錄範本.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "打卡記錄");
+    XLSX.writeFile(wb, "打卡記錄範本.xlsx");
   };
 
   // 更新預覽中的某一筆
@@ -440,8 +438,6 @@ export default function SalaryPage() {
                 <li><strong>日期</strong> - 格式：YYYY-MM-DD 或 YYYY/MM/DD</li>
                 <li><strong>上班時間</strong> - 打卡上班時間（格式：HH:mm）</li>
                 <li><strong>下班時間</strong> - 打卡下班時間（格式：HH:mm）</li>
-                <li><strong>補助</strong> - （選填）開車補助或其他雜費</li>
-                <li><strong>備註</strong> - （選填）</li>
               </ul>
               <div className="bg-muted p-4 rounded-lg text-sm">
                 <p className="font-medium mb-2">薪資計算方式：</p>
@@ -449,6 +445,7 @@ export default function SalaryPage() {
                   <li>系統會根據員工+日期自動比對活動排班</li>
                   <li>從活動的<strong>集合時間</strong>到打卡<strong>下班時間</strong>計算工時</li>
                   <li>≤4 小時發基本薪資，超過每 10 分鐘加班費</li>
+                  <li>匯入後可在預覽畫面調整加班費和補助</li>
                 </ol>
               </div>
               <p className="text-sm text-muted-foreground">
