@@ -48,6 +48,9 @@ model Staff {
   // 可用性行事曆
   availability   StaffAvailability[]
   
+  // 打工記錄
+  workLogs       WorkLog[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -141,7 +144,8 @@ model Event {
   id             String       @id @default(cuid())
   name           String       @db.VarChar(200)
   date           DateTime     @db.Date
-  startTime      String?      @db.VarChar(5)  // HH:mm format
+  assemblyTime   String?      @db.VarChar(5)  // HH:mm format - 集合時間（用於通知與計薪）
+  startTime      String?      @db.VarChar(5)  // HH:mm format - 活動開始時間
   
   // 場地
   venueId        String?
@@ -179,6 +183,9 @@ model Event {
   
   // 排班人員關聯
   eventStaff     EventStaff[]
+  
+  // 打工記錄關聯
+  workLogs       WorkLog[]
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -229,4 +236,46 @@ model EventStaff {
   @@index([staffId])
   @@index([attendanceStatus])
   @@map("event_staff")
+}
+
+// WorkLog entity (獨立打工記錄 - 用於匯入外部資料或非活動相關的工作)
+model WorkLog {
+  id          String    @id @default(cuid())
+  
+  // 員工關聯
+  staffId     String
+  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  
+  // 時間資訊
+  date        DateTime  @db.Date
+  startTime   String    @db.VarChar(5)    // HH:mm 格式
+  endTime     String    @db.VarChar(5)    // HH:mm 格式
+  hours       Decimal   @db.Decimal(4, 1) // 計算的工時
+  
+  // 活動關聯（可選）
+  eventId     String?
+  event       Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  
+  // 薪資
+  hourlyRate  Decimal?  @db.Decimal(10, 0) // 時薪（如果非場次計算）
+  salary      Decimal   @db.Decimal(10, 0) // 當次薪資
+  
+  // 來源
+  source      WorkLogSource @default(IMPORT) // 資料來源
+  
+  notes       String?   @db.Text
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([staffId])
+  @@index([date])
+  @@index([eventId])
+  @@map("work_logs")
+}
+
+enum WorkLogSource {
+  IMPORT    // Excel/CSV 匯入
+  MANUAL    // 手動輸入
+  SYSTEM    // 系統自動產生
 }

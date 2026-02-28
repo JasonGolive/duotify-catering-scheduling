@@ -12,6 +12,12 @@ export const eventSchema = z.object({
   
   date: z.string().min(1, "日期為必填"),
   
+  assemblyTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "時間格式不正確 (HH:mm)")
+    .optional()
+    .nullable(),
+  
   startTime: z
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "時間格式不正確 (HH:mm)")

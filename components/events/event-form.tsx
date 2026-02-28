@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const eventFormSchema = z.object({
   name: z.string().min(1, "活動名稱為必填").max(200, "活動名稱不能超過 200 個字元"),
   date: z.string().min(1, "日期為必填"),
+  assemblyTime: z.string().optional(),
   startTime: z.string().optional(),
   venueId: z.string().optional(),
   location: z.string().min(1, "地點為必填").max(200, "地點不能超過 200 個字元"),
@@ -103,6 +104,7 @@ export function EventForm({
     defaultValues: {
       name: initialData?.name || "",
       date: initialData?.date || "",
+      assemblyTime: initialData?.assemblyTime || "",
       startTime: initialData?.startTime || "",
       venueId: initialData?.venueId || "",
       location: initialData?.location || "",
@@ -214,7 +216,7 @@ export function EventForm({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <FormField
                 control={form.control}
                 name="date"
@@ -223,6 +225,20 @@ export function EventForm({
                     <FormLabel>日期 *</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="assemblyTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>集合時間</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
