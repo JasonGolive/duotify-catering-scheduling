@@ -248,17 +248,19 @@ model WorkLog {
   
   // 時間資訊
   date        DateTime  @db.Date
-  startTime   String    @db.VarChar(5)    // HH:mm 格式
-  endTime     String    @db.VarChar(5)    // HH:mm 格式
+  startTime   String    @db.VarChar(5)    // HH:mm 格式（集合時間）
+  endTime     String    @db.VarChar(5)    // HH:mm 格式（下班時間）
   hours       Decimal   @db.Decimal(4, 1) // 計算的工時
   
   // 活動關聯（可選）
   eventId     String?
   event       Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
   
-  // 薪資
-  hourlyRate  Decimal?  @db.Decimal(10, 0) // 時薪（如果非場次計算）
-  salary      Decimal   @db.Decimal(10, 0) // 當次薪資
+  // 薪資明細
+  baseSalary    Decimal   @db.Decimal(10, 0) // 基本薪資（從員工主檔）
+  overtimePay   Decimal   @db.Decimal(10, 0) @default(0) // 加班費
+  allowance     Decimal   @db.Decimal(10, 0) @default(0) // 雜費/補助（如開車補助）
+  totalSalary   Decimal   @db.Decimal(10, 0) // 總薪資 = 基本 + 加班 + 補助
   
   // 來源
   source      WorkLogSource @default(IMPORT) // 資料來源

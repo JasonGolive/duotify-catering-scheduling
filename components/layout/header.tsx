@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { Menu, X, Home, Users, Calendar, CalendarDays, MapPin } from "lucide-react";
+import { Menu, X, Home, Users, Calendar, CalendarDays, MapPin, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -108,6 +108,13 @@ export function Header({ role }: HeaderProps) {
                   >
                     <MapPin className="h-5 w-5 mr-3" />
                     場地管理
+                  </button>
+                  <button
+                    onClick={() => handleNavigation("/salary")}
+                    className="flex items-center w-full px-3 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <Wallet className="h-5 w-5 mr-3" />
+                    薪資管理
                   </button>
                 </>
               )}
