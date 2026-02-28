@@ -42,6 +42,9 @@ model Staff {
   userId         String?  @unique
   user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   
+  // 排班關聯
+  eventStaff     EventStaff[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -148,6 +151,9 @@ model Event {
   notes          String?      @db.Text
   status         EventStatus  @default(PENDING)
   
+  // 排班人員關聯
+  eventStaff     EventStaff[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -156,4 +162,45 @@ model Event {
   @@index([eventType])
   @@index([venueId])
   @@map("events")
+}
+
+// 出勤狀態
+enum AttendanceStatus {
+  SCHEDULED     // 已排班
+  CONFIRMED     // 已確認出勤
+  ATTENDED      // 已出勤
+  LATE          // 遲到
+  ABSENT        // 缺勤
+  CANCELLED     // 取消
+}
+
+// EventStaff entity (活動人員指派 - 中間表)
+model EventStaff {
+  id               String           @id @default(cuid())
+  
+  // 關聯
+  eventId          String
+  event            Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  staffId          String
+  staff            Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  
+  // 工作資訊
+  role             Skill            // 工作角色（使用 Staff 的 Skill enum）
+  salary           Decimal          @db.Decimal(10, 0)  // 該場薪資
+  
+  // 出勤資訊
+  attendanceStatus AttendanceStatus @default(SCHEDULED)
+  actualHours      Decimal?         @db.Decimal(4, 1)   // 實際工作時數
+  adjustedSalary   Decimal?         @db.Decimal(10, 0)  // 調整後薪資
+  
+  notes            String?          @db.Text
+  
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([eventId, staffId])  // 同一活動不可重複指派同一員工
+  @@index([eventId])
+  @@index([staffId])
+  @@index([attendanceStatus])
+  @@map("event_staff")
 }

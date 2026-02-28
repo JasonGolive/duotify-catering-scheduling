@@ -129,11 +129,16 @@ export default function EditEventPage() {
 
   return (
     <div className="container max-w-3xl py-8">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" asChild>
           <Link href="/events">
             <ArrowLeft className="mr-2 h-4 w-4" />
             返回活動列表
+          </Link>
+        </Button>
+        <Button asChild>
+          <Link href={`/events/${eventId}/staff`}>
+            人員排班
           </Link>
         </Button>
       </div>
