@@ -20,16 +20,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle, Edit } from "lucide-react";
+import { Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle, Edit, AlertTriangle } from "lucide-react";
 import * as XLSX from "xlsx";
+import Link from "next/link";
 
 interface PreviewRow {
   row: number;
   staffName: string;
   staffId?: string;
   date: string;
-  startTime: string;
-  endTime: string;
+  eventId?: string;
+  eventName?: string;
+  assemblyTime: string;
+  clockIn: string;
+  clockOut: string;
   hours: number;
   baseSalary: number;
   overtimeMinutes: number;
@@ -37,6 +41,7 @@ interface PreviewRow {
   allowance: number;
   totalSalary: number;
   error?: string;
+  warning?: string;
   notes?: string;
 }
 
@@ -47,6 +52,7 @@ interface PreviewResult {
     total: number;
     valid: number;
     errors: number;
+    warnings: number;
     totalSalary: number;
   };
   config: {
@@ -133,8 +139,8 @@ export default function SalaryPage() {
             .map((r) => ({
               staffName: r.staffName,
               date: r.date,
-              startTime: r.startTime,
-              endTime: r.endTime,
+              clockIn: r.clockIn,
+              clockOut: r.clockOut,
               allowance: r.allowance,
               overtimeRate,
               notes: r.notes,
@@ -165,7 +171,7 @@ export default function SalaryPage() {
       {
         員工姓名: "王小明",
         日期: "2026-03-01",
-        集合時間: "09:00",
+        上班時間: "09:00",
         下班時間: "14:00",
         補助: 200,
         備註: "開車",
@@ -266,15 +272,20 @@ export default function SalaryPage() {
         {preview && (
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap gap-2">
                 <CardTitle>預覽結果</CardTitle>
-                <div className="flex gap-4 text-sm">
+                <div className="flex gap-4 text-sm flex-wrap">
                   <span>
                     總筆數: <strong>{preview.summary.total}</strong>
                   </span>
                   <span className="text-green-600">
                     有效: <strong>{preview.summary.valid}</strong>
                   </span>
+                  {preview.summary.warnings > 0 && (
+                    <span className="text-yellow-600">
+                      警告: <strong>{preview.summary.warnings}</strong>
+                    </span>
+                  )}
                   {preview.summary.errors > 0 && (
                     <span className="text-red-600">
                       錯誤: <strong>{preview.summary.errors}</strong>
@@ -294,11 +305,12 @@ export default function SalaryPage() {
                       <TableHead className="w-12">#</TableHead>
                       <TableHead>員工</TableHead>
                       <TableHead>日期</TableHead>
+                      <TableHead>活動</TableHead>
                       <TableHead>集合時間</TableHead>
-                      <TableHead>下班時間</TableHead>
+                      <TableHead>下班打卡</TableHead>
                       <TableHead className="text-right">時數</TableHead>
-                      <TableHead className="text-right">基本薪資</TableHead>
-                      <TableHead className="text-right">加班費</TableHead>
+                      <TableHead className="text-right">基本</TableHead>
+                      <TableHead className="text-right">加班</TableHead>
                       <TableHead className="text-right">補助</TableHead>
                       <TableHead className="text-right">總計</TableHead>
                       <TableHead>狀態</TableHead>
@@ -309,13 +321,16 @@ export default function SalaryPage() {
                     {preview.results.map((row) => (
                       <TableRow
                         key={row.row}
-                        className={row.error ? "bg-red-50" : ""}
+                        className={row.error ? "bg-red-50" : row.warning ? "bg-yellow-50" : ""}
                       >
                         <TableCell>{row.row}</TableCell>
                         <TableCell>{row.staffName || "-"}</TableCell>
                         <TableCell>{row.date}</TableCell>
-                        <TableCell>{row.startTime}</TableCell>
-                        <TableCell>{row.endTime}</TableCell>
+                        <TableCell className="max-w-[120px] truncate" title={row.eventName}>
+                          {row.eventName || <span className="text-muted-foreground">-</span>}
+                        </TableCell>
+                        <TableCell>{row.assemblyTime}</TableCell>
+                        <TableCell>{row.clockOut}</TableCell>
                         <TableCell className="text-right">{row.hours}</TableCell>
                         <TableCell className="text-right">
                           {row.baseSalary.toLocaleString()}
@@ -343,9 +358,14 @@ export default function SalaryPage() {
                         </TableCell>
                         <TableCell>
                           {row.error ? (
-                            <Badge variant="destructive" className="flex items-center gap-1">
+                            <Badge variant="destructive" className="flex items-center gap-1 whitespace-nowrap">
                               <AlertCircle className="h-3 w-3" />
                               {row.error}
+                            </Badge>
+                          ) : row.warning ? (
+                            <Badge variant="outline" className="text-yellow-600 flex items-center gap-1 whitespace-nowrap">
+                              <AlertTriangle className="h-3 w-3" />
+                              {row.warning}
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="text-green-600">
@@ -414,18 +434,31 @@ export default function SalaryPage() {
               <CardTitle>匯入說明</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>請上傳 Excel (.xlsx, .xls) 或 CSV 檔案，檔案需包含以下欄位：</p>
+              <p>請上傳員工打卡記錄的 Excel (.xlsx, .xls) 或 CSV 檔案：</p>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                 <li><strong>員工姓名</strong> - 必須與系統中的員工名稱完全相同</li>
                 <li><strong>日期</strong> - 格式：YYYY-MM-DD 或 YYYY/MM/DD</li>
-                <li><strong>集合時間</strong> - 格式：HH:mm（例如 09:00）</li>
-                <li><strong>下班時間</strong> - 格式：HH:mm（例如 14:30）</li>
+                <li><strong>上班時間</strong> - 打卡上班時間（格式：HH:mm）</li>
+                <li><strong>下班時間</strong> - 打卡下班時間（格式：HH:mm）</li>
                 <li><strong>補助</strong> - （選填）開車補助或其他雜費</li>
                 <li><strong>備註</strong> - （選填）</li>
               </ul>
-              <p className="text-sm">
-                系統會自動根據員工主檔的基本薪資計算，超過 4 小時的部分按加班費計算。
+              <div className="bg-muted p-4 rounded-lg text-sm">
+                <p className="font-medium mb-2">薪資計算方式：</p>
+                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                  <li>系統會根據員工+日期自動比對活動排班</li>
+                  <li>從活動的<strong>集合時間</strong>到打卡<strong>下班時間</strong>計算工時</li>
+                  <li>≤4 小時發基本薪資，超過每 10 分鐘加班費</li>
+                </ol>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                <strong>提示：</strong>請確保活動已設定集合時間，且員工已排班到該活動
               </p>
+              <div className="flex gap-2">
+                <Link href="/salary/report">
+                  <Button variant="outline">查看薪資報表</Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -464,8 +497,12 @@ function EditRowForm({
           <p>{row.date}</p>
         </div>
         <div>
+          <Label>活動</Label>
+          <p>{row.eventName || "-"}</p>
+        </div>
+        <div>
           <Label>時間</Label>
-          <p>{row.startTime} - {row.endTime}</p>
+          <p>{row.assemblyTime} - {row.clockOut}</p>
         </div>
         <div>
           <Label>時數</Label>
