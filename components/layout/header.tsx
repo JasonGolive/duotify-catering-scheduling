@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { Menu, X, Home, Users, Calendar } from "lucide-react";
+import { Menu, X, Home, Users, Calendar, CalendarDays, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -94,6 +94,20 @@ export function Header({ role }: HeaderProps) {
                   >
                     <Calendar className="h-5 w-5 mr-3" />
                     活動管理
+                  </button>
+                  <button
+                    onClick={() => handleNavigation("/scheduling")}
+                    className="flex items-center w-full px-3 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <CalendarDays className="h-5 w-5 mr-3" />
+                    排班管理
+                  </button>
+                  <button
+                    onClick={() => handleNavigation("/venues")}
+                    className="flex items-center w-full px-3 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <MapPin className="h-5 w-5 mr-3" />
+                    場地管理
                   </button>
                 </>
               )}
