@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 
 interface Event {
   id: string;
-  title: string;
+  name: string;
   date: string;
   startTime: string;
   status: string;
@@ -124,8 +124,8 @@ export default function SchedulingPage() {
       const eventsWithStaff = await Promise.all(
         data.map(async (event: Event) => {
           const staffRes = await fetch(`/api/v1/events/${event.id}/staff`);
-          const staffData = staffRes.ok ? await staffRes.json() : [];
-          return { ...event, eventStaff: staffData };
+          const staffData = staffRes.ok ? await staffRes.json() : { eventStaff: [] };
+          return { ...event, eventStaff: staffData.eventStaff || [] };
         })
       );
       
@@ -340,7 +340,7 @@ export default function SchedulingPage() {
                         </div>
                         <div className="text-sm text-gray-500">{event.startTime}</div>
                       </TableCell>
-                      <TableCell className="font-medium">{event.title}</TableCell>
+                      <TableCell className="font-medium">{event.name}</TableCell>
                       <TableCell>{event.venue?.name || "-"}</TableCell>
                       <TableCell>
                         <Badge
@@ -396,7 +396,7 @@ export default function SchedulingPage() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedEvent?.title} - 人員排班
+              {selectedEvent?.name} - 人員排班
             </DialogTitle>
             {selectedEvent && (
               <div className="text-sm text-gray-500">

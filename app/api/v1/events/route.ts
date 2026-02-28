@@ -7,7 +7,7 @@ import { z } from "zod";
 /**
  * GET /api/v1/events
  * Get all events (Manager only)
- * Supports: ?status=CONFIRMED&type=WEDDING&sort=asc
+ * Supports: ?status=CONFIRMED&type=WEDDING&sort=asc&startDate=2026-03-01&endDate=2026-03-31
  */
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
     const statusFilter = searchParams.get("status");
     const typeFilter = searchParams.get("type");
     const sortOrder = searchParams.get("sort") || "asc"; // 預設日期由近至遠
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
     // Build where clause
     const where: Record<string, unknown> = {};
@@ -25,6 +27,17 @@ export async function GET(request: NextRequest) {
     }
     if (typeFilter) {
       where.eventType = typeFilter;
+    }
+    
+    // Date range filter
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) {
+        (where.date as Record<string, Date>).gte = new Date(startDate);
+      }
+      if (endDate) {
+        (where.date as Record<string, Date>).lte = new Date(endDate);
+      }
     }
 
     const events = await prisma.event.findMany({
@@ -43,7 +56,7 @@ export async function GET(request: NextRequest) {
       balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
     }));
 
-    return NextResponse.json({ events: serializedEvents }, { status: 200 });
+    return NextResponse.json(serializedEvents, { status: 200 });
   } catch (error) {
     console.error("Error fetching events:", error);
 
