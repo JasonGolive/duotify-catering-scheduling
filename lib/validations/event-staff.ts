@@ -16,8 +16,8 @@ export const workRoleEnum = z.enum(["FRONT", "HOT", "BOTH"]);
 // EventStaff validation schemas
 export const eventStaffSchema = z.object({
   staffId: z.string().min(1, "員工 ID 為必填"),
-  role: workRoleEnum,
-  salary: z.number().min(0, "薪資不能為負數"),
+  role: workRoleEnum.optional(),
+  salary: z.number().min(0, "薪資不能為負數").optional(),
   attendanceStatus: attendanceStatusEnum.optional(),
   actualHours: z.number().min(0).max(24).optional().nullable(),
   adjustedSalary: z.number().min(0).optional().nullable(),

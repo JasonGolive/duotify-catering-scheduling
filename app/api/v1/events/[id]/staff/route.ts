@@ -128,13 +128,13 @@ export async function POST(
       },
     });
 
-    // Create the assignment
+    // Create the assignment - use staff's default skill and salary if not provided
     const eventStaff = await prisma.eventStaff.create({
       data: {
         eventId,
         staffId: validatedData.staffId,
-        role: validatedData.role,
-        salary: validatedData.salary,
+        role: validatedData.role ?? staff.skill,
+        salary: validatedData.salary ?? Number(staff.perEventSalary),
         attendanceStatus: validatedData.attendanceStatus,
         actualHours: validatedData.actualHours ?? null,
         adjustedSalary: validatedData.adjustedSalary ?? null,
