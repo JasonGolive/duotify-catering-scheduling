@@ -393,7 +393,7 @@ export default function SchedulingPage() {
 
       {/* Staff Assignment Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedEvent?.name} - 人員排班
@@ -405,6 +405,37 @@ export default function SchedulingPage() {
               </div>
             )}
           </DialogHeader>
+
+          {/* Already Assigned Staff */}
+          {selectedStaff.size > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                已排班人員 ({selectedStaff.size})
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(selectedStaff).map((staffId) => {
+                  const staff = availabilityData?.available.find(s => s.id === staffId) ||
+                               availabilityData?.conflicting.find(s => s.id === staffId) ||
+                               availabilityData?.unavailable.find(s => s.id === staffId);
+                  const eventStaffInfo = selectedEvent?.eventStaff.find(es => es.staff.id === staffId);
+                  const name = staff?.name || eventStaffInfo?.staff.name || "未知";
+                  
+                  return (
+                    <Badge
+                      key={staffId}
+                      variant="secondary"
+                      className="pl-3 pr-1 py-1.5 text-sm cursor-pointer hover:bg-red-100 group"
+                      onClick={() => handleStaffToggle(staffId, false)}
+                    >
+                      {name}
+                      <span className="ml-2 text-gray-400 group-hover:text-red-500">✕</span>
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Filters */}
           <div className="flex gap-4 mb-4">
@@ -446,24 +477,23 @@ export default function SchedulingPage() {
             </div>
           )}
 
-          {/* Staff List */}
+          {/* Available Staff List */}
           <div className="space-y-2">
-            {getFilteredStaff().map((staff) => (
+            <h4 className="text-sm font-medium text-gray-500">點擊加入排班</h4>
+            {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).map((staff) => (
               <div
                 key={staff.id}
+                onClick={() => handleStaffToggle(staff.id, true)}
                 className={cn(
-                  "flex items-center justify-between p-3 border rounded-lg",
-                  selectedStaff.has(staff.id) && "bg-blue-50 border-blue-200",
-                  staff.hasConflict && "border-yellow-200 bg-yellow-50"
+                  "flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors",
+                  "hover:bg-blue-50 hover:border-blue-200",
+                  staff.hasConflict && "border-yellow-200 bg-yellow-50 hover:bg-yellow-100"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <Checkbox
-                    checked={selectedStaff.has(staff.id)}
-                    onCheckedChange={(checked) =>
-                      handleStaffToggle(staff.id, !!checked)
-                    }
-                  />
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+                    {staff.name.charAt(0)}
+                  </div>
                   <div>
                     <div className="font-medium">{staff.name}</div>
                     <div className="text-sm text-gray-500">
@@ -484,9 +514,9 @@ export default function SchedulingPage() {
               </div>
             ))}
             
-            {getFilteredStaff().length === 0 && (
+            {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                沒有符合條件的員工
+                {selectedStaff.size > 0 ? "所有可用員工已排班" : "沒有符合條件的員工"}
               </div>
             )}
           </div>
