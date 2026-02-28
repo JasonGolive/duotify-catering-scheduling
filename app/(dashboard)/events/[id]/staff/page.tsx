@@ -45,7 +45,7 @@ interface EventData {
 const roleLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "皆可",
+  BOTH: "皆可",
 };
 
 const attendanceLabels: Record<string, string> = {

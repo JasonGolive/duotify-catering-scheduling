@@ -3,9 +3,13 @@ import { prisma } from "@/lib/db";
 import { venueSchema } from "@/lib/validations/event";
 
 // GET /api/v1/venues - List all venues
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const activeOnly = searchParams.get("active") !== "false";
+    
     const venues = await prisma.venue.findMany({
+      where: activeOnly ? { isActive: true } : undefined,
       orderBy: { name: "asc" },
     });
 

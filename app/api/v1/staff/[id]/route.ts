@@ -6,7 +6,7 @@ import { z } from "zod";
 const updateStaffSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   phone: z.string().min(10).regex(/^[\d\s\-+()]+$/).optional(),
-  skill: z.enum(["FRONT", "HOT", "DECK"]).optional(),
+  skill: z.enum(["FRONT", "HOT", "BOTH"]).optional(),
   perEventSalary: z.number().positive().max(1000000).optional(),
   notes: z.string().optional().nullable(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),

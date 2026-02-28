@@ -8,7 +8,7 @@ import { Phone, DollarSign, Briefcase } from "lucide-react";
 const skillLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "皆可",
+  BOTH: "皆可",
 };
 
 interface StaffCardProps {
@@ -16,7 +16,7 @@ interface StaffCardProps {
     id: string;
     name: string;
     phone: string;
-    skill?: "FRONT" | "HOT" | "DECK";
+    skill?: "FRONT" | "HOT" | "BOTH";
     perEventSalary: number | string;
     status: "ACTIVE" | "INACTIVE";
   };

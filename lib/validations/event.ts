@@ -99,7 +99,24 @@ export const venueSchema = z.object({
     .min(1, "場地名稱為必填")
     .max(200, "場地名稱不能超過 200 個字元"),
   address: z.string().optional().nullable(),
+  contactName: z.string().max(100).optional().nullable(),
+  contactPhone: z.string().max(20).optional().nullable(),
+  equipment: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  isActive: z.boolean().default(true),
 });
 
+export const updateVenueSchema = venueSchema.partial();
+
 export type VenueInput = z.infer<typeof venueSchema>;
+export type UpdateVenueInput = z.infer<typeof updateVenueSchema>;
+
+// Staff Availability validation schemas
+export const staffAvailabilitySchema = z.object({
+  staffId: z.string().min(1, "員工 ID 為必填"),
+  date: z.string().min(1, "日期為必填"),
+  available: z.boolean().default(true),
+  reason: z.string().max(200).optional().nullable(),
+});
+
+export type StaffAvailabilityInput = z.infer<typeof staffAvailabilitySchema>;

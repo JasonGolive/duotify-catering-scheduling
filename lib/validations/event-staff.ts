@@ -11,7 +11,7 @@ export const attendanceStatusEnum = z.enum([
 ]);
 
 // 工作角色（使用 Staff 的 Skill）
-export const workRoleEnum = z.enum(["FRONT", "HOT", "DECK"]);
+export const workRoleEnum = z.enum(["FRONT", "HOT", "BOTH"]);
 
 // EventStaff validation schemas
 export const eventStaffSchema = z.object({
@@ -55,5 +55,5 @@ export const attendanceStatusLabels: Record<string, string> = {
 export const workRoleLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "皆可",
+  BOTH: "皆可",
 };

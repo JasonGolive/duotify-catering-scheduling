@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, User, Calendar } from "lucide-react";
+import { Users, User, Calendar, CalendarDays, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -24,6 +24,16 @@ export function Nav({ role, className }: NavProps) {
       label: "活動管理",
       icon: Calendar,
     },
+    {
+      href: "/scheduling",
+      label: "排班管理",
+      icon: CalendarDays,
+    },
+    {
+      href: "/venues",
+      label: "場地管理",
+      icon: MapPin,
+    },
   ];
 
   const staffLinks = [
@@ -40,7 +50,7 @@ export function Nav({ role, className }: NavProps) {
     <nav className={cn("flex flex-col space-y-2", className)}>
       {links.map((link) => {
         const Icon = link.icon;
-        const isActive = pathname === link.href;
+        const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
 
         return (
           <Link

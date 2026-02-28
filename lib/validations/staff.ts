@@ -15,8 +15,8 @@ export const staffSchema = z.object({
     .regex(phoneRegex, "Phone number contains invalid characters")
     .transform((val) => val.replace(/[\s\-+()]/g, "")), // Normalize: remove formatting
   
-  skill: z.enum(["FRONT", "HOT", "DECK"], {
-    message: "Skill must be FRONT, HOT, or DECK",
+  skill: z.enum(["FRONT", "HOT", "BOTH"], {
+    message: "Skill must be FRONT, HOT, or BOTH",
   }),
   
   perEventSalary: z
@@ -37,7 +37,7 @@ export const staffSchema = z.object({
 // For creating a new staff member (status defaults to ACTIVE if not provided)
 export const createStaffSchema = staffSchema.extend({
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
-  skill: z.enum(["FRONT", "HOT", "DECK"]).default("FRONT"),
+  skill: z.enum(["FRONT", "HOT", "BOTH"]).default("FRONT"),
 });
 
 // For updating staff (all fields optional except id)

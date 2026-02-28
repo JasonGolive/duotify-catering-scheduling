@@ -33,7 +33,7 @@ const staffFormSchema = z.object({
     .string()
     .min(10, "電話號碼至少需要 10 位數字")
     .regex(/^[\d\s\-+()]+$/, "電話號碼格式不正確"),
-  skill: z.enum(["FRONT", "HOT", "DECK"]),
+  skill: z.enum(["FRONT", "HOT", "BOTH"]),
   perEventSalary: z.number().positive("薪資必須為正數").max(1000000, "薪資不能超過 NT$1,000,000"),
   notes: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]),
@@ -42,7 +42,7 @@ const staffFormSchema = z.object({
 const skillLabels: Record<string, string> = {
   FRONT: "外場",
   HOT: "熱台",
-  DECK: "皆可",
+  BOTH: "皆可",
 };
 
 type StaffFormValues = z.infer<typeof staffFormSchema>;
@@ -137,7 +137,7 @@ export function StaffForm({
                 <SelectContent>
                   <SelectItem value="FRONT">{skillLabels.FRONT}</SelectItem>
                   <SelectItem value="HOT">{skillLabels.HOT}</SelectItem>
-                  <SelectItem value="DECK">{skillLabels.DECK}</SelectItem>
+                  <SelectItem value="BOTH">{skillLabels.BOTH}</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>

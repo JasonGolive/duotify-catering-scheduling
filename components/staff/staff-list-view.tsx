@@ -9,7 +9,7 @@ interface StaffListViewProps {
     id: string;
     name: string;
     phone: string;
-    skill?: "FRONT" | "HOT" | "DECK";
+    skill?: "FRONT" | "HOT" | "BOTH";
     perEventSalary: number | string;
     status: "ACTIVE" | "INACTIVE";
   }>;

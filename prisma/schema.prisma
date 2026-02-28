@@ -45,6 +45,9 @@ model Staff {
   // 排班關聯
   eventStaff     EventStaff[]
   
+  // 可用性行事曆
+  availability   StaffAvailability[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -68,7 +71,7 @@ enum Role {
 enum Skill {
   FRONT   // 外場
   HOT     // 熱台
-  DECK    // 皆可
+  BOTH    // 皆可
 }
 
 enum EventType {
@@ -95,19 +98,42 @@ enum PaymentMethod {
   OTHER         // 其他
 }
 
-// Venue entity (常用場地主檔)
+// Venue entity (場地/民宿主檔)
 model Venue {
-  id        String   @id @default(cuid())
-  name      String   @db.VarChar(200)
-  address   String?  @db.Text
-  notes     String?  @db.Text
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(200)
+  address     String?  @db.Text
+  contactName String?  @db.VarChar(100)  // 聯絡人
+  contactPhone String? @db.VarChar(20)   // 聯絡電話
+  equipment   String?  @db.Text          // 設備說明
+  notes       String?  @db.Text          // 注意事項
+  isActive    Boolean  @default(true)    // 是否啟用
   
-  events    Event[]
+  events      Event[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("venues")
+}
+
+// 員工可用性（行事曆）
+model StaffAvailability {
+  id        String   @id @default(cuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  available Boolean  @default(true)      // 當天是否可出勤
+  reason    String?  @db.VarChar(200)    // 不可用原因
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("venues")
+  @@unique([staffId, date])  // 每人每天只有一筆
+  @@index([staffId])
+  @@index([date])
+  @@map("staff_availability")
 }
 
 // Event entity (catering event/function)

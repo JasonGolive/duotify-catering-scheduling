@@ -12,7 +12,7 @@ interface StaffData {
   id: string;
   name: string;
   phone: string;
-  skill: "FRONT" | "HOT" | "DECK";
+  skill: "FRONT" | "HOT" | "BOTH";
   perEventSalary: number;
   notes: string | null;
   status: "ACTIVE" | "INACTIVE";
@@ -56,7 +56,7 @@ export default function EditStaffPage() {
   const handleSubmit = async (data: {
     name: string;
     phone: string;
-    skill: "FRONT" | "HOT" | "DECK";
+    skill: "FRONT" | "HOT" | "BOTH";
     perEventSalary: number;
     notes?: string;
     status: "ACTIVE" | "INACTIVE";
