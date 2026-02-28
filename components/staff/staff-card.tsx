@@ -1,9 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./status-badge";
 import { formatPhone, formatCurrency } from "@/lib/utils";
-import { Phone, DollarSign, Briefcase } from "lucide-react";
+import { Phone, DollarSign, Briefcase, Calendar } from "lucide-react";
+import Link from "next/link";
 
 const skillLabels: Record<string, string> = {
   FRONT: "外場",
@@ -49,6 +51,20 @@ export function StaffCard({ staff, onClick }: StaffCardProps) {
         <div className="flex items-center text-sm font-medium">
           <DollarSign className="mr-2 h-4 w-4" />
           {formatCurrency(staff.perEventSalary)} / 場
+        </div>
+        <div className="pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            asChild
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link href={`/staff/${staff.id}/availability`}>
+              <Calendar className="w-4 h-4 mr-2" />
+              出勤行事曆
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>
