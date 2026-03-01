@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { Client as LineClient, TextMessage } from "@line/bot-sdk";
 import { prisma } from "@/lib/db";
 
 // Initialize Resend client
@@ -6,12 +7,16 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
+// Initialize LINE Messaging API client
+const lineClient = process.env.LINE_CHANNEL_ACCESS_TOKEN
+  ? new LineClient({
+      channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+    })
+  : null;
+
 // Email sender address
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@example.com";
 const FROM_NAME = process.env.FROM_NAME || "北歐餐桌到府私廚";
-
-// LINE Notify API endpoint
-const LINE_NOTIFY_API = "https://notify-api.line.me/api/notify";
 
 // Types
 interface NotifyParams {
@@ -27,21 +32,23 @@ interface EventNotifyParams {
   type: "ASSIGNMENT" | "REMINDER" | "EVENT_CHANGE" | "EVENT_CANCEL";
 }
 
-// Send LINE Notify message
-async function sendLineNotify(token: string, message: string): Promise<boolean> {
+// Send LINE message via Messaging API
+async function sendLineMessage(lineUserId: string, message: string): Promise<boolean> {
+  if (!lineClient) {
+    console.warn("LINE client not configured");
+    return false;
+  }
+  
   try {
-    const response = await fetch(LINE_NOTIFY_API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${token}`,
-      },
-      body: new URLSearchParams({ message }),
-    });
+    const textMessage: TextMessage = {
+      type: "text",
+      text: message,
+    };
     
-    return response.ok;
+    await lineClient.pushMessage(lineUserId, textMessage);
+    return true;
   } catch (error) {
-    console.error("LINE Notify error:", error);
+    console.error("LINE Messaging API error:", error);
     return false;
   }
 }
@@ -91,7 +98,7 @@ export async function sendNotification(params: NotifyParams): Promise<{
       id: true,
       name: true,
       email: true,
-      lineNotifyToken: true,
+      lineUserId: true,
       lineNotify: true,
       emailNotify: true,
     },
@@ -107,9 +114,9 @@ export async function sendNotification(params: NotifyParams): Promise<{
   };
   
   // Send LINE notification
-  if (staff.lineNotify && staff.lineNotifyToken) {
-    const lineMessage = `\n${title}\n\n${content}`;
-    const success = await sendLineNotify(staff.lineNotifyToken, lineMessage);
+  if (staff.lineNotify && staff.lineUserId) {
+    const lineMessage = `${title}\n\n${content}`;
+    const success = await sendLineMessage(staff.lineUserId, lineMessage);
     
     await prisma.notification.create({
       data: {
@@ -121,12 +128,12 @@ export async function sendNotification(params: NotifyParams): Promise<{
         content,
         status: success ? "SENT" : "FAILED",
         sentAt: success ? new Date() : null,
-        error: success ? null : "LINE Notify 發送失敗",
+        error: success ? null : "LINE 訊息發送失敗",
       },
     });
     
     results.line.sent = success;
-    if (!success) results.line.error = "LINE Notify 發送失敗";
+    if (!success) results.line.error = "LINE 訊息發送失敗";
   }
   
   // Send Email notification
@@ -258,7 +265,7 @@ export async function notifyEventStaff(params: EventNotifyParams): Promise<{
               id: true,
               name: true,
               email: true,
-              lineNotifyToken: true,
+              lineUserId: true,
               lineNotify: true,
               emailNotify: true,
             },

@@ -1,8 +1,14 @@
 -- AlterTable: Add notification fields to staff
 ALTER TABLE "staff" ADD COLUMN IF NOT EXISTS "email" VARCHAR(200);
-ALTER TABLE "staff" ADD COLUMN IF NOT EXISTS "lineNotifyToken" VARCHAR(200);
+ALTER TABLE "staff" ADD COLUMN IF NOT EXISTS "lineUserId" VARCHAR(50);
 ALTER TABLE "staff" ADD COLUMN IF NOT EXISTS "lineNotify" BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE "staff" ADD COLUMN IF NOT EXISTS "emailNotify" BOOLEAN NOT NULL DEFAULT true;
+
+-- Drop old column if exists
+ALTER TABLE "staff" DROP COLUMN IF EXISTS "lineNotifyToken";
+
+-- CreateIndex
+CREATE INDEX IF NOT EXISTS "staff_lineUserId_idx" ON "staff"("lineUserId");
 
 -- CreateEnum
 DO $$ BEGIN

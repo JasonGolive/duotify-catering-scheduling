@@ -42,9 +42,9 @@ export const staffSchema = z.object({
   }),
   
   // 通知設定
-  lineNotifyToken: z
+  lineUserId: z
     .string()
-    .max(200, "Token 不能超過 200 字元")
+    .max(50, "LINE User ID 不能超過 50 字元")
     .optional()
     .nullable(),
   
