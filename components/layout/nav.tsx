@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, User, Calendar, CalendarDays, MapPin, Wallet } from "lucide-react";
+import { Users, User, Calendar, CalendarDays, MapPin, Wallet, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -28,6 +28,11 @@ export function Nav({ role, className }: NavProps) {
       href: "/scheduling",
       label: "排班管理",
       icon: CalendarDays,
+    },
+    {
+      href: "/notifications",
+      label: "通知管理",
+      icon: Bell,
     },
     {
       href: "/venues",

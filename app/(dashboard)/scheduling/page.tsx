@@ -28,7 +28,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send } from "lucide-react";
+import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -340,14 +341,12 @@ export default function SchedulingPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          {/* 批次通知按鈕 */}
-          <Button
-            onClick={handleBatchNotify}
-            disabled={sending}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Send className="w-4 h-4 mr-2" />
-            {sending ? "發送中..." : "批次發送通知"}
+          {/* 通知管理按鈕 */}
+          <Button asChild className="bg-blue-600 hover:bg-blue-700">
+            <Link href="/notifications">
+              <Send className="w-4 h-4 mr-2" />
+              批次通知管理
+            </Link>
           </Button>
           
           <div className="flex items-center gap-2">
@@ -415,20 +414,25 @@ export default function SchedulingPage() {
                 <TableHead>場地</TableHead>
                 <TableHead>狀態</TableHead>
                 <TableHead>已排班人員</TableHead>
+                <TableHead>通知狀態</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {events.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                     本月尚無活動
                   </TableCell>
                 </TableRow>
               ) : (
                 events
                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                  .map((event) => (
+                  .map((event) => {
+                    const notifiedCount = event.eventStaff.filter((es) => es.notified).length;
+                    const totalCount = event.eventStaff.length;
+                    
+                    return (
                     <TableRow key={event.id}>
                       <TableCell>
                         <div className="font-medium">
@@ -456,7 +460,7 @@ export default function SchedulingPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {event.eventStaff.length === 0 ? (
+                        {totalCount === 0 ? (
                           <span className="text-gray-400">尚未排班</span>
                         ) : (
                           <div className="flex flex-wrap gap-1">
@@ -465,12 +469,32 @@ export default function SchedulingPage() {
                                 {es.staff.name}
                               </Badge>
                             ))}
-                            {event.eventStaff.length > 3 && (
+                            {totalCount > 3 && (
                               <Badge variant="outline">
-                                +{event.eventStaff.length - 3}
+                                +{totalCount - 3}
                               </Badge>
                             )}
                           </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {totalCount === 0 ? (
+                          <span className="text-gray-400">-</span>
+                        ) : notifiedCount === totalCount ? (
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            全部已通知
+                          </Badge>
+                        ) : notifiedCount === 0 ? (
+                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            待通知 {totalCount}
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                            <Bell className="w-3 h-3 mr-1" />
+                            {notifiedCount}/{totalCount}
+                          </Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -486,7 +510,7 @@ export default function SchedulingPage() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
+                  )})
               )}
             </TableBody>
           </Table>

@@ -12,7 +12,9 @@ interface EventData {
   id: string;
   name: string;
   date: string;
+  assemblyTime?: string | null;
   startTime?: string | null;
+  mealTime?: string | null;
   venueId?: string | null;
   location: string;
   address?: string | null;
@@ -22,6 +24,8 @@ interface EventData {
   contactName?: string | null;
   contactPhone?: string | null;
   eventType: "WEDDING" | "YEAREND" | "SPRING" | "BIRTHDAY" | "CORPORATE" | "OTHER";
+  menu?: string | null;
+  reminders?: string | null;
   totalAmount?: number | null;
   depositAmount?: number | null;
   depositMethod?: "TRANSFER" | "CASH" | "HOTEL_PAID" | "OTHER" | null;
@@ -152,7 +156,9 @@ export default function EditEventPage() {
             initialData={{
               name: event.name,
               date: event.date,
+              assemblyTime: event.assemblyTime || "",
               startTime: event.startTime || "",
+              mealTime: event.mealTime || "",
               venueId: event.venueId || "",
               location: event.location,
               address: event.address || "",
@@ -162,6 +168,8 @@ export default function EditEventPage() {
               contactName: event.contactName || "",
               contactPhone: event.contactPhone || "",
               eventType: event.eventType,
+              menu: event.menu || "",
+              reminders: event.reminders || "",
               totalAmount: event.totalAmount,
               depositAmount: event.depositAmount,
               depositMethod: event.depositMethod,

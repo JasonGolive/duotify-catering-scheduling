@@ -34,6 +34,8 @@ export async function GET(
             id: true,
             name: true,
             phone: true,
+            email: true,
+            lineUserId: true,
             skill: true,
             perEventSalary: true,
           },
