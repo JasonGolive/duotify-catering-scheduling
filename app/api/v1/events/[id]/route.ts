@@ -107,7 +107,9 @@ export async function PUT(
       data: {
         name: validatedData.name,
         date: validatedData.date ? new Date(validatedData.date) : undefined,
+        assemblyTime: toNullIfEmpty(validatedData.assemblyTime),
         startTime: toNullIfEmpty(validatedData.startTime),
+        mealTime: toNullIfEmpty(validatedData.mealTime),
         venueId: toNullIfEmpty(validatedData.venueId),
         location: validatedData.location,
         address: toNullIfEmpty(validatedData.address),
@@ -117,6 +119,8 @@ export async function PUT(
         contactName: toNullIfEmpty(validatedData.contactName),
         contactPhone: toNullIfEmpty(validatedData.contactPhone),
         eventType: validatedData.eventType,
+        menu: toNullIfEmpty(validatedData.menu),
+        reminders: toNullIfEmpty(validatedData.reminders),
         totalAmount: validatedData.totalAmount ?? null,
         depositAmount: validatedData.depositAmount ?? null,
         depositMethod: toNullIfEmpty(validatedData.depositMethod),

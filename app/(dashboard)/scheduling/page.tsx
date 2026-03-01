@@ -44,6 +44,7 @@ interface Event {
     staff: { id: string; name: string; skill: string };
     workRole: string;
     attendanceStatus: string;
+    notified?: boolean;
   }[];
 }
 
@@ -198,6 +199,55 @@ export default function SchedulingPage() {
     }
   };
 
+  // 批次發送所有未通知的排班
+  const handleBatchNotify = async () => {
+    setSending(true);
+    let totalSent = 0;
+    let totalFailed = 0;
+    
+    try {
+      // 找出所有有未通知人員的活動
+      const eventsToNotify = events.filter(e => 
+        e.eventStaff.some(es => !es.notified)
+      );
+      
+      if (eventsToNotify.length === 0) {
+        toast.info("所有排班人員皆已通知");
+        setSending(false);
+        return;
+      }
+      
+      for (const event of eventsToNotify) {
+        try {
+          const response = await fetch(`/api/v1/events/${event.id}/notify`, {
+            method: "POST",
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            totalSent += data.sent;
+            totalFailed += data.failed;
+          }
+        } catch (error) {
+          console.error(`Failed to notify for event ${event.id}:`, error);
+        }
+      }
+      
+      if (totalSent > 0) {
+        toast.success(`已發送 ${totalSent} 筆通知${totalFailed > 0 ? `，${totalFailed} 筆失敗` : ""}`);
+      } else if (totalFailed > 0) {
+        toast.error(`發送失敗 ${totalFailed} 筆`);
+      }
+      
+      // 重新載入活動
+      fetchEvents();
+    } catch (error) {
+      toast.error("批次發送失敗");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const handleStaffToggle = async (staffId: string, isSelected: boolean) => {
     if (!selectedEvent) return;
 
@@ -289,16 +339,28 @@ export default function SchedulingPage() {
             依月份檢視活動並整批指派人員
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="w-4 h-4" />
+        <div className="flex items-center gap-4">
+          {/* 批次通知按鈕 */}
+          <Button
+            onClick={handleBatchNotify}
+            disabled={sending}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {sending ? "發送中..." : "批次發送通知"}
           </Button>
-          <div className="text-lg font-medium px-4">
-            {year} 年 {month + 1} 月
+          
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={prevMonth}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <div className="text-lg font-medium px-4">
+              {year} 年 {month + 1} 月
+            </div>
+            <Button variant="outline" size="icon" onClick={nextMonth}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
         </div>
       </div>
 
@@ -412,14 +474,16 @@ export default function SchedulingPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEventClick(event)}
-                        >
-                          <Users className="w-4 h-4 mr-1" />
-                          排班
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEventClick(event)}
+                          >
+                            <Users className="w-4 h-4 mr-1" />
+                            排班
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
