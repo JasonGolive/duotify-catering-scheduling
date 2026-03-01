@@ -28,7 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Users, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -104,6 +104,8 @@ export default function SchedulingPage() {
   const [selectedStaff, setSelectedStaff] = useState<Set<string>>(new Set());
   const [skillFilter, setSkillFilter] = useState<string>("all");
   const [showConflicting, setShowConflicting] = useState(false);
+  const [notifyStatus, setNotifyStatus] = useState<{ pending: number; notified: number } | null>(null);
+  const [sending, setSending] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -157,7 +159,43 @@ export default function SchedulingPage() {
     setSelectedEvent(event);
     setSelectedStaff(new Set(event.eventStaff.map((es) => es.staff.id)));
     await fetchAvailability(event.date.split("T")[0]);
+    await fetchNotifyStatus(event.id);
     setDialogOpen(true);
+  };
+
+  const fetchNotifyStatus = async (eventId: string) => {
+    try {
+      const response = await fetch(`/api/v1/events/${eventId}/notify`);
+      if (response.ok) {
+        const data = await response.json();
+        setNotifyStatus({ pending: data.pending, notified: data.notified });
+      }
+    } catch (error) {
+      console.error("Failed to fetch notify status:", error);
+    }
+  };
+
+  const handleSendNotifications = async () => {
+    if (!selectedEvent) return;
+    
+    setSending(true);
+    try {
+      const response = await fetch(`/api/v1/events/${selectedEvent.id}/notify`, {
+        method: "POST",
+      });
+      
+      if (!response.ok) throw new Error("發送失敗");
+      
+      const data = await response.json();
+      toast.success(data.message);
+      
+      // 更新通知狀態
+      await fetchNotifyStatus(selectedEvent.id);
+    } catch (error) {
+      toast.error("發送通知失敗");
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleStaffToggle = async (staffId: string, isSelected: boolean) => {
@@ -409,10 +447,38 @@ export default function SchedulingPage() {
           {/* Already Assigned Staff */}
           {selectedStaff.size > 0 && (
             <div className="mb-4">
-              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                已排班人員 ({selectedStaff.size})
-              </h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-sm font-medium flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  已排班人員 ({selectedStaff.size})
+                </h4>
+                {notifyStatus && (
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm">
+                      {notifyStatus.pending > 0 ? (
+                        <span className="text-yellow-600">
+                          <Bell className="w-4 h-4 inline mr-1" />
+                          {notifyStatus.pending} 人待通知
+                        </span>
+                      ) : (
+                        <span className="text-green-600">
+                          ✓ 已全部通知
+                        </span>
+                      )}
+                    </div>
+                    {notifyStatus.pending > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={handleSendNotifications}
+                        disabled={sending}
+                      >
+                        <Send className="w-4 h-4 mr-1" />
+                        {sending ? "發送中..." : "發送通知"}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="flex flex-wrap gap-2">
                 {Array.from(selectedStaff).map((staffId) => {
                   const staff = availabilityData?.available.find(s => s.id === staffId) ||

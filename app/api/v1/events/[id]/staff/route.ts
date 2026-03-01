@@ -171,8 +171,8 @@ export async function POST(
       })),
     };
 
-    // 發送排班通知（非同步，不影響回應）
-    sendAssignmentNotification(event, staff);
+    // 不再自動發送通知，改為管理者確認後批次發送
+    // sendAssignmentNotification(event, staff);
 
     return NextResponse.json({ eventStaff: serialized }, { status: 201 });
   } catch (error) {

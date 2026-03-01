@@ -239,6 +239,10 @@ model EventStaff {
   actualHours      Decimal?         @db.Decimal(4, 1)   // 實際工作時數
   adjustedSalary   Decimal?         @db.Decimal(10, 0)  // 調整後薪資
   
+  // 通知狀態
+  notified         Boolean          @default(false)     // 是否已發送通知
+  notifiedAt       DateTime?                            // 通知發送時間
+  
   notes            String?          @db.Text
   
   createdAt        DateTime         @default(now())
