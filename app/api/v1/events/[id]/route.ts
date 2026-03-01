@@ -77,6 +77,59 @@ export async function PUT(
       return NextResponse.json({ error: "找不到活動資料" }, { status: 404 });
     }
 
+    // 檢測關鍵欄位變更（用於通知）
+    const criticalFields = ['date', 'assemblyTime', 'mealTime', 'location', 'address'];
+    const changes: { field: string; oldValue: string | null; newValue: string | null }[] = [];
+    
+    const formatDate = (d: Date | string | null | undefined) => {
+      if (!d) return null;
+      const date = typeof d === 'string' ? new Date(d) : d;
+      return date.toISOString().split('T')[0];
+    };
+
+    // 比對日期
+    const oldDate = formatDate(existingEvent.date);
+    const newDate = formatDate(validatedData.date);
+    if (oldDate !== newDate && newDate) {
+      changes.push({ field: 'date', oldValue: oldDate, newValue: newDate });
+    }
+
+    // 比對集合時間
+    if (existingEvent.assemblyTime !== (validatedData.assemblyTime || null)) {
+      changes.push({ 
+        field: 'assemblyTime', 
+        oldValue: existingEvent.assemblyTime, 
+        newValue: validatedData.assemblyTime || null 
+      });
+    }
+
+    // 比對用餐時間
+    if (existingEvent.mealTime !== (validatedData.mealTime || null)) {
+      changes.push({ 
+        field: 'mealTime', 
+        oldValue: existingEvent.mealTime, 
+        newValue: validatedData.mealTime || null 
+      });
+    }
+
+    // 比對地點
+    if (existingEvent.location !== validatedData.location) {
+      changes.push({ 
+        field: 'location', 
+        oldValue: existingEvent.location, 
+        newValue: validatedData.location || null 
+      });
+    }
+
+    // 比對地址
+    if (existingEvent.address !== (validatedData.address || null)) {
+      changes.push({ 
+        field: 'address', 
+        oldValue: existingEvent.address, 
+        newValue: validatedData.address || null 
+      });
+    }
+
     // 自動計算尾款：若未提供則為 總金額 - 訂金
     let balanceAmount = validatedData.balanceAmount;
     if (validatedData.totalAmount && validatedData.depositAmount && !balanceAmount) {
@@ -136,6 +189,11 @@ export async function PUT(
       },
     });
 
+    // 取得已通知的員工數量
+    const notifiedStaffCount = await prisma.eventStaff.count({
+      where: { eventId: id, notified: true },
+    });
+
     // Convert Decimal to number for JSON serialization
     const serializedEvent = {
       ...updatedEvent,
@@ -144,7 +202,11 @@ export async function PUT(
       balanceAmount: updatedEvent.balanceAmount ? Number(updatedEvent.balanceAmount) : null,
     };
 
-    return NextResponse.json({ event: serializedEvent }, { status: 200 });
+    return NextResponse.json({ 
+      event: serializedEvent,
+      changes: changes.length > 0 ? changes : null,
+      notifiedStaffCount,
+    }, { status: 200 });
   } catch (error) {
     console.error("Error updating event:", error);
 
