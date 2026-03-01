@@ -9,6 +9,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/line/webhook",
   "/api/cron(.*)",
   "/api/health",
+  "/staff/event/(.*)",      // 員工活動詳情頁（公開）
+  "/api/staff/event/(.*)",  // 員工活動詳情 API（公開）
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

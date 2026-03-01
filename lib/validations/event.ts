@@ -24,6 +24,12 @@ export const eventSchema = z.object({
     .optional()
     .nullable(),
   
+  mealTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "時間格式不正確 (HH:mm)")
+    .optional()
+    .nullable(),
+  
   // 場地
   venueId: z.string().optional().nullable(),
   location: z
@@ -83,6 +89,10 @@ export const eventSchema = z.object({
   balanceDate: z.string().optional().nullable(),
   
   notes: z.string().optional().nullable(),
+  
+  // 菜單與提醒
+  menu: z.string().optional().nullable(),
+  reminders: z.string().optional().nullable(),
   
   status: z.enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
 });

@@ -156,6 +156,7 @@ model Event {
   date           DateTime     @db.Date
   assemblyTime   String?      @db.VarChar(5)  // HH:mm format - 集合時間（用於通知與計薪）
   startTime      String?      @db.VarChar(5)  // HH:mm format - 活動開始時間
+  mealTime       String?      @db.VarChar(5)  // HH:mm format - 用餐時間
   
   // 場地
   venueId        String?
@@ -175,6 +176,10 @@ model Event {
   // 活動類型
   eventType      EventType    @default(OTHER)
   
+  // 菜單與提醒
+  menu           String?      @db.Text  // 菜單內容
+  reminders      String?      @db.Text  // 提醒事項（給員工看的注意事項）
+  
   // 金額
   totalAmount    Decimal?     @db.Decimal(10, 0)  // 訂單總金額
   
@@ -187,6 +192,9 @@ model Event {
   balanceAmount  Decimal?     @db.Decimal(10, 0)  // 尾款金額
   balanceMethod  PaymentMethod?                   // 尾款支付方式
   balanceDate    DateTime?    @db.Date            // 尾款支付日期
+  
+  // 員工詳情頁存取 token
+  staffToken     String?      @unique @db.VarChar(64)  // 加密 token 供員工查看詳情
   
   notes          String?      @db.Text
   status         EventStatus  @default(PENDING)

@@ -29,6 +29,7 @@ const eventFormSchema = z.object({
   date: z.string().min(1, "日期為必填"),
   assemblyTime: z.string().optional(),
   startTime: z.string().optional(),
+  mealTime: z.string().optional(),
   venueId: z.string().optional(),
   location: z.string().min(1, "地點為必填").max(200, "地點不能超過 200 個字元"),
   address: z.string().optional(),
@@ -38,6 +39,8 @@ const eventFormSchema = z.object({
   contactName: z.string().max(100).optional(),
   contactPhone: z.string().max(20).optional(),
   eventType: z.enum(["WEDDING", "YEAREND", "SPRING", "BIRTHDAY", "CORPORATE", "OTHER"]),
+  menu: z.string().optional(),
+  reminders: z.string().optional(),
   totalAmount: z.number().min(0).optional().nullable(),
   depositAmount: z.number().min(0).optional().nullable(),
   depositMethod: z.enum(["TRANSFER", "CASH", "HOTEL_PAID", "OTHER"]).optional().nullable(),
@@ -106,6 +109,7 @@ export function EventForm({
       date: initialData?.date || "",
       assemblyTime: initialData?.assemblyTime || "",
       startTime: initialData?.startTime || "",
+      mealTime: initialData?.mealTime || "",
       venueId: initialData?.venueId || "",
       location: initialData?.location || "",
       address: initialData?.address || "",
@@ -115,6 +119,8 @@ export function EventForm({
       contactName: initialData?.contactName || "",
       contactPhone: initialData?.contactPhone || "",
       eventType: initialData?.eventType || "OTHER",
+      menu: initialData?.menu || "",
+      reminders: initialData?.reminders || "",
       totalAmount: initialData?.totalAmount ?? undefined,
       depositAmount: initialData?.depositAmount ?? undefined,
       depositMethod: initialData?.depositMethod || undefined,
@@ -251,6 +257,20 @@ export function EventForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>開始時間</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="mealTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>用餐時間</FormLabel>
                     <FormControl>
                       <Input type="time" {...field} />
                     </FormControl>
@@ -673,16 +693,60 @@ export function EventForm({
           </CardContent>
         </Card>
 
+        {/* 菜單與提醒（員工詳情頁會顯示） */}
+        <Card>
+          <CardHeader>
+            <CardTitle>員工通知內容</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="menu"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>菜單</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="菜單內容（會顯示在員工詳情頁）..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="reminders"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>提醒事項</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="給員工的提醒事項，例如：&#10;1. 帶工作桌子+桌巾&#10;2. 果醋25瓶(口味各半)&#10;3. 客人很注重擺盤，請注意"
+                      className="min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
         {/* 備註 */}
         <FormField
           control={form.control}
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>備註</FormLabel>
+              <FormLabel>備註（內部使用）</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="活動備註..."
+                  placeholder="內部備註，不會顯示在員工詳情頁..."
                   className="min-h-[100px]"
                   {...field}
                 />

@@ -60,6 +60,19 @@ export async function POST(
       weekday: "long",
     });
     const timeStr = event.assemblyTime || event.startTime || "待確認";
+    
+    // 取得網站 URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+    const detailUrl = event.staffToken 
+      ? `${baseUrl}/staff/event/${event.staffToken}`
+      : null;
+    
+    // 人數資訊
+    const guestInfo = [
+      event.adultsCount ? `${event.adultsCount}大` : null,
+      event.childrenCount ? `${event.childrenCount}小` : null,
+      event.vegetarianCount ? `(含${event.vegetarianCount}素)` : null,
+    ].filter(Boolean).join("");
 
     let sent = 0;
     let failed = 0;
@@ -77,12 +90,14 @@ export async function POST(
 
 您已被指派到以下活動：
 
-活動名稱：${event.name}
-日期：${dateStr}
-集合時間：${timeStr}
-地點：${event.location}
-${event.address ? `地址：${event.address}` : ""}
-${event.notes ? `備註：${event.notes}` : ""}
+📅 ${dateStr}
+⏰ 集合時間：${timeStr}
+${event.mealTime ? `🍽️ 用餐時間：${event.mealTime}` : ""}
+📍 ${event.location}
+${event.address ? `   ${event.address}` : ""}
+${guestInfo ? `👥 人數：${guestInfo}` : ""}
+${event.reminders ? `\n⚠️ 提醒：\n${event.reminders}` : ""}
+${detailUrl ? `\n📋 詳細資訊：\n${detailUrl}` : ""}
 
 如有問題請盡快聯繫管理員。`,
         });

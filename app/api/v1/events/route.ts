@@ -3,6 +3,12 @@ import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
 import { createEventSchema } from "@/lib/validations/event";
 import { z } from "zod";
+import { randomBytes } from "crypto";
+
+// 產生安全的隨機 token
+function generateStaffToken(): string {
+  return randomBytes(32).toString("hex");
+}
 
 /**
  * GET /api/v1/events
@@ -111,7 +117,9 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         date: new Date(validatedData.date),
+        assemblyTime: toNullIfEmpty(validatedData.assemblyTime),
         startTime: toNullIfEmpty(validatedData.startTime),
+        mealTime: toNullIfEmpty(validatedData.mealTime),
         venueId: toNullIfEmpty(validatedData.venueId),
         location: validatedData.location,
         address: toNullIfEmpty(validatedData.address),
@@ -121,6 +129,8 @@ export async function POST(request: NextRequest) {
         contactName: toNullIfEmpty(validatedData.contactName),
         contactPhone: toNullIfEmpty(validatedData.contactPhone),
         eventType: validatedData.eventType,
+        menu: toNullIfEmpty(validatedData.menu),
+        reminders: toNullIfEmpty(validatedData.reminders),
         totalAmount: validatedData.totalAmount ?? null,
         depositAmount: validatedData.depositAmount ?? null,
         depositMethod: toNullIfEmpty(validatedData.depositMethod),
@@ -130,6 +140,7 @@ export async function POST(request: NextRequest) {
         balanceDate: toDateOrNull(validatedData.balanceDate),
         notes: toNullIfEmpty(validatedData.notes),
         status: status,
+        staffToken: generateStaffToken(),  // 自動產生員工詳情頁 token
       },
     });
 
