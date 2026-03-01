@@ -6,26 +6,39 @@ const channelSecret = process.env.LINE_CHANNEL_SECRET || "";
 
 // POST: LINE Webhook 接收事件
 export async function POST(request: NextRequest) {
+  console.log("LINE Webhook received");
+  
   try {
     // 取得 signature
     const signature = request.headers.get("x-line-signature");
+    console.log("Signature present:", !!signature);
+    
     if (!signature) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
     // 取得 body
     const body = await request.text();
+    console.log("Body received, length:", body.length);
 
     // 驗證簽名
-    if (channelSecret && !validateSignature(body, channelSecret, signature)) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    if (channelSecret) {
+      const isValid = validateSignature(body, channelSecret, signature);
+      console.log("Signature valid:", isValid);
+      if (!isValid) {
+        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      }
+    } else {
+      console.log("WARNING: LINE_CHANNEL_SECRET not set, skipping validation");
     }
 
     const data = JSON.parse(body);
     const events: WebhookEvent[] = data.events || [];
+    console.log("Events count:", events.length);
 
     // 處理事件
     for (const event of events) {
+      console.log("Processing event type:", event.type);
       await handleEvent(event);
     }
 
