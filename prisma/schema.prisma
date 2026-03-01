@@ -33,10 +33,16 @@ model Staff {
   id             String   @id @default(cuid())
   name           String   @db.VarChar(100)
   phone          String   @unique @db.VarChar(20)
+  email          String?  @db.VarChar(200)
   skill          Skill    @default(FRONT)
   perEventSalary Decimal  @db.Decimal(10, 2)
   notes          String?  @db.Text
   status         Status   @default(ACTIVE)
+  
+  // 通知設定
+  lineNotifyToken String?  @db.VarChar(200) // LINE Notify Access Token
+  lineNotify      Boolean  @default(true)   // 是否接收 LINE 通知
+  emailNotify     Boolean  @default(true)   // 是否接收 Email 通知
   
   // Relationship to User (optional - staff may exist before login account created)
   userId         String?  @unique
@@ -50,6 +56,9 @@ model Staff {
   
   // 打工記錄
   workLogs       WorkLog[]
+  
+  // 通知記錄
+  notifications  Notification[]
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -187,6 +196,9 @@ model Event {
   // 打工記錄關聯
   workLogs       WorkLog[]
   
+  // 通知記錄關聯
+  notifications  Notification[]
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -280,4 +292,54 @@ enum WorkLogSource {
   IMPORT    // Excel/CSV 匯入
   MANUAL    // 手動輸入
   SYSTEM    // 系統自動產生
+}
+
+// Notification entity (通知記錄)
+model Notification {
+  id          String              @id @default(cuid())
+  
+  // 接收者
+  staffId     String
+  staff       Staff               @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  
+  // 關聯活動（可選）
+  eventId     String?
+  event       Event?              @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  
+  // 通知內容
+  type        NotificationType
+  channel     NotificationChannel
+  title       String              @db.VarChar(200)
+  content     String              @db.Text
+  
+  // 發送狀態
+  status      NotificationStatus  @default(PENDING)
+  sentAt      DateTime?
+  error       String?             @db.Text
+  
+  createdAt   DateTime            @default(now())
+
+  @@index([staffId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  ASSIGNMENT      // 排班指派
+  REMINDER        // 活動提醒
+  EVENT_CHANGE    // 活動異動
+  EVENT_CANCEL    // 活動取消
+}
+
+enum NotificationChannel {
+  LINE
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING   // 待發送
+  SENT      // 已發送
+  FAILED    // 發送失敗
 }

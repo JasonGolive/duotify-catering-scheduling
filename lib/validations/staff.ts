@@ -15,6 +15,14 @@ export const staffSchema = z.object({
     .regex(phoneRegex, "Phone number contains invalid characters")
     .transform((val) => val.replace(/[\s\-+()]/g, "")), // Normalize: remove formatting
   
+  email: z
+    .string()
+    .email("Email 格式不正確")
+    .max(200, "Email 不能超過 200 字元")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
+  
   skill: z.enum(["FRONT", "HOT", "BOTH"], {
     message: "Skill must be FRONT, HOT, or BOTH",
   }),
@@ -32,6 +40,16 @@ export const staffSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"], {
     message: "Status must be ACTIVE or INACTIVE",
   }),
+  
+  // 通知設定
+  lineNotifyToken: z
+    .string()
+    .max(200, "Token 不能超過 200 字元")
+    .optional()
+    .nullable(),
+  
+  lineNotify: z.boolean().default(true),
+  emailNotify: z.boolean().default(true),
 });
 
 // For creating a new staff member (status defaults to ACTIVE if not provided)

@@ -33,6 +33,11 @@ const staffFormSchema = z.object({
     .string()
     .min(10, "電話號碼至少需要 10 位數字")
     .regex(/^[\d\s\-+()]+$/, "電話號碼格式不正確"),
+  email: z
+    .string()
+    .email("Email 格式不正確")
+    .optional()
+    .or(z.literal("")),
   skill: z.enum(["FRONT", "HOT", "BOTH"]),
   perEventSalary: z.number().positive("薪資必須為正數").max(1000000, "薪資不能超過 NT$1,000,000"),
   notes: z.string().optional(),
@@ -65,6 +70,7 @@ export function StaffForm({
     defaultValues: {
       name: initialData?.name || "",
       phone: initialData?.phone || "",
+      email: initialData?.email || "",
       skill: initialData?.skill || "FRONT",
       perEventSalary: initialData?.perEventSalary || 0,
       notes: initialData?.notes || "",
@@ -116,6 +122,27 @@ export function StaffForm({
               </FormControl>
               <FormDescription>
                 請輸入手機或市話號碼
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  placeholder="example@email.com"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                用於接收排班通知
               </FormDescription>
               <FormMessage />
             </FormItem>

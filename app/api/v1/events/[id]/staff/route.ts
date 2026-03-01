@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
 import { createEventStaffSchema } from "@/lib/validations/event-staff";
+import { sendNotification } from "@/lib/services/notification";
 import { z } from "zod";
 
 /**
@@ -170,6 +171,9 @@ export async function POST(
       })),
     };
 
+    // 發送排班通知（非同步，不影響回應）
+    sendAssignmentNotification(event, staff);
+
     return NextResponse.json({ eventStaff: serialized }, { status: 201 });
   } catch (error) {
     console.error("Error adding staff to event:", error);
@@ -186,5 +190,42 @@ export async function POST(
     }
 
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// Helper: 發送排班通知（非同步執行）
+async function sendAssignmentNotification(
+  event: { id: string; name: string; date: Date; assemblyTime: string | null; startTime: string | null; location: string; address: string | null; notes: string | null },
+  staff: { id: string; name: string }
+) {
+  try {
+    const dateStr = event.date.toLocaleDateString("zh-TW", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
+    const timeStr = event.assemblyTime || event.startTime || "待確認";
+
+    await sendNotification({
+      staffId: staff.id,
+      eventId: event.id,
+      type: "ASSIGNMENT",
+      title: `【排班通知】${event.name}`,
+      content: `${staff.name} 您好，
+
+您已被指派到以下活動：
+
+活動名稱：${event.name}
+日期：${dateStr}
+集合時間：${timeStr}
+地點：${event.location}
+${event.address ? `地址：${event.address}` : ""}
+${event.notes ? `備註：${event.notes}` : ""}
+
+如有問題請盡快聯繫管理員。`,
+    });
+  } catch (error) {
+    console.error("Failed to send assignment notification:", error);
   }
 }
