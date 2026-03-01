@@ -37,6 +37,8 @@ export async function GET(request: Request) {
         phone: true,
         skill: true,
         perEventSalary: true,
+        canDrive: true,
+        hasOwnCar: true,
         availability: {
           where: {
             date: dateObj,
@@ -76,6 +78,8 @@ export async function GET(request: Request) {
         phone: staff.phone,
         skill: staff.skill,
         perEventSalary: Number(staff.perEventSalary),
+        canDrive: staff.canDrive,
+        hasOwnCar: staff.hasOwnCar,
         isAvailable,
         unavailableReason: availabilityRecord?.reason || null,
         hasConflict,

@@ -41,6 +41,10 @@ export const staffSchema = z.object({
     message: "Status must be ACTIVE or INACTIVE",
   }),
   
+  // 駕駛能力
+  canDrive: z.boolean().default(false),
+  hasOwnCar: z.boolean().default(false),
+  
   // 通知設定
   lineUserId: z
     .string()

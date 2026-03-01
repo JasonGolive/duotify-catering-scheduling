@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const eventFormSchema = z.object({
   name: z.string().min(1, "活動名稱為必填").max(200, "活動名稱不能超過 200 個字元"),
@@ -39,6 +41,8 @@ const eventFormSchema = z.object({
   contactName: z.string().max(100).optional(),
   contactPhone: z.string().max(20).optional(),
   eventType: z.enum(["WEDDING", "YEAREND", "SPRING", "BIRTHDAY", "CORPORATE", "OTHER"]),
+  requireBigTruck: z.boolean(),
+  requireSmallTruck: z.boolean(),
   menu: z.string().optional(),
   reminders: z.string().optional(),
   totalAmount: z.number().min(0).optional().nullable(),
@@ -119,6 +123,8 @@ export function EventForm({
       contactName: initialData?.contactName || "",
       contactPhone: initialData?.contactPhone || "",
       eventType: initialData?.eventType || "OTHER",
+      requireBigTruck: initialData?.requireBigTruck || false,
+      requireSmallTruck: initialData?.requireSmallTruck || false,
       menu: initialData?.menu || "",
       reminders: initialData?.reminders || "",
       totalAmount: initialData?.totalAmount ?? undefined,
@@ -327,6 +333,65 @@ export function EventForm({
                       </SelectContent>
                     </Select>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 餐車需求 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>餐車需求</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormDescription>
+              若已承諾客人需開餐車前往，請勾選以便排班時提醒
+            </FormDescription>
+            <div className="flex flex-wrap gap-6">
+              <FormField
+                control={form.control}
+                name="requireBigTruck"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="cursor-pointer">
+                        需要大餐車
+                      </FormLabel>
+                      <FormDescription>
+                        可載 3 人（駕駛 + 2 乘客）
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="requireSmallTruck"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="cursor-pointer">
+                        需要小餐車
+                      </FormLabel>
+                      <FormDescription>
+                        可載 2 人（駕駛 + 1 乘客）
+                      </FormDescription>
+                    </div>
                   </FormItem>
                 )}
               />

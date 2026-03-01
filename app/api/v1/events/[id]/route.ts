@@ -172,6 +172,8 @@ export async function PUT(
         contactName: toNullIfEmpty(validatedData.contactName),
         contactPhone: toNullIfEmpty(validatedData.contactPhone),
         eventType: validatedData.eventType,
+        requireBigTruck: validatedData.requireBigTruck ?? false,
+        requireSmallTruck: validatedData.requireSmallTruck ?? false,
         menu: toNullIfEmpty(validatedData.menu),
         reminders: toNullIfEmpty(validatedData.reminders),
         totalAmount: validatedData.totalAmount ?? null,

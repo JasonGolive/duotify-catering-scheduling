@@ -75,6 +75,10 @@ export const eventSchema = z.object({
   
   eventType: z.enum(["WEDDING", "YEAREND", "SPRING", "BIRTHDAY", "CORPORATE", "OTHER"]),
   
+  // 餐車需求
+  requireBigTruck: z.boolean().default(false),
+  requireSmallTruck: z.boolean().default(false),
+  
   // 金額
   totalAmount: z.number().min(0, "金額不能為負數").optional().nullable(),
   

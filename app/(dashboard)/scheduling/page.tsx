@@ -28,7 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle, Car, Truck } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -39,13 +39,17 @@ interface Event {
   date: string;
   startTime: string;
   status: string;
+  requireBigTruck?: boolean;
+  requireSmallTruck?: boolean;
   venue?: { name: string } | null;
   eventStaff: {
     id: string;
-    staff: { id: string; name: string; skill: string };
+    staff: { id: string; name: string; skill: string; canDrive?: boolean };
     workRole: string;
     attendanceStatus: string;
     notified?: boolean;
+    vehicle?: string | null;
+    isDriver?: boolean;
   }[];
 }
 
@@ -55,6 +59,8 @@ interface Staff {
   phone: string;
   skill: string;
   perEventSalary: number;
+  canDrive?: boolean;
+  hasOwnCar?: boolean;
   isAvailable: boolean;
   unavailableReason: string | null;
   hasConflict: boolean;
@@ -95,6 +101,19 @@ const workRoleLabels: Record<string, string> = {
   LEAD: "領班",
 };
 
+const vehicleLabels: Record<string, string> = {
+  BIG_TRUCK: "大餐車",
+  SMALL_TRUCK: "小餐車",
+  MANAGER_CAR: "店長車",
+  OWN_CAR: "自行開車",
+};
+
+const vehicleCapacity: Record<string, number> = {
+  BIG_TRUCK: 3,      // 駕駛 1 + 乘客 2
+  SMALL_TRUCK: 2,    // 駕駛 1 + 乘客 1
+  MANAGER_CAR: 4,    // 駕駛 1 + 乘客 3
+};
+
 export default function SchedulingPage() {
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -108,6 +127,7 @@ export default function SchedulingPage() {
   const [showConflicting, setShowConflicting] = useState(false);
   const [notifyStatus, setNotifyStatus] = useState<{ pending: number; notified: number } | null>(null);
   const [sending, setSending] = useState(false);
+  const [vehicleUpdating, setVehicleUpdating] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -287,6 +307,60 @@ export default function SchedulingPage() {
     } catch (error) {
       toast.error("操作失敗");
     }
+  };
+
+  // 更新員工交通安排
+  const handleVehicleChange = async (
+    eventStaffId: string,
+    staffId: string,
+    vehicle: string | null,
+    isDriver: boolean
+  ) => {
+    if (!selectedEvent) return;
+    
+    setVehicleUpdating(eventStaffId);
+    try {
+      const response = await fetch(
+        `/api/v1/events/${selectedEvent.id}/staff/${staffId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vehicle, isDriver }),
+        }
+      );
+      
+      if (!response.ok) throw new Error("更新失敗");
+      
+      toast.success("已更新交通安排");
+      fetchEvents();
+    } catch (error) {
+      toast.error("更新交通安排失敗");
+    } finally {
+      setVehicleUpdating(null);
+    }
+  };
+
+  // 計算車輛使用情況
+  const getVehicleUsage = () => {
+    if (!selectedEvent) return {};
+    
+    const usage: Record<string, { driver: string | null; passengers: string[] }> = {
+      BIG_TRUCK: { driver: null, passengers: [] },
+      SMALL_TRUCK: { driver: null, passengers: [] },
+      MANAGER_CAR: { driver: null, passengers: [] },
+    };
+    
+    selectedEvent.eventStaff.forEach((es) => {
+      if (es.vehicle && es.vehicle !== "OWN_CAR") {
+        if (es.isDriver) {
+          usage[es.vehicle].driver = es.staff.name;
+        } else {
+          usage[es.vehicle].passengers.push(es.staff.name);
+        }
+      }
+    });
+    
+    return usage;
   };
 
   const prevMonth = () => {
@@ -567,24 +641,132 @@ export default function SchedulingPage() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {Array.from(selectedStaff).map((staffId) => {
-                  const staff = availabilityData?.available.find(s => s.id === staffId) ||
-                               availabilityData?.conflicting.find(s => s.id === staffId) ||
-                               availabilityData?.unavailable.find(s => s.id === staffId);
-                  const eventStaffInfo = selectedEvent?.eventStaff.find(es => es.staff.id === staffId);
-                  const name = staff?.name || eventStaffInfo?.staff.name || "未知";
+
+              {/* 餐車需求提示 */}
+              {selectedEvent && (selectedEvent.requireBigTruck || selectedEvent.requireSmallTruck) && (
+                <div className="mb-3 p-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
+                  <Truck className="w-4 h-4 inline mr-1 text-orange-600" />
+                  <span className="text-orange-700">
+                    此場次需要：
+                    {selectedEvent.requireBigTruck && " 大餐車"}
+                    {selectedEvent.requireBigTruck && selectedEvent.requireSmallTruck && "、"}
+                    {selectedEvent.requireSmallTruck && " 小餐車"}
+                  </span>
+                </div>
+              )}
+
+              {/* 車輛使用摘要 */}
+              {(() => {
+                const usage = getVehicleUsage();
+                const hasVehicleAssignment = Object.values(usage).some(
+                  v => v.driver || v.passengers.length > 0
+                );
+                if (!hasVehicleAssignment) return null;
+                
+                return (
+                  <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+                    {Object.entries(usage).map(([type, { driver, passengers }]) => {
+                      const capacity = vehicleCapacity[type] || 0;
+                      const total = (driver ? 1 : 0) + passengers.length;
+                      if (total === 0) return null;
+                      
+                      return (
+                        <div key={type} className="p-2 bg-gray-50 rounded border">
+                          <div className="font-medium">{vehicleLabels[type]}</div>
+                          <div className="text-gray-600">
+                            {driver && <span>🚗 {driver}</span>}
+                            {passengers.length > 0 && (
+                              <span className="ml-1">👥 {passengers.join(", ")}</span>
+                            )}
+                          </div>
+                          <div className="text-gray-400">
+                            {total}/{capacity} 人
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* 已排班人員列表（含車輛選擇） */}
+              <div className="space-y-2">
+                {selectedEvent?.eventStaff.map((es) => {
+                  const staff = availabilityData?.available.find(s => s.id === es.staff.id) ||
+                               availabilityData?.conflicting.find(s => s.id === es.staff.id);
+                  const canDrive = staff?.canDrive || es.staff.canDrive;
                   
                   return (
-                    <Badge
-                      key={staffId}
-                      variant="secondary"
-                      className="pl-3 pr-1 py-1.5 text-sm cursor-pointer hover:bg-red-100 group"
-                      onClick={() => handleStaffToggle(staffId, false)}
+                    <div
+                      key={es.id}
+                      className="flex items-center justify-between p-2 border rounded-lg bg-gray-50"
                     >
-                      {name}
-                      <span className="ml-2 text-gray-400 group-hover:text-red-500">✕</span>
-                    </Badge>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-medium text-blue-700">
+                          {es.staff.name.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-medium flex items-center gap-1">
+                            {es.staff.name}
+                            {canDrive && (
+                              <span title="可當駕駛">
+                                <Car className="w-3 h-3 text-green-600" />
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {skillLabels[es.staff.skill]}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        {/* 車輛選擇 */}
+                        <Select
+                          value={es.vehicle ? `${es.vehicle}${es.isDriver ? '_DRIVER' : '_PASSENGER'}` : "NONE"}
+                          onValueChange={(value) => {
+                            if (value === "NONE") {
+                              handleVehicleChange(es.id, es.staff.id, null, false);
+                            } else if (value === "OWN_CAR") {
+                              handleVehicleChange(es.id, es.staff.id, "OWN_CAR", true);
+                            } else {
+                              const [vehicle, role] = value.split('_');
+                              const isDriver = role === 'DRIVER';
+                              handleVehicleChange(es.id, es.staff.id, vehicle, isDriver);
+                            }
+                          }}
+                          disabled={vehicleUpdating === es.id}
+                        >
+                          <SelectTrigger className="w-36 h-8 text-xs">
+                            <SelectValue placeholder="選擇交通" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="NONE">未指定</SelectItem>
+                            <SelectItem value="OWN_CAR">自行開車</SelectItem>
+                            {canDrive && (
+                              <>
+                                <SelectItem value="BIG_TRUCK_DRIVER">大餐車（駕駛）</SelectItem>
+                                <SelectItem value="SMALL_TRUCK_DRIVER">小餐車（駕駛）</SelectItem>
+                                <SelectItem value="MANAGER_CAR_DRIVER">店長車（駕駛）</SelectItem>
+                              </>
+                            )}
+                            <SelectItem value="BIG_TRUCK_PASSENGER">大餐車（乘客）</SelectItem>
+                            <SelectItem value="SMALL_TRUCK_PASSENGER">小餐車（乘客）</SelectItem>
+                            <SelectItem value="MANAGER_CAR_PASSENGER">店長車（乘客）</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        {/* 移除按鈕 */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                          onClick={() => handleStaffToggle(es.staff.id, false)}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

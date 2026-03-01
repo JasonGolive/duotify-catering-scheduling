@@ -22,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Form schema - matches backend validation
 const staffFormSchema = z.object({
@@ -40,6 +42,8 @@ const staffFormSchema = z.object({
     .or(z.literal("")),
   skill: z.enum(["FRONT", "HOT", "BOTH"]),
   perEventSalary: z.number().positive("薪資必須為正數").max(1000000, "薪資不能超過 NT$1,000,000"),
+  canDrive: z.boolean(),
+  hasOwnCar: z.boolean(),
   notes: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]),
 });
@@ -73,6 +77,8 @@ export function StaffForm({
       email: initialData?.email || "",
       skill: initialData?.skill || "FRONT",
       perEventSalary: initialData?.perEventSalary || 0,
+      canDrive: initialData?.canDrive || false,
+      hasOwnCar: initialData?.hasOwnCar || false,
       notes: initialData?.notes || "",
       status: initialData?.status || "ACTIVE",
     },
@@ -198,6 +204,60 @@ export function StaffForm({
             </FormItem>
           )}
         />
+
+        {/* 駕駛能力 */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">交通相關</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="canDrive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">
+                      會開車（可擔任駕駛）
+                    </FormLabel>
+                    <FormDescription>
+                      可駕駛大餐車、小餐車或店長車
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="hasOwnCar"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">
+                      有自備車
+                    </FormLabel>
+                    <FormDescription>
+                      可自行開車前往活動場地
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
         <FormField
           control={form.control}

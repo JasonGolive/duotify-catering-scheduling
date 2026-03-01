@@ -38,6 +38,7 @@ export async function GET(
             lineUserId: true,
             skill: true,
             perEventSalary: true,
+            canDrive: true,
           },
         },
       },

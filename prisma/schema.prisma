@@ -39,6 +39,10 @@ model Staff {
   notes          String?  @db.Text
   status         Status   @default(ACTIVE)
   
+  // 駕駛能力
+  canDrive       Boolean  @default(false)  // 是否會開車（可當駕駛）
+  hasOwnCar      Boolean  @default(false)  // 是否有自備車
+  
   // 通知設定
   lineUserId      String?  @db.VarChar(50)  // LINE User ID (透過加好友取得)
   lineNotify      Boolean  @default(true)   // 是否接收 LINE 通知
@@ -111,6 +115,14 @@ enum PaymentMethod {
   OTHER         // 其他
 }
 
+// 車輛類型
+enum VehicleType {
+  BIG_TRUCK     // 大餐車
+  SMALL_TRUCK   // 小餐車
+  MANAGER_CAR   // 店長車
+  OWN_CAR       // 自行開車
+}
+
 // Venue entity (場地/民宿主檔)
 model Venue {
   id          String   @id @default(cuid())
@@ -175,6 +187,10 @@ model Event {
   
   // 活動類型
   eventType      EventType    @default(OTHER)
+  
+  // 餐車需求（承諾客人）
+  requireBigTruck   Boolean   @default(false)  // 需要大餐車
+  requireSmallTruck Boolean   @default(false)  // 需要小餐車
   
   // 菜單與提醒
   menu           String?      @db.Text  // 菜單內容
@@ -241,6 +257,10 @@ model EventStaff {
   // 工作資訊
   role             Skill            // 工作角色（使用 Staff 的 Skill enum）
   salary           Decimal          @db.Decimal(10, 0)  // 該場薪資
+  
+  // 交通安排
+  vehicle          VehicleType?     // 搭乘車輛
+  isDriver         Boolean          @default(false)  // 是否為駕駛
   
   // 出勤資訊
   attendanceStatus AttendanceStatus @default(SCHEDULED)

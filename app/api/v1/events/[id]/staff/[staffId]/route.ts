@@ -146,3 +146,69 @@ export async function DELETE(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+/**
+ * PATCH /api/v1/events/[id]/staff/[staffId]
+ * Update vehicle assignment for a staff member
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; staffId: string }> }
+) {
+  try {
+    await requireManager();
+    const { id: eventId, staffId } = await params;
+    const body = await request.json();
+
+    const { vehicle, isDriver } = body;
+
+    // Find the assignment
+    const existing = await prisma.eventStaff.findUnique({
+      where: {
+        eventId_staffId: { eventId, staffId },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "找不到此排班記錄" }, { status: 404 });
+    }
+
+    // Validate vehicle type if provided
+    const validVehicles = ["BIG_TRUCK", "SMALL_TRUCK", "MANAGER_CAR", "OWN_CAR", null];
+    if (vehicle !== undefined && !validVehicles.includes(vehicle)) {
+      return NextResponse.json({ error: "無效的車輛類型" }, { status: 400 });
+    }
+
+    // Update the assignment
+    const updated = await prisma.eventStaff.update({
+      where: {
+        eventId_staffId: { eventId, staffId },
+      },
+      data: {
+        vehicle: vehicle,
+        isDriver: isDriver ?? false,
+      },
+      include: {
+        staff: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            skill: true,
+            canDrive: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ eventStaff: updated }, { status: 200 });
+  } catch (error) {
+    console.error("Error updating vehicle assignment:", error);
+
+    if (error instanceof Error && error.message.includes("Unauthorized")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
