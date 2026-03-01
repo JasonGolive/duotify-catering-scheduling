@@ -113,50 +113,72 @@ async function handleUnfollow(lineUserId: string) {
 
 // 處理訊息 - 用於綁定手機號碼
 async function handleMessage(lineUserId: string, text: string, replyToken: string) {
+  console.log("handleMessage called, text:", text, "lineUserId:", lineUserId);
+  
   const lineClient = await getLineClient();
-  if (!lineClient) return;
+  if (!lineClient) {
+    console.log("LINE client not available");
+    return;
+  }
 
-  // 檢查是否是綁定指令
-  const bindMatch = text.match(/^綁定\s*(\d{10})$/);
+  // 正規化文字：移除前後空白，將全形轉半形
+  const normalizedText = text.trim().replace(/　/g, ' ');
+  console.log("Normalized text:", normalizedText);
+
+  // 檢查是否是綁定指令（支援「綁定」後接空格和10位數字）
+  const bindMatch = normalizedText.match(/^綁定\s*(\d{10})$/);
+  console.log("Bind match result:", bindMatch);
+  
   if (bindMatch) {
     const phone = bindMatch[1];
+    console.log("Looking for staff with phone:", phone);
     
-    // 查找員工
-    const staff = await prisma.staff.findUnique({
-      where: { phone },
-    });
+    try {
+      // 查找員工
+      const staff = await prisma.staff.findUnique({
+        where: { phone },
+      });
+      console.log("Staff found:", staff ? staff.name : "not found");
 
-    if (!staff) {
+      if (!staff) {
+        await lineClient.replyMessage(replyToken, {
+          type: "text",
+          text: "找不到此手機號碼的員工資料，請確認號碼是否正確。",
+        });
+        return;
+      }
+
+      // 檢查是否已被其他人綁定
+      if (staff.lineUserId && staff.lineUserId !== lineUserId) {
+        await lineClient.replyMessage(replyToken, {
+          type: "text",
+          text: "此手機號碼已綁定其他 LINE 帳號。",
+        });
+        return;
+      }
+
+      // 綁定
+      await prisma.staff.update({
+        where: { id: staff.id },
+        data: { lineUserId },
+      });
+
       await lineClient.replyMessage(replyToken, {
         type: "text",
-        text: "找不到此手機號碼的員工資料，請確認號碼是否正確。",
-      });
-      return;
-    }
-
-    // 檢查是否已被其他人綁定
-    if (staff.lineUserId && staff.lineUserId !== lineUserId) {
-      await lineClient.replyMessage(replyToken, {
-        type: "text",
-        text: "此手機號碼已綁定其他 LINE 帳號。",
-      });
-      return;
-    }
-
-    // 綁定
-    await prisma.staff.update({
-      where: { id: staff.id },
-      data: { lineUserId },
-    });
-
-    await lineClient.replyMessage(replyToken, {
-      type: "text",
-      text: `✅ 綁定成功！
+        text: `✅ 綁定成功！
 
 ${staff.name} 您好，
 您的 LINE 已成功綁定，之後會收到排班通知。`,
-    });
-    return;
+      });
+      return;
+    } catch (error) {
+      console.error("Bind error:", error);
+      await lineClient.replyMessage(replyToken, {
+        type: "text",
+        text: "綁定過程發生錯誤，請稍後再試。",
+      });
+      return;
+    }
   }
 
   // 其他訊息
