@@ -346,9 +346,9 @@ export function EventForm({
             <CardTitle>餐車需求</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormDescription>
+            <p className="text-[0.8rem] text-muted-foreground">
               若已承諾客人需開餐車前往，請勾選以便排班時提醒
-            </FormDescription>
+            </p>
             <div className="flex flex-wrap gap-6">
               <FormField
                 control={form.control}
