@@ -29,7 +29,7 @@ export default async function DashboardLayout({
         <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
           <div className="flex items-center gap-4">
             <MobileNav />
-            <h1 className="text-lg font-semibold text-nordic-700 hidden sm:block">
+            <h1 className="text-lg font-semibold hidden sm:block" style={{ color: "#334E68" }}>
               北歐餐桌到府私廚
             </h1>
           </div>

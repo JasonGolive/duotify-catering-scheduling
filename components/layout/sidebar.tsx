@@ -62,7 +62,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-nordic-400">
+    <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0" style={{ backgroundColor: "#8BA4BC" }}>
       {/* Logo */}
       <div className="flex items-center gap-3 p-4 border-b border-white/10">
         <img
@@ -114,7 +114,7 @@ export function MobileNav() {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0 bg-nordic-400 border-none">
+      <SheetContent side="left" className="w-64 p-0 border-none" style={{ backgroundColor: "#8BA4BC" }}>
         <SheetTitle className="sr-only">導航選單</SheetTitle>
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">

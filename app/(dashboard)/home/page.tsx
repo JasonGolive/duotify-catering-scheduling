@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Users,
@@ -39,22 +38,6 @@ interface RecentActivity {
   description: string;
   createdAt: string;
 }
-
-const statusLabels: Record<string, string> = {
-  PENDING: "待確認",
-  CONFIRMED: "已確認",
-  IN_PROGRESS: "進行中",
-  COMPLETED: "已完成",
-  CANCELLED: "已取消",
-};
-
-const statusColors: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-700",
-  CONFIRMED: "bg-green-100 text-green-700",
-  IN_PROGRESS: "bg-nordic-100 text-nordic-700",
-  COMPLETED: "bg-gray-100 text-gray-700",
-  CANCELLED: "bg-red-100 text-red-700",
-};
 
 export default function HomePage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -116,37 +99,66 @@ export default function HomePage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="本月場次"
-          value={stats?.monthlyEvents ?? 0}
-          change={stats?.monthlyEventsChange}
-          icon={Calendar}
-          iconBg="bg-nordic-100"
-          iconColor="text-nordic-500"
-        />
-        <StatsCard
-          title="在職員工"
-          value={stats?.activeStaff ?? 0}
-          icon={Users}
-          iconBg="bg-green-100"
-          iconColor="text-accent-green"
-        />
-        <StatsCard
-          title="待確認"
-          value={stats?.pendingEvents ?? 0}
-          icon={Clock}
-          iconBg="bg-yellow-100"
-          iconColor="text-accent-yellow"
-          highlight={!!stats && stats.pendingEvents > 0}
-        />
-        <StatsCard
-          title="待通知"
-          value={stats?.pendingNotifications ?? 0}
-          icon={Bell}
-          iconBg="bg-pink-100"
-          iconColor="text-accent-pink"
-          highlight={!!stats && stats.pendingNotifications > 0}
-        />
+        <Card className="overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">本月場次</p>
+                <p className="text-3xl font-bold mt-1">{stats?.monthlyEvents ?? 0}</p>
+                {stats?.monthlyEventsChange !== undefined && (
+                  <p className={`text-xs mt-1 ${(stats?.monthlyEventsChange ?? 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    {(stats?.monthlyEventsChange ?? 0) >= 0 ? "↑" : "↓"} {Math.abs(stats?.monthlyEventsChange ?? 0)} 較上月
+                  </p>
+                )}
+              </div>
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#D9E2EC" }}>
+                <Calendar className="w-5 h-5" style={{ color: "#5A7A9A" }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">在職員工</p>
+                <p className="text-3xl font-bold mt-1">{stats?.activeStaff ?? 0}</p>
+              </div>
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#dcfce7" }}>
+                <Users className="w-5 h-5" style={{ color: "#6BAB73" }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={`overflow-hidden ${!!stats && stats.pendingEvents > 0 ? "ring-2" : ""}`} style={!!stats && stats.pendingEvents > 0 ? { borderColor: "#F5C242", boxShadow: "0 0 0 2px #F5C242" } : {}}>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">待確認</p>
+                <p className="text-3xl font-bold mt-1">{stats?.pendingEvents ?? 0}</p>
+              </div>
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#fef9c3" }}>
+                <Clock className="w-5 h-5" style={{ color: "#F5C242" }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={`overflow-hidden ${!!stats && stats.pendingNotifications > 0 ? "ring-2" : ""}`} style={!!stats && stats.pendingNotifications > 0 ? { borderColor: "#E8A5B8", boxShadow: "0 0 0 2px #E8A5B8" } : {}}>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">待通知</p>
+                <p className="text-3xl font-bold mt-1">{stats?.pendingNotifications ?? 0}</p>
+              </div>
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#fce7f3" }}>
+                <Bell className="w-5 h-5" style={{ color: "#E8A5B8" }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content */}
@@ -155,12 +167,12 @@ export default function HomePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-nordic-500" />
+              <Calendar className="w-4 h-4" style={{ color: "#5A7A9A" }} />
               即將到來的活動
             </CardTitle>
             <Link
               href="/events"
-              className="text-sm text-nordic-500 hover:text-nordic-600 flex items-center gap-1"
+              className="text-sm flex items-center gap-1" style={{ color: "#5A7A9A" }}
             >
               查看全部 <ArrowRight className="w-3 h-3" />
             </Link>
@@ -182,18 +194,16 @@ export default function HomePage() {
                     href={`/events/${event.id}`}
                     className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition"
                   >
-                    <div className="w-11 h-11 shrink-0 rounded-xl bg-nordic-100 flex flex-col items-center justify-center">
-                      <span className="text-[10px] leading-tight text-nordic-500">{month}月</span>
-                      <span className="text-base font-bold leading-tight text-nordic-600">{day}</span>
+                    <div className="w-11 h-11 shrink-0 rounded-xl flex flex-col items-center justify-center" style={{ backgroundColor: "#D9E2EC" }}>
+                      <span className="text-[10px] leading-tight" style={{ color: "#5A7A9A" }}>{month}月</span>
+                      <span className="text-base font-bold leading-tight" style={{ color: "#486A8C" }}>{day}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">{event.name}</p>
                       <p className="text-sm text-gray-500 truncate">{event.location}</p>
                     </div>
                     <div className="shrink-0 text-right flex items-center gap-2">
-                      <Badge className={statusColors[event.status]}>
-                        {statusLabels[event.status]}
-                      </Badge>
+                      <StatusBadge status={event.status} />
                       <span className="text-xs text-gray-400 whitespace-nowrap">
                         {event.staffCount}人
                       </span>
@@ -209,7 +219,7 @@ export default function HomePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Clock className="w-4 h-4 text-nordic-500" />
+              <Clock className="w-4 h-4" style={{ color: "#5A7A9A" }} />
               最近動態
             </CardTitle>
           </CardHeader>
@@ -224,7 +234,15 @@ export default function HomePage() {
                   key={activity.id}
                   className="flex items-center gap-3 p-3 rounded-xl bg-gray-50"
                 >
-                  <ActivityIcon type={activity.type} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={
+                    activity.type === "NOTIFICATION_SENT" ? { backgroundColor: "#fce7f3" } : { backgroundColor: "#D9E2EC" }
+                  }>
+                    {activity.type === "NOTIFICATION_SENT" ? (
+                      <Bell className="w-4 h-4" style={{ color: "#E8A5B8" }} />
+                    ) : (
+                      <Users className="w-4 h-4" style={{ color: "#486A8C" }} />
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">
                       {activity.title}
@@ -250,30 +268,30 @@ export default function HomePage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <QuickAction
-              href="/events/new"
-              icon={Plus}
-              label="新增活動"
-              color="nordic"
-            />
-            <QuickAction
-              href="/scheduling"
-              icon={CalendarCheck}
-              label="排班管理"
-              color="purple"
-            />
-            <QuickAction
-              href="/notifications"
-              icon={Bell}
-              label="發送通知"
-              color="pink"
-            />
-            <QuickAction
-              href="/salary/report"
-              icon={FileText}
-              label="薪資報表"
-              color="cyan"
-            />
+            <Link href="/events/new" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#D9E2EC" }}>
+                <Plus className="w-6 h-6" style={{ color: "#486A8C" }} />
+              </div>
+              <span className="text-sm font-medium text-gray-700">新增活動</span>
+            </Link>
+            <Link href="/scheduling" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#f3e8ff" }}>
+                <CalendarCheck className="w-6 h-6" style={{ color: "#9333ea" }} />
+              </div>
+              <span className="text-sm font-medium text-gray-700">排班管理</span>
+            </Link>
+            <Link href="/notifications" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#fce7f3" }}>
+                <Bell className="w-6 h-6" style={{ color: "#E8A5B8" }} />
+              </div>
+              <span className="text-sm font-medium text-gray-700">發送通知</span>
+            </Link>
+            <Link href="/salary/report" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#cffafe" }}>
+                <FileText className="w-6 h-6" style={{ color: "#0891b2" }} />
+              </div>
+              <span className="text-sm font-medium text-gray-700">薪資報表</span>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -281,97 +299,19 @@ export default function HomePage() {
   );
 }
 
-function StatsCard({
-  title,
-  value,
-  change,
-  icon: Icon,
-  iconBg,
-  iconColor,
-  highlight,
-}: {
-  title: string;
-  value: number;
-  change?: number;
-  icon: typeof Calendar;
-  iconBg: string;
-  iconColor: string;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={`overflow-hidden ${highlight ? "ring-2 ring-accent-yellow" : ""}`}>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-sm text-gray-500 whitespace-nowrap">{title}</p>
-            <p className="text-3xl font-bold mt-1">{value}</p>
-            {change !== undefined && (
-              <p
-                className={`text-xs mt-1 whitespace-nowrap ${
-                  change >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {change >= 0 ? "↑" : "↓"} {Math.abs(change)} 較上月
-              </p>
-            )}
-          </div>
-          <div className={`w-10 h-10 shrink-0 rounded-xl ${iconBg} flex items-center justify-center`}>
-            <Icon className={`w-5 h-5 ${iconColor}`} />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function QuickAction({
-  href,
-  icon: Icon,
-  label,
-  color,
-}: {
-  href: string;
-  icon: typeof Plus;
-  label: string;
-  color: string;
-}) {
-  const colorClasses: Record<string, { bg: string; text: string }> = {
-    nordic: { bg: "bg-nordic-100", text: "text-nordic-600" },
-    purple: { bg: "bg-purple-100", text: "text-purple-600" },
-    pink: { bg: "bg-pink-100", text: "text-pink-600" },
-    cyan: { bg: "bg-cyan-100", text: "text-cyan-600" },
+function StatusBadge({ status }: { status: string }) {
+  const config: Record<string, { bg: string; color: string; label: string }> = {
+    PENDING: { bg: "#fef9c3", color: "#a16207", label: "待確認" },
+    CONFIRMED: { bg: "#dcfce7", color: "#15803d", label: "已確認" },
+    IN_PROGRESS: { bg: "#D9E2EC", color: "#334E68", label: "進行中" },
+    COMPLETED: { bg: "#f3f4f6", color: "#374151", label: "已完成" },
+    CANCELLED: { bg: "#fee2e2", color: "#b91c1c", label: "已取消" },
   };
-
-  const { bg, text } = colorClasses[color] || colorClasses.nordic;
-
+  const { bg, color, label } = config[status] || config.PENDING;
   return (
-    <Link
-      href={href}
-      className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition"
-    >
-      <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center mb-2`}>
-        <Icon className={`w-6 h-6 ${text}`} />
-      </div>
-      <span className="text-sm font-medium text-gray-700">{label}</span>
-    </Link>
-  );
-}
-
-function ActivityIcon({ type }: { type: string }) {
-  const iconMap: Record<string, { icon: typeof Calendar; bg: string; color: string }> = {
-    EVENT_CREATED: { icon: Calendar, bg: "bg-nordic-100", color: "text-nordic-600" },
-    STAFF_ASSIGNED: { icon: Users, bg: "bg-green-100", color: "text-green-600" },
-    NOTIFICATION_SENT: { icon: Bell, bg: "bg-pink-100", color: "text-pink-600" },
-    LINE_BOUND: { icon: Users, bg: "bg-green-100", color: "text-green-600" },
-  };
-
-  const config = iconMap[type] || iconMap.EVENT_CREATED;
-  const Icon = config.icon;
-
-  return (
-    <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
-      <Icon className={`w-4 h-4 ${config.color}`} />
-    </div>
+    <span className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: bg, color }}>
+      {label}
+    </span>
   );
 }
 
