@@ -180,25 +180,23 @@ export default function HomePage() {
                   <Link
                     key={event.id}
                     href={`/events/${event.id}`}
-                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-nordic-100 flex flex-col items-center justify-center">
-                        <span className="text-xs text-nordic-500">{month}月</span>
-                        <span className="text-lg font-bold text-nordic-600">{day}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{event.name}</p>
-                        <p className="text-sm text-gray-500">{event.location}</p>
-                      </div>
+                    <div className="w-11 h-11 shrink-0 rounded-xl bg-nordic-100 flex flex-col items-center justify-center">
+                      <span className="text-[10px] leading-tight text-nordic-500">{month}月</span>
+                      <span className="text-base font-bold leading-tight text-nordic-600">{day}</span>
                     </div>
-                    <div className="text-right">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{event.name}</p>
+                      <p className="text-sm text-gray-500 truncate">{event.location}</p>
+                    </div>
+                    <div className="shrink-0 text-right flex items-center gap-2">
                       <Badge className={statusColors[event.status]}>
                         {statusLabels[event.status]}
                       </Badge>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {event.staffCount} 人
-                      </p>
+                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                        {event.staffCount}人
+                      </span>
                     </div>
                   </Link>
                 );
@@ -224,7 +222,7 @@ export default function HomePage() {
               recentActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-gray-50"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-50"
                 >
                   <ActivityIcon type={activity.type} />
                   <div className="flex-1 min-w-0">
@@ -235,7 +233,7 @@ export default function HomePage() {
                       {activity.description}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                  <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">
                     {formatRelativeTime(activity.createdAt)}
                   </span>
                 </div>
@@ -301,15 +299,15 @@ function StatsCard({
   highlight?: boolean;
 }) {
   return (
-    <Card className={highlight ? "ring-2 ring-accent-yellow" : ""}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-gray-500">{title}</p>
+    <Card className={`overflow-hidden ${highlight ? "ring-2 ring-accent-yellow" : ""}`}>
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm text-gray-500 whitespace-nowrap">{title}</p>
             <p className="text-3xl font-bold mt-1">{value}</p>
             {change !== undefined && (
               <p
-                className={`text-xs mt-1 ${
+                className={`text-xs mt-1 whitespace-nowrap ${
                   change >= 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
@@ -317,7 +315,7 @@ function StatsCard({
               </p>
             )}
           </div>
-          <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center`}>
+          <div className={`w-10 h-10 shrink-0 rounded-xl ${iconBg} flex items-center justify-center`}>
             <Icon className={`w-5 h-5 ${iconColor}`} />
           </div>
         </div>
