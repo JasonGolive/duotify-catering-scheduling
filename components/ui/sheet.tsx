@@ -60,27 +60,71 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, style, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <SheetPrimitive.Content
-      ref={ref}
-      className={cn(sheetVariants({ side }), className)}
-      style={{
-        position: "fixed",
-        zIndex: 50,
-        ...style,
-      }}
-      {...props}
-    >
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+>(({ side, className, children, style, ...props }, ref) => {
+  const actualSide = side ?? "right";
+  // Inline styles for Tailwind v4 compatibility
+  const sideStyles = {
+    left: {
+      position: "fixed" as const,
+      inset: "0 auto 0 0",
+      height: "100%",
+      width: "75%",
+      maxWidth: "24rem", // sm:max-w-sm equivalent
+      zIndex: 50,
+    },
+    right: {
+      position: "fixed" as const,
+      inset: "0 0 0 auto",
+      height: "100%", 
+      width: "75%",
+      maxWidth: "24rem",
+      zIndex: 50,
+    },
+    top: {
+      position: "fixed" as const,
+      inset: "0 0 auto 0",
+      width: "100%",
+      zIndex: 50,
+    },
+    bottom: {
+      position: "fixed" as const,
+      inset: "auto 0 0 0", 
+      width: "100%",
+      zIndex: 50,
+    }
+  };
+
+  return (
+    <SheetPortal>
+      <SheetOverlay />
+      <SheetPrimitive.Content
+        ref={ref}
+        className={cn(sheetVariants({ side: actualSide }), className)}
+        style={{
+          ...sideStyles[actualSide],
+          gap: "1rem",
+          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+          ...style,
+        }}
+        {...props}
+      >
+      <SheetPrimitive.Close 
+        className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+        style={{
+          position: "absolute",
+          right: "1rem",
+          top: "1rem",
+          zIndex: 60
+        }}
+      >
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
       {children}
     </SheetPrimitive.Content>
   </SheetPortal>
-))
+  );
+})
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
 const SheetHeader = ({
