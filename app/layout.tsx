@@ -7,6 +7,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "北歐餐桌到府私廚",
   description: "Duotify 外燴服務員工管理系統",
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 // Disable static generation for all pages (Clerk requires runtime)
