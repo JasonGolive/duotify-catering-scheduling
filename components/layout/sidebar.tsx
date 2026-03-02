@@ -44,14 +44,20 @@ function NavItem({
     <Link
       href={href}
       onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-        isActive
-          ? "bg-white/20 text-white font-medium"
-          : "text-white/70 hover:bg-white/10 hover:text-white"
-      )}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        padding: '0.75rem 1rem',
+        borderRadius: '0.75rem',
+        transition: 'all 0.2s',
+        backgroundColor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+        color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
+        fontWeight: isActive ? 500 : 400,
+        textDecoration: 'none',
+      }}
     >
-      <Icon className="w-5 h-5" />
+      <Icon style={{ width: '1.25rem', height: '1.25rem' }} />
       <span>{label}</span>
     </Link>
   );
