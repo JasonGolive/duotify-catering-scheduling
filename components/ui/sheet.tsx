@@ -21,11 +21,12 @@ const SheetOverlay = React.forwardRef<
 >(({ className, style, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     style={{
       backgroundColor: "rgba(0, 0, 0, 0.8)",
+      zIndex: 49,
       ...style,
     }}
     {...props}
@@ -66,31 +67,39 @@ const SheetContent = React.forwardRef<
   const sideStyles = {
     left: {
       position: "fixed" as const,
-      inset: "0 auto 0 0",
+      top: 0,
+      left: 0,
+      bottom: 0,
       height: "100%",
       width: "75%",
-      maxWidth: "24rem", // sm:max-w-sm equivalent
-      zIndex: 50,
+      maxWidth: "24rem",
+      zIndex: 51,
     },
     right: {
       position: "fixed" as const,
-      inset: "0 0 0 auto",
+      top: 0,
+      right: 0,
+      bottom: 0,
       height: "100%", 
       width: "75%",
       maxWidth: "24rem",
-      zIndex: 50,
+      zIndex: 51,
     },
     top: {
       position: "fixed" as const,
-      inset: "0 0 auto 0",
+      top: 0,
+      left: 0,
+      right: 0,
       width: "100%",
-      zIndex: 50,
+      zIndex: 51,
     },
     bottom: {
       position: "fixed" as const,
-      inset: "auto 0 0 0", 
+      bottom: 0,
+      left: 0,
+      right: 0,
       width: "100%",
-      zIndex: 50,
+      zIndex: 51,
     }
   };
 

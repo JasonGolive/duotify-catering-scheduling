@@ -581,7 +581,7 @@ export function EventForm({
                   <FormItem>
                     <FormLabel>聯絡人電話</FormLabel>
                     <FormControl>
-                      <Input id={field.name} type="tel" placeholder="0912-345-678" {...field} />
+                      <Input type="tel" placeholder="0912-345-678" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
