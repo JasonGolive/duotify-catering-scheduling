@@ -113,25 +113,29 @@ const SheetContent = React.forwardRef<
           ...sideStyles[actualSide],
           gap: "1rem",
           boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+          display: "flex",
+          flexDirection: "column",
           ...style,
         }}
         {...props}
       >
-      <SheetPrimitive.Close 
-        className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-        style={{
-          position: "absolute",
-          right: "1rem",
-          top: "1rem",
-          zIndex: 60
-        }}
-      >
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
-      {children}
-    </SheetPrimitive.Content>
-  </SheetPortal>
+        <SheetPrimitive.Close 
+          className="absolute rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+          style={{
+            position: "absolute",
+            right: "1rem",
+            top: "1rem",
+            zIndex: 60
+          }}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </SheetPrimitive.Close>
+        <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+          {children}
+        </div>
+      </SheetPrimitive.Content>
+    </SheetPortal>
   );
 })
 SheetContent.displayName = SheetPrimitive.Content.displayName
