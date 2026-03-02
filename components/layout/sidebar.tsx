@@ -114,7 +114,7 @@ export function MobileNav() {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0 border-none" style={{ backgroundColor: "#8BA4BC" }}>
+      <SheetContent side="left" className="w-64 p-0 border-none" style={{ backgroundColor: "#8BA4BC", zIndex: 50 }}>
         <SheetTitle className="sr-only">導航選單</SheetTitle>
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
