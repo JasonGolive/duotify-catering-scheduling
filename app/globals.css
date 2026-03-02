@@ -15,6 +15,25 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Nordic brand colors */
+  --color-nordic-50: #F0F4F8;
+  --color-nordic-100: #D9E2EC;
+  --color-nordic-200: #BCCCDC;
+  --color-nordic-300: #9FB3C8;
+  --color-nordic-400: #8BA4BC;
+  --color-nordic-500: #5A7A9A;
+  --color-nordic-600: #486A8C;
+  --color-nordic-700: #334E68;
+  --color-nordic-800: #243B53;
+  --color-nordic-900: #102A43;
+
+  /* Accent colors */
+  --color-accent-yellow: #F5C242;
+  --color-accent-orange: #E67E4A;
+  --color-accent-green: #6BAB73;
+  --color-accent-pink: #E8A5B8;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
