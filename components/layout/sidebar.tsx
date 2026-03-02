@@ -14,8 +14,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -103,31 +102,94 @@ export function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  // 防止背景滾動
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        onClick={() => setOpen(true)}
+      >
+        <Menu className="h-6 w-6" />
+      </Button>
+
+      {/* Overlay */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 9998,
+          }}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: '256px',
+          backgroundColor: '#8BA4BC',
+          zIndex: 9999,
+          transform: open ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease-in-out',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setOpen(false)}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            color: 'white',
+          }}
         >
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0 border-none" style={{ backgroundColor: "#8BA4BC", zIndex: 50 }}>
-        <SheetTitle className="sr-only">導航選單</SheetTitle>
-        <SheetDescription className="sr-only">系統主要功能導航選單</SheetDescription>
+          <X style={{ width: '1.5rem', height: '1.5rem' }} />
+        </button>
+
         {/* Logo */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div style={{ 
+          padding: '1rem', 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+        }}>
           <img
             src="/logo.png"
             alt="北歐餐桌"
-            className="h-10 w-auto rounded-lg"
+            style={{ height: '2.5rem', width: 'auto', borderRadius: '0.5rem' }}
           />
         </div>
 
         {/* Navigation */}
-        <nav className="p-3 space-y-1">
+        <nav style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           {navItems.map((item) => (
             <NavItem
               key={item.href}
@@ -143,7 +205,7 @@ export function MobileNav() {
             />
           ))}
         </nav>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 }
