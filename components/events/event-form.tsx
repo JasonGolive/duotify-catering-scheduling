@@ -409,7 +409,7 @@ export function EventForm({
               <label className="text-sm font-medium">選擇常用場地</label>
               <Select
                 onValueChange={handleVenueChange}
-                value={form.watch("venueId") || undefined}
+                value={form.watch("venueId") ?? ""}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="選擇場地或新增" />
@@ -649,7 +649,7 @@ export function EventForm({
                       <FormLabel>支付方式</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || undefined}
+                        value={field.value ?? ""}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -717,7 +717,7 @@ export function EventForm({
                       <FormLabel>支付方式</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || undefined}
+                        value={field.value ?? ""}
                       >
                         <FormControl>
                           <SelectTrigger>

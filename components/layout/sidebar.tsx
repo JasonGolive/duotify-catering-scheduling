@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -115,6 +115,7 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0 bg-nordic-400 border-none">
+        <SheetTitle className="sr-only">導航選單</SheetTitle>
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <img
