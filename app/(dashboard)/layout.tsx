@@ -1,51 +1,66 @@
+"use client";
+
 import { Sidebar, MobileNav } from "@/components/layout/sidebar";
-import { getCurrentUserRole } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Bell } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export const dynamic = "force-dynamic";
-
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const role = await getCurrentUserRole();
+  const [isMobile, setIsMobile] = useState(true);
 
-  if (!role) {
-    redirect("/sign-in");
-  }
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       {/* Sidebar - Desktop */}
       <Sidebar />
 
       {/* Main Content */}
-      <div className="md:pl-64">
+      <div style={{ marginLeft: isMobile ? '0' : '16rem' }}>
         {/* Top Header */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
-          <div className="flex items-center gap-4">
+        <header style={{ 
+          position: 'sticky', 
+          top: 0, 
+          zIndex: 40, 
+          display: 'flex', 
+          height: '4rem', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          borderBottom: '1px solid #e5e7eb', 
+          backgroundColor: 'white', 
+          padding: '0 1rem' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <MobileNav />
-            <h1 className="text-lg font-semibold hidden sm:block" style={{ color: "#334E68" }}>
+            <h1 style={{ fontSize: '1.125rem', fontWeight: 600, color: '#334E68', display: isMobile ? 'none' : 'block' }}>
               北歐餐桌到府私廚
             </h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Link
               href="/notifications"
-              className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              style={{ position: 'relative', padding: '0.5rem', borderRadius: '9999px' }}
             >
-              <Bell className="h-5 w-5 text-gray-600" />
+              <Bell style={{ height: '1.25rem', width: '1.25rem', color: '#4b5563' }} />
             </Link>
             <UserButton afterSignOutUrl="/sign-in" />
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-4 md:p-6 lg:p-8">
+        <main style={{ padding: '1rem' }}>
           {children}
         </main>
       </div>
