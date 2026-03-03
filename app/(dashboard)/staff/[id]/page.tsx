@@ -5,8 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { StaffForm } from "@/components/staff/staff-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, CheckCircle, UserCheck } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface StaffData {
   id: string;
@@ -16,6 +17,8 @@ interface StaffData {
   perEventSalary: number;
   notes: string | null;
   status: "ACTIVE" | "INACTIVE";
+  userId: string | null;
+  lineUserId: string | null;
 }
 
 export default function EditStaffPage() {
@@ -26,6 +29,7 @@ export default function EditStaffPage() {
   const [staff, setStaff] = useState<StaffData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,6 +45,8 @@ export default function EditStaffPage() {
         setStaff({
           ...data.staff,
           perEventSalary: parseFloat(data.staff.perEventSalary),
+          userId: data.staff.userId || null,
+          lineUserId: data.staff.lineUserId || null,
         });
       } catch (err) {
         console.error("Fetch staff error:", err);
@@ -52,6 +58,40 @@ export default function EditStaffPage() {
 
     fetchStaff();
   }, [staffId]);
+
+  const handleSendInvite = async () => {
+    if (!staff) return;
+    
+    setIsSendingInvite(true);
+    try {
+      const response = await fetch("/api/v1/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffId: staff.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "發送失敗");
+      }
+
+      toast.success(`邀請已發送給 ${staff.name}`);
+      
+      if (data.sentViaLine) {
+        toast.info("已透過 LINE 發送邀請連結");
+      } else {
+        // Show the invite URL for manual sharing
+        const inviteUrl = data.inviteUrl;
+        await navigator.clipboard.writeText(inviteUrl);
+        toast.info("邀請連結已複製到剪貼簿");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "發送邀請失敗");
+    } finally {
+      setIsSendingInvite(false);
+    }
+  };
 
   const handleSubmit = async (data: {
     name: string;
@@ -122,7 +162,33 @@ export default function EditStaffPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>編輯員工資料</CardTitle>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+            <CardTitle>編輯員工資料</CardTitle>
+            {staff.userId ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", backgroundColor: "#dcfce7", borderRadius: "6px", fontSize: "14px", color: "#166534" }}>
+                <UserCheck style={{ width: "16px", height: "16px" }} />
+                已有帳號
+              </div>
+            ) : (
+              <Button
+                onClick={handleSendInvite}
+                disabled={isSendingInvite}
+                style={{ backgroundColor: "#8BA4BC" }}
+              >
+                {isSendingInvite ? (
+                  <>
+                    <Loader2 style={{ width: "16px", height: "16px", marginRight: "6px", animation: "spin 1s linear infinite" }} />
+                    發送中...
+                  </>
+                ) : (
+                  <>
+                    <Mail style={{ width: "16px", height: "16px", marginRight: "6px" }} />
+                    發送帳號邀請
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <StaffForm

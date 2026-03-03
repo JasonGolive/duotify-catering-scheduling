@@ -64,6 +64,9 @@ model Staff {
   // 可用性修改記錄
   availabilityLogs   AvailabilityLog[]
   
+  // 邀請 Token
+  inviteTokens       InviteToken[]
+  
   // 打工記錄
   workLogs       WorkLog[]
   
@@ -454,4 +457,22 @@ model AvailabilityLog {
   @@index([staffId])
   @@index([createdAt])
   @@map("availability_logs")
+}
+
+// 員工邀請 Token（用於員工帳號註冊綁定）
+model InviteToken {
+  id          String    @id @default(cuid())
+  staffId     String
+  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  token       String    @unique @db.VarChar(64)   // 唯一邀請 token
+  email       String?   @db.VarChar(200)          // 發送到的 email（可選）
+  expiresAt   DateTime                             // Token 過期時間
+  sentAt      DateTime?                            // 發送時間
+  usedAt      DateTime?                            // 使用（註冊）時間
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([token])
+  @@index([staffId])
+  @@map("invite_tokens")
 }
