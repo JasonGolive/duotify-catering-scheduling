@@ -26,7 +26,7 @@
 
 ---
 
-### 2. 活動管理 (`/events`)
+### 2. 場次管理 (`/events`)
 
 | 功能 | 說明 |
 |------|------|
@@ -99,6 +99,23 @@
 
 ---
 
+### 4.3 行事曆管理 (`/availability-management`)
+
+| 功能 | 說明 |
+|------|------|
+| 發送行事曆連結 | 一鍵發送 LINE 通知給員工，附帶專屬連結 |
+| 填寫追蹤 | 追蹤未發送/待填寫/已完成狀態 |
+| 重發連結 | 可重新發送給未完成的員工 |
+| 修改記錄 | 所有修改留有 IP 和時間戳記錄 |
+
+**員工端功能 (`/staff/availability/[token]`)：**
+- Token 驗證（無需登入）
+- 批量設定可出勤/不可出勤
+- 點擊日期切換狀態
+- 完成填寫通知管理者
+
+---
+
 ### 5. 通知管理 (`/notifications`)
 
 | 功能 | 說明 |
@@ -155,6 +172,7 @@ PUT    /api/v1/staff/[id]         # 更新員工
 DELETE /api/v1/staff/[id]         # 刪除員工
 GET    /api/v1/staff/[id]/availability  # 可用性
 POST   /api/v1/staff/[id]/availability  # 設定可用性
+PUT    /api/v1/staff/[id]/availability  # 批量設定可用性
 GET    /api/v1/staff/me/events    # 我的排班
 POST   /api/v1/staff/me/events/[id]/confirm   # 確認出勤
 POST   /api/v1/staff/me/events/[id]/leave     # 請假申請
@@ -194,6 +212,12 @@ POST   /api/v1/salary-rules       # 新增加給規則
 POST   /api/v1/salary/calculate   # 計算薪資
 GET    /api/v1/leave-requests     # 請假申請列表
 PATCH  /api/v1/leave-requests/[id] # 審核請假
+GET    /api/v1/availability-tokens # 行事曆 Token 列表
+POST   /api/v1/availability-tokens # 發送行事曆連結
+GET    /api/v1/staff/availability-edit/[token] # 員工取得行事曆
+POST   /api/v1/staff/availability-edit/[token] # 員工更新行事曆
+PUT    /api/v1/staff/availability-edit/[token] # 員工批量更新
+POST   /api/v1/staff/availability-edit/[token]/complete # 員工完成填寫
 POST   /api/v1/worklogs/import    # 匯入打工記錄
 POST   /api/line/webhook          # LINE Webhook
 GET    /api/cron/daily-reminders  # 每日提醒 Cron
@@ -243,6 +267,8 @@ GET    /api/cron/daily-reminders  # 每日提醒 Cron
 | 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，全面改用內聯樣式 |
 | 1.4 | 2026-03-03 | 新增報表匯出功能：活動報表、排班統計、通知記錄 (Excel) |
 | 2.0 | 2026-03-03 | 排班系統大升級：多檢視模式、拖拉排班、出勤確認、GPS打卡、加給規則、數據分析 |
+| 2.1 | 2026-03-03 | 員工行事曆自助填寫：Token 連結發送、LINE 通知、填寫追蹤、修改記錄 |
+| 2.2 | 2026-03-03 | UI 優化：隱藏員工薪資（列表顯示能力）、選單重排、名稱調整（活動→場次） |
 
 ---
 
