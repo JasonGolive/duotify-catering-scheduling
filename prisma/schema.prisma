@@ -234,6 +234,9 @@ model Event {
   // 通知記錄關聯
   notifications  Notification[]
   
+  // 場次菜單關聯
+  eventMenu      EventMenu?
+  
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -476,4 +479,178 @@ model InviteToken {
   @@index([token])
   @@index([staffId])
   @@map("invite_tokens")
+}
+
+// ============================================
+// 菜單管理模組
+// ============================================
+
+// 品項主檔（料理/食材）
+model MenuItem {
+  id                       String           @id @default(cuid())
+  name                     String           @db.VarChar(100)  // 品項名稱
+  category                 MenuItemCategory                   // 類別
+  unit                     String           @db.VarChar(20)   // 單位（份/g/ml）
+  defaultQuantityPerPerson Decimal          @db.Decimal(10, 2) @default(1) // 預設每人份量
+  description              String?          @db.Text
+  isActive                 Boolean          @default(true)
+  
+  // BOM 材料組成
+  bomItems                 BOMItem[]
+  
+  // 關聯到範本
+  templateItems            MenuTemplateItem[]
+  
+  // 關聯到場次菜單
+  eventMenuItems           EventMenuItem[]
+  
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("menu_items")
+}
+
+enum MenuItemCategory {
+  APPETIZER   // 前菜
+  MAIN        // 主菜
+  SIDE        // 配菜
+  SOUP        // 湯品
+  SALAD       // 沙拉
+  DESSERT     // 甜點
+  BEVERAGE    // 飲品
+  OTHER       // 其他
+}
+
+// BOM 材料組成（品項的材料清單）
+model BOMItem {
+  id             String   @id @default(cuid())
+  menuItemId     String
+  menuItem       MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  ingredientName String   @db.VarChar(100)  // 材料名稱
+  quantity       Decimal  @db.Decimal(10, 3) // 單位用量
+  unit           String   @db.VarChar(20)   // 單位（g/ml/個/包）
+  notes          String?  @db.VarChar(200)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([menuItemId])
+  @@map("bom_items")
+}
+
+// 菜單範本
+model MenuTemplate {
+  id          String             @id @default(cuid())
+  name        String             @db.VarChar(100)  // 範本名稱
+  type        MenuTemplateType                     // 類型
+  description String?            @db.Text
+  version     Int                @default(1)       // 版本號
+  isActive    Boolean            @default(true)
+  
+  // 品項清單
+  items       MenuTemplateItem[]
+  
+  // 關聯的場次菜單
+  eventMenus  EventMenu[]
+  
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+  @@map("menu_templates")
+}
+
+enum MenuTemplateType {
+  BBQ            // 燒烤
+  WINE           // 餐酒
+  ITALIAN_FRENCH // 義法
+  MIXED          // 混合
+  CUSTOM         // 客製
+}
+
+// 範本品項（範本內的品項）
+model MenuTemplateItem {
+  id             String       @id @default(cuid())
+  templateId     String
+  template       MenuTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  menuItemId     String
+  menuItem       MenuItem     @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  quantity       Decimal      @db.Decimal(10, 2) @default(1) // 每人份量
+  sortOrder      Int          @default(0)                    // 排序
+  notes          String?      @db.VarChar(200)
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([templateId, menuItemId])
+  @@index([templateId])
+  @@index([menuItemId])
+  @@map("menu_template_items")
+}
+
+// 場次菜單（活動的實際菜單 - 歷史凍結）
+model EventMenu {
+  id              String          @id @default(cuid())
+  eventId         String          @unique
+  event           Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  // 來源範本（可為 null 表示完全客製）
+  templateId      String?
+  template        MenuTemplate?   @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  templateVersion Int?                              // 使用的範本版本（凍結用）
+  templateName    String?         @db.VarChar(100)  // 範本名稱（凍結用）
+  
+  // 鎖定狀態
+  lockedAt        DateTime?                         // 鎖定時間（鎖定後不可改）
+  lockedBy        String?         @db.VarChar(50)   // 鎖定者
+  
+  // 場次品項
+  items           EventMenuItem[]
+  
+  notes           String?         @db.Text
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([eventId])
+  @@index([templateId])
+  @@map("event_menus")
+}
+
+// 場次菜單品項（場次實際使用的品項 - 快照）
+model EventMenuItem {
+  id             String    @id @default(cuid())
+  eventMenuId    String
+  eventMenu      EventMenu @relation(fields: [eventMenuId], references: [id], onDelete: Cascade)
+  
+  // 品項關聯（可為 null 表示品項已刪除但保留快照）
+  menuItemId     String?
+  menuItem       MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+  
+  // 快照資料（凍結後保留）
+  itemName       String    @db.VarChar(100)  // 品項名稱
+  itemCategory   String    @db.VarChar(50)   // 品項類別
+  itemUnit       String    @db.VarChar(20)   // 單位
+  
+  // 份量（已計算人數後的總量）
+  quantityPerPerson Decimal @db.Decimal(10, 2) // 每人份量
+  totalQuantity     Decimal @db.Decimal(10, 2) // 總份量（= 每人 × 人數）
+  
+  // BOM 快照（凍結時複製）
+  bomSnapshot    Json?                        // [{ ingredientName, quantity, unit }]
+  
+  sortOrder      Int       @default(0)
+  notes          String?   @db.VarChar(200)
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([eventMenuId])
+  @@index([menuItemId])
+  @@map("event_menu_items")
 }

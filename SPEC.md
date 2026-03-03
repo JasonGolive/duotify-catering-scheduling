@@ -161,6 +161,94 @@
 
 ---
 
+### 8. 菜單管理 (`/menu`)
+
+#### 8.1 設計原則（外燴型態）
+
+| 原則 | 說明 |
+|------|------|
+| ✅ 標準菜單 | 預設範本可複製使用 |
+| ✅ 客製微調 | 單場可調整品項/份量 |
+| ✅ 單場覆寫 | 不影響原範本 |
+| ✅ 歷史凍結 | 場次菜單獨立保存，不受後續範本修改影響 |
+
+#### 8.2 菜單範本 (`/menu/templates`)
+
+| 功能 | 說明 |
+|------|------|
+| 範本列表 | BBQ / 餐酒 / 義法 / 混合等標準範本 |
+| 新增/編輯範本 | 名稱、類型、品項清單 |
+| 範本複製 | 基於現有範本建立新版本 |
+| 版本管理 | 保留歷史版本，可追溯 |
+
+**範本資料欄位：**
+- `name` 範本名稱
+- `type` 類型 (BBQ/WINE/ITALIAN_FRENCH/MIXED/CUSTOM)
+- `description` 說明
+- `items[]` 品項清單
+- `version` 版本號
+- `isActive` 是否啟用
+- `createdAt`, `updatedAt`
+
+#### 8.3 品項主檔 (`/menu/items`)
+
+| 功能 | 說明 |
+|------|------|
+| 品項列表 | 所有料理/食材主檔 |
+| 新增/編輯品項 | 名稱、類別、單位、預設用量 |
+| BOM 設定 | 每品項的材料組成（用於備料計算） |
+
+**品項資料欄位：**
+- `name` 品項名稱（如：牛排、沙拉、甜點）
+- `category` 類別 (MAIN/SIDE/DESSERT/BEVERAGE/OTHER)
+- `unit` 單位（份/g/ml）
+- `defaultQuantityPerPerson` 預設每人份量
+- `bomItems[]` 材料組成
+
+**BOM 材料欄位：**
+- `ingredientName` 材料名稱
+- `quantity` 單位用量
+- `unit` 單位（g/ml/個）
+
+#### 8.4 場次菜單 (`/events/[id]/menu`)
+
+| 功能 | 說明 |
+|------|------|
+| 選擇範本 | 從範本展開為場次菜單 |
+| 微調品項 | 新增/移除/調整份量 |
+| 人數計算 | 自動依人數計算總份量 |
+| 鎖定菜單 | 確認後凍結，不受範本更動影響 |
+| 備料清單 | 依 BOM 計算材料需求 |
+
+**場次菜單欄位：**
+- `eventId` 關聯場次
+- `templateId` 來源範本（可 null）
+- `templateVersion` 使用的範本版本
+- `lockedAt` 鎖定時間（鎖定後不可改）
+- `items[]` 場次品項（複製自範本，可微調）
+
+**場次品項欄位：**
+- `menuItemId` 品項主檔 ID
+- `itemName` 品項名稱（凍結用）
+- `quantity` 調整後份量
+- `note` 備註
+
+#### 8.5 備料彙總 (`/menu/procurement`)
+
+| 功能 | 說明 |
+|------|------|
+| 日期範圍選擇 | 選擇備料區間 |
+| 跨場次彙總 | 自動加總所有場次的材料需求 |
+| 分類檢視 | 依材料類別分組 |
+| 匯出採購單 | Excel/PDF 匯出 |
+
+**彙總邏輯：**
+```
+材料總需求 = Σ (品項用量 × 場次人數) for 所有選定場次
+```
+
+---
+
 ## API 端點
 
 ### 員工 API
@@ -219,8 +307,36 @@ POST   /api/v1/staff/availability-edit/[token] # 員工更新行事曆
 PUT    /api/v1/staff/availability-edit/[token] # 員工批量更新
 POST   /api/v1/staff/availability-edit/[token]/complete # 員工完成填寫
 POST   /api/v1/worklogs/import    # 匯入打工記錄
+POST   /api/v1/invite             # 發送員工邀請
+GET    /api/v1/invite             # 驗證邀請 Token
+POST   /api/v1/invite/complete    # 完成邀請綁定
 POST   /api/line/webhook          # LINE Webhook
 GET    /api/cron/daily-reminders  # 每日提醒 Cron
+```
+
+### 菜單 API
+```
+GET    /api/v1/menu/templates     # 範本列表
+POST   /api/v1/menu/templates     # 新增範本
+GET    /api/v1/menu/templates/[id] # 範本詳情
+PUT    /api/v1/menu/templates/[id] # 更新範本
+DELETE /api/v1/menu/templates/[id] # 刪除範本
+POST   /api/v1/menu/templates/[id]/duplicate # 複製範本
+
+GET    /api/v1/menu/items         # 品項列表
+POST   /api/v1/menu/items         # 新增品項
+GET    /api/v1/menu/items/[id]    # 品項詳情
+PUT    /api/v1/menu/items/[id]    # 更新品項
+DELETE /api/v1/menu/items/[id]    # 刪除品項
+
+GET    /api/v1/events/[id]/menu   # 場次菜單
+POST   /api/v1/events/[id]/menu   # 建立場次菜單（從範本展開）
+PUT    /api/v1/events/[id]/menu   # 更新場次菜單
+POST   /api/v1/events/[id]/menu/lock # 鎖定場次菜單
+GET    /api/v1/events/[id]/menu/bom # 場次備料清單
+
+GET    /api/v1/menu/procurement   # 跨場次備料彙總
+POST   /api/v1/menu/procurement/export # 匯出採購單
 ```
 
 ---
@@ -243,8 +359,36 @@ GET    /api/cron/daily-reminders  # 每日提醒 Cron
 
 | 角色 | 權限 |
 |------|------|
-| MANAGER | 完整管理權限 |
-| STAFF | 查看個人排班、更新可用性 |
+| MANAGER | 完整管理權限（含薪資） |
+| ADMIN | 行政權限（除薪資外全功能） |
+| STAFF | 查看個人排班、更新可用性、GPS 打卡 |
+
+**權限矩陣：**
+
+| 功能 | MANAGER | ADMIN | STAFF |
+|------|:-------:|:-----:|:-----:|
+| Dashboard | ✅ | ✅ | ❌ |
+| 場次管理 | ✅ | ✅ | ❌ |
+| 排班管理 | ✅ | ✅ | ❌ |
+| 員工管理 | ✅ | ✅ | ❌ |
+| 薪資管理 | ✅ | ❌ | ❌ |
+| 通知管理 | ✅ | ✅ | ❌ |
+| 行事曆管理 | ✅ | ✅ | ❌ |
+| 請假管理 | ✅ | ✅ | ❌ |
+| 數據分析 | ✅ | ✅ | ❌ |
+| 菜單管理 | ✅ | ✅ | ❌ |
+| 我的排班 | ✅ | ✅ | ✅ |
+| GPS 打卡 | ❌ | ❌ | ✅ |
+
+---
+
+## 員工帳號邀請流程
+
+1. 管理者在員工詳情頁點擊「發送帳號邀請」
+2. 系統產生唯一邀請連結（有效期 7 天）
+3. 若員工有 LINE 通知，自動發送；否則複製連結手動分享
+4. 員工點擊連結 → 註冊/登入 Clerk 帳號
+5. 系統自動綁定 Staff 記錄 → 員工可使用系統
 
 ---
 
@@ -269,6 +413,8 @@ GET    /api/cron/daily-reminders  # 每日提醒 Cron
 | 2.0 | 2026-03-03 | 排班系統大升級：多檢視模式、拖拉排班、出勤確認、GPS打卡、加給規則、數據分析 |
 | 2.1 | 2026-03-03 | 員工行事曆自助填寫：Token 連結發送、LINE 通知、填寫追蹤、修改記錄 |
 | 2.2 | 2026-03-03 | UI 優化：隱藏員工薪資（列表顯示能力）、選單重排、名稱調整（活動→場次） |
+| 2.3 | 2026-03-03 | 三層權限控制：MANAGER/ADMIN/STAFF、員工帳號邀請綁定 |
+| 2.4 | 2026-03-03 | 菜單管理模組規格定義（範本/品項/BOM/備料彙總） |
 
 ---
 
