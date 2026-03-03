@@ -11,8 +11,9 @@ interface StaffMember {
   name: string;
   phone: string;
   skill?: "FRONT" | "HOT" | "BOTH";
-  perEventSalary: number | string;
   status: "ACTIVE" | "INACTIVE";
+  canDrive?: boolean;
+  hasLine?: boolean;
 }
 
 interface StaffPageUIProps {

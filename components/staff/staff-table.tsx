@@ -9,9 +9,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "./status-badge";
-import { formatPhone, formatCurrency } from "@/lib/utils";
+import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, Car, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 interface StaffTableProps {
@@ -20,8 +20,9 @@ interface StaffTableProps {
     name: string;
     phone: string;
     skill?: "FRONT" | "HOT" | "BOTH";
-    perEventSalary: number | string;
     status: "ACTIVE" | "INACTIVE";
+    canDrive?: boolean;
+    hasLine?: boolean;
   }>;
   onRowClick?: (id: string) => void;
 }
@@ -41,7 +42,7 @@ export function StaffTable({ staff, onRowClick }: StaffTableProps) {
             <TableHead>姓名</TableHead>
             <TableHead>電話</TableHead>
             <TableHead>職能</TableHead>
-            <TableHead>每場薪資</TableHead>
+            <TableHead>能力</TableHead>
             <TableHead>狀態</TableHead>
             <TableHead className="text-right">操作</TableHead>
           </TableRow>
@@ -63,7 +64,23 @@ export function StaffTable({ staff, onRowClick }: StaffTableProps) {
                 <TableCell className="font-medium">{member.name}</TableCell>
                 <TableCell>{formatPhone(member.phone)}</TableCell>
                 <TableCell>{member.skill ? skillLabels[member.skill] : "-"}</TableCell>
-                <TableCell>{formatCurrency(member.perEventSalary)}</TableCell>
+                <TableCell>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    {member.canDrive && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "2px", color: "#2563eb", fontSize: "12px" }}>
+                        <Car style={{ width: "14px", height: "14px" }} />
+                        可駕駛
+                      </span>
+                    )}
+                    {member.hasLine && (
+                      <span style={{ display: "flex", alignItems: "center", gap: "2px", color: "#22c55e", fontSize: "12px" }}>
+                        <MessageCircle style={{ width: "14px", height: "14px" }} />
+                        LINE
+                      </span>
+                    )}
+                    {!member.canDrive && !member.hasLine && "-"}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <StatusBadge status={member.status} />
                 </TableCell>

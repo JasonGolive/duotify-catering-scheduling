@@ -3,8 +3,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./status-badge";
-import { formatPhone, formatCurrency } from "@/lib/utils";
-import { Phone, DollarSign, Briefcase, Calendar } from "lucide-react";
+import { formatPhone } from "@/lib/utils";
+import { Phone, Briefcase, Calendar, Car, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 const skillLabels: Record<string, string> = {
@@ -19,8 +19,9 @@ interface StaffCardProps {
     name: string;
     phone: string;
     skill?: "FRONT" | "HOT" | "BOTH";
-    perEventSalary: number | string;
     status: "ACTIVE" | "INACTIVE";
+    canDrive?: boolean;
+    hasLine?: boolean;
   };
   onClick?: () => void;
 }
@@ -48,9 +49,19 @@ export function StaffCard({ staff, onClick }: StaffCardProps) {
             {skillLabels[staff.skill] || staff.skill}
           </div>
         )}
-        <div className="flex items-center text-sm font-medium">
-          <DollarSign className="mr-2 h-4 w-4" />
-          {formatCurrency(staff.perEventSalary)} / 場
+        <div className="flex items-center gap-3 text-sm">
+          {staff.canDrive && (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#2563eb" }}>
+              <Car style={{ width: "14px", height: "14px" }} />
+              可駕駛
+            </span>
+          )}
+          {staff.hasLine && (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#22c55e" }}>
+              <MessageCircle style={{ width: "14px", height: "14px" }} />
+              LINE 已綁定
+            </span>
+          )}
         </div>
         <div className="pt-2">
           <Button

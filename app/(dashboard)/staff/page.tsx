@@ -27,15 +27,16 @@ export default async function StaffPage() {
       name: true,
       phone: true,
       skill: true,
-      perEventSalary: true,
       status: true,
+      canDrive: true,
+      lineUserId: true,
     },
   });
 
-  // Convert Decimal to number for client components
+  // Convert for client components (remove sensitive salary data)
   const staff = staffMembers.map((member) => ({
     ...member,
-    perEventSalary: Number(member.perEventSalary),
+    hasLine: !!member.lineUserId,
   }));
 
   return <StaffPageUI staff={staff} />;
