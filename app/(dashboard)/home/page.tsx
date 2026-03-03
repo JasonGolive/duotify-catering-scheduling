@@ -76,21 +76,26 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-gray-500">載入中...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div style={{ color: '#6b7280' }}>載入中...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Welcome Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-nordic-400 to-nordic-500 p-6 text-white">
-        <h1 className="text-2xl font-bold">{greeting}！👋</h1>
-        <p className="text-nordic-100 mt-1">
+      <div style={{ 
+        borderRadius: '1rem', 
+        background: 'linear-gradient(to right, #8BA4BC, #6B8AAB)', 
+        padding: '1.5rem', 
+        color: 'white' 
+      }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{greeting}！👋</h1>
+        <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '0.25rem' }}>
           {dateStr}
           {stats && stats.pendingEvents > 0 && (
-            <span className="ml-2">
+            <span style={{ marginLeft: '0.5rem' }}>
               ，有 {stats.pendingEvents} 場活動待處理
             </span>
           )}
