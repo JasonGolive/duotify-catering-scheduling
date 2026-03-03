@@ -90,8 +90,9 @@ enum Status {
 }
 
 enum Role {
-  MANAGER
-  STAFF
+  MANAGER   // 管理者 - 全功能
+  ADMIN     // 行政人員 - 除薪資外全功能
+  STAFF     // 員工 - 只能看自己的資料
 }
 
 enum Skill {

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-// Manager-only navigation items
+// Manager-only navigation items (full access)
 const managerNavItems = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "場次管理" },
@@ -33,9 +33,20 @@ const managerNavItems = [
   { href: "/analytics", icon: BarChart3, label: "數據分析" },
 ];
 
+// Admin navigation items (no salary access)
+const adminNavItems = [
+  { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/events", icon: Calendar, label: "場次管理" },
+  { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
+  { href: "/notifications", icon: Bell, label: "通知管理" },
+  { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
+  { href: "/staff", icon: Users, label: "員工管理" },
+  { href: "/leave-requests", icon: FileText, label: "請假管理" },
+  { href: "/analytics", icon: BarChart3, label: "數據分析" },
+];
+
 // Staff-only navigation items
 const staffNavItems = [
-  { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/my-schedule", icon: ClipboardList, label: "我的排班" },
 ];
 
@@ -104,7 +115,11 @@ export function Sidebar() {
 
   // Determine nav items based on user role
   const userRole = user?.publicMetadata?.role as string | undefined;
-  const navItems = userRole === "STAFF" ? staffNavItems : managerNavItems;
+  const navItems = userRole === "STAFF" 
+    ? staffNavItems 
+    : userRole === "ADMIN" 
+      ? adminNavItems 
+      : managerNavItems;
 
   return (
     <aside style={{
@@ -208,7 +223,11 @@ export function MobileNav() {
 
   // Determine nav items based on user role
   const userRole = user?.publicMetadata?.role as string | undefined;
-  const navItems = userRole === "STAFF" ? staffNavItems : managerNavItems;
+  const navItems = userRole === "STAFF" 
+    ? staffNavItems 
+    : userRole === "ADMIN" 
+      ? adminNavItems 
+      : managerNavItems;
 
   return (
     <>
