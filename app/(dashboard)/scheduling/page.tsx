@@ -28,8 +28,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle, Car, Truck } from "lucide-react";
+import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle, Car, Truck, Download } from "lucide-react";
 import Link from "next/link";
+import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 interface Event {
@@ -127,6 +128,7 @@ export default function SchedulingPage() {
   const [notifyStatus, setNotifyStatus] = useState<{ pending: number; notified: number } | null>(null);
   const [sending, setSending] = useState(false);
   const [vehicleUpdating, setVehicleUpdating] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -370,6 +372,73 @@ export default function SchedulingPage() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // Export scheduling statistics to Excel
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const startDate = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const endDate = `${year}-${String(month + 1).padStart(2, "0")}-${lastDay}`;
+
+      const response = await fetch(
+        `/api/v1/reports/scheduling?startDate=${startDate}&endDate=${endDate}`
+      );
+      if (!response.ok) throw new Error("取得報表資料失敗");
+      const data = await response.json();
+
+      // Sheet 1: 員工統計
+      const staffSheetData = data.staffStats.map((s: {
+        staffName: string;
+        totalEvents: number;
+        eventsByRole: Record<string, number>;
+        eventsByVehicle: Record<string, number>;
+        attendanceStatusCounts: Record<string, number>;
+      }) => ({
+        "員工": s.staffName,
+        "總場次": s.totalEvents,
+        "外場": s.eventsByRole.FRONT || 0,
+        "熱台": s.eventsByRole.HOT || 0,
+        "助手": s.eventsByRole.BOTH || 0,
+        "大餐車": s.eventsByVehicle.BIG_TRUCK || 0,
+        "小餐車": s.eventsByVehicle.SMALL_TRUCK || 0,
+        "店長車": s.eventsByVehicle.MANAGER_CAR || 0,
+        "自行開車": s.eventsByVehicle.OWN_CAR || 0,
+        "已確認": s.attendanceStatusCounts.CONFIRMED || 0,
+        "待確認": s.attendanceStatusCounts.SCHEDULED || 0,
+      }));
+
+      // Sheet 2: 總覽
+      const summarySheetData = [
+        { "項目": "總排班數", "數值": data.summary.totalAssignments },
+        { "項目": "員工人數", "數值": data.summary.uniqueStaffCount },
+        { "項目": "活動數", "數值": data.summary.uniqueEventCount },
+        { "項目": "外場總數", "數值": data.summary.overallByRole.FRONT || 0 },
+        { "項目": "熱台總數", "數值": data.summary.overallByRole.HOT || 0 },
+        { "項目": "助手總數", "數值": data.summary.overallByRole.BOTH || 0 },
+        { "項目": "大餐車", "數值": data.summary.overallByVehicle.BIG_TRUCK || 0 },
+        { "項目": "小餐車", "數值": data.summary.overallByVehicle.SMALL_TRUCK || 0 },
+        { "項目": "店長車", "數值": data.summary.overallByVehicle.MANAGER_CAR || 0 },
+        { "項目": "自行開車", "數值": data.summary.overallByVehicle.OWN_CAR || 0 },
+        { "項目": "已確認", "數值": data.summary.overallAttendanceStatus.CONFIRMED || 0 },
+        { "項目": "待確認", "數值": data.summary.overallAttendanceStatus.SCHEDULED || 0 },
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.json_to_sheet(staffSheetData);
+      const ws2 = XLSX.utils.json_to_sheet(summarySheetData);
+      XLSX.utils.book_append_sheet(wb, ws1, "員工統計");
+      XLSX.utils.book_append_sheet(wb, ws2, "總覽");
+
+      const filename = `排班統計_${year}-${String(month + 1).padStart(2, "0")}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      toast.success("匯出成功");
+    } catch (error) {
+      toast.error("匯出失敗");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Group events by date
   const eventsByDate = events.reduce((acc, event) => {
     const dateStr = event.date.split("T")[0];
@@ -420,6 +489,17 @@ export default function SchedulingPage() {
               <Send className="w-4 h-4 mr-2" />
               批次通知管理
             </Link>
+          </Button>
+
+          {/* 匯出按鈕 */}
+          <Button
+            variant="outline"
+            onClick={handleExportExcel}
+            disabled={exporting}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Download style={{ width: '1rem', height: '1rem' }} />
+            {exporting ? "匯出中..." : "匯出"}
           </Button>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

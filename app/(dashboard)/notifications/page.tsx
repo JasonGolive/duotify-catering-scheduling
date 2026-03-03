@@ -21,9 +21,10 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Calendar, Users, Send, Download, Bell, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar, Users, Send, Download, Bell, CheckCircle2, AlertCircle, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 import { zhTW } from "date-fns/locale";
 
 interface EventStaffInfo {
@@ -90,6 +91,7 @@ export default function NotificationsPage() {
   const [sending, setSending] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<NotificationPreview[]>([]);
+  const [exporting, setExporting] = useState(false);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -264,6 +266,49 @@ export default function NotificationsPage() {
     toast.success("已匯出 CSV 檔案");
   };
 
+  const exportToExcel = async () => {
+    setExporting(true);
+    try {
+      const response = await fetch(
+        `/api/v1/reports/notifications?startDate=${startDate}&endDate=${endDate}`
+      );
+      if (!response.ok) throw new Error("取得通知記錄失敗");
+      const data = await response.json();
+
+      const excelData = data.map((record: {
+        eventName: string;
+        eventDate: string;
+        staffName: string;
+        phone: string;
+        channel: string;
+        status: string;
+        sentAt: string;
+        errorMessage?: string;
+      }) => ({
+        "活動名稱": record.eventName,
+        "活動日期": record.eventDate,
+        "員工姓名": record.staffName,
+        "電話": record.phone,
+        "通知管道": record.channel,
+        "狀態": record.status,
+        "發送時間": record.sentAt,
+        "錯誤訊息": record.errorMessage || "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "通知記錄");
+
+      const today = format(new Date(), "yyyy-MM-dd");
+      XLSX.writeFile(workbook, `通知記錄_${today}.xlsx`);
+      toast.success("已匯出 Excel 檔案");
+    } catch (error) {
+      toast.error("匯出失敗");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Calculate statistics
   const stats = {
     totalEvents: events.length,
@@ -376,6 +421,15 @@ export default function NotificationsPage() {
         >
           <Download className="w-4 h-4 mr-2" />
           匯出 CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={exportToExcel}
+          disabled={exporting}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <FileSpreadsheet style={{ width: '1rem', height: '1rem' }} />
+          {exporting ? "匯出中..." : "匯出 Excel"}
         </Button>
         <Button
           onClick={generatePreview}

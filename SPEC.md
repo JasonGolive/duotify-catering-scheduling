@@ -135,6 +135,9 @@ GET    /api/v1/venues             # 場地列表
 GET    /api/v1/availability       # 指定日期可用員工
 GET    /api/v1/notifications      # 通知記錄
 GET    /api/v1/reports/salary     # 薪資報表
+GET    /api/v1/reports/events     # 活動報表（支援日期/狀態篩選）
+GET    /api/v1/reports/scheduling # 排班統計報表
+GET    /api/v1/reports/notifications # 通知記錄報表
 POST   /api/v1/worklogs/import    # 匯入打工記錄
 POST   /api/line/webhook          # LINE Webhook
 ```
@@ -181,6 +184,7 @@ POST   /api/line/webhook          # LINE Webhook
 | 1.1 | 2026-03-01 | 新增批次通知、異動通知 |
 | 1.2 | 2026-03-02 | 新增交通工具安排 |
 | 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，全面改用內聯樣式 |
+| 1.4 | 2026-03-03 | 新增報表匯出功能：活動報表、排班統計、通知記錄 (Excel) |
 
 ---
 
