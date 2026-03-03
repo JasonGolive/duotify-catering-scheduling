@@ -40,10 +40,17 @@ function NavItem({
   isActive: boolean;
   onClick?: () => void;
 }) {
+  const handleClick = (e: React.MouseEvent) => {
+    // 無論是否在當前頁面，都執行 onClick（關閉側邊欄）
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <Link
       href={href}
-      onClick={onClick}
+      onClick={handleClick}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -55,6 +62,7 @@ function NavItem({
         color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
         fontWeight: isActive ? 500 : 400,
         textDecoration: 'none',
+        cursor: 'pointer',
       }}
     >
       <Icon style={{ width: '1.25rem', height: '1.25rem' }} />
