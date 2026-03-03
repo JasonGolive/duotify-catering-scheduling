@@ -53,7 +53,8 @@ export default function AvailabilityManagementPage() {
 
       if (staffRes.ok) {
         const staffData = await staffRes.json();
-        setStaff(staffData);
+        // API returns { staff: [...] }
+        setStaff(staffData.staff || []);
       }
 
       if (tokensRes.ok) {

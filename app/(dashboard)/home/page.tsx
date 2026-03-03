@@ -163,6 +163,7 @@ export default function HomePage() {
                 <div>
                   <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>在職員工</p>
                   <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem', color: '#111827' }}>{stats?.activeStaff ?? 0}</p>
+                  <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', color: '#6b7280' }}>位人員</p>
                 </div>
                 <div style={{ 
                   width: '2.5rem', 
