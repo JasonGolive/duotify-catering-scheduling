@@ -133,3 +133,62 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     );
   }
 }
+
+// PUT /api/v1/staff/[id]/availability - Bulk update availability for multiple dates
+export async function PUT(request: Request, { params }: RouteParams) {
+  try {
+    const { id: staffId } = await params;
+    const body = await request.json();
+    
+    const { dates, available, reason } = body as {
+      dates: string[];
+      available: boolean;
+      reason?: string;
+    };
+
+    if (!dates || !Array.isArray(dates) || dates.length === 0) {
+      return NextResponse.json(
+        { error: "dates 陣列為必填" },
+        { status: 400 }
+      );
+    }
+
+    // Bulk upsert using transaction
+    const results = await prisma.$transaction(
+      dates.map((date: string) =>
+        prisma.staffAvailability.upsert({
+          where: {
+            staffId_date: {
+              staffId,
+              date: new Date(date),
+            },
+          },
+          update: {
+            available,
+            reason: reason || null,
+          },
+          create: {
+            staffId,
+            date: new Date(date),
+            available,
+            reason: reason || null,
+          },
+        })
+      )
+    );
+
+    return NextResponse.json({
+      updated: results.length,
+      records: results.map((r) => ({
+        ...r,
+        date: r.date.toISOString().split("T")[0],
+      })),
+    });
+  } catch (error) {
+    console.error("Error bulk updating staff availability:", error);
+    return NextResponse.json(
+      { error: "批量更新失敗" },
+      { status: 500 }
+    );
+  }
+}

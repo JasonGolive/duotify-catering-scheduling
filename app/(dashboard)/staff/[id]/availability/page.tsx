@@ -52,6 +52,7 @@ export default function StaffAvailabilityPage({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
   const skillLabels: Record<string, string> = {
     FRONT: "外場",
@@ -197,6 +198,98 @@ export default function StaffAvailabilityPage({
     setCurrentDate(new Date());
   };
 
+  // Bulk set all empty dates as available
+  const handleBulkSetAvailable = async () => {
+    setBulkUpdating(true);
+    try {
+      const emptyDates: string[] = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        // Only include dates that don't have availability set yet
+        if (!availability[dateStr]) {
+          emptyDates.push(dateStr);
+        }
+      }
+
+      if (emptyDates.length === 0) {
+        toast.info("所有日期已設定完成");
+        setBulkUpdating(false);
+        return;
+      }
+
+      // Use bulk API
+      const response = await fetch(`/api/v1/staff/${staffId}/availability`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dates: emptyDates,
+          available: true,
+          reason: null,
+        }),
+      });
+
+      if (!response.ok) throw new Error("批量更新失敗");
+
+      const result = await response.json();
+      const newAvailability = { ...availability };
+      for (const record of result.records) {
+        newAvailability[record.date] = record;
+      }
+      setAvailability(newAvailability);
+      toast.success(`已將 ${emptyDates.length} 天標記為可出勤`);
+    } catch (error) {
+      toast.error("批量更新失敗");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  // Bulk set all empty dates as unavailable
+  const handleBulkSetUnavailable = async () => {
+    setBulkUpdating(true);
+    try {
+      const emptyDates: string[] = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        // Only include dates that don't have availability set yet
+        if (!availability[dateStr]) {
+          emptyDates.push(dateStr);
+        }
+      }
+
+      if (emptyDates.length === 0) {
+        toast.info("所有日期已設定完成");
+        setBulkUpdating(false);
+        return;
+      }
+
+      // Use bulk API
+      const response = await fetch(`/api/v1/staff/${staffId}/availability`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dates: emptyDates,
+          available: false,
+          reason: "批量設定",
+        }),
+      });
+
+      if (!response.ok) throw new Error("批量更新失敗");
+
+      const result = await response.json();
+      const newAvailability = { ...availability };
+      for (const record of result.records) {
+        newAvailability[record.date] = record;
+      }
+      setAvailability(newAvailability);
+      toast.success(`已將 ${emptyDates.length} 天標記為不可出勤`);
+    } catch (error) {
+      toast.error("批量更新失敗");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   if (loading || !staff) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
@@ -251,6 +344,41 @@ export default function StaffAvailabilityPage({
           </div>
         </CardHeader>
         <CardContent>
+          {/* Bulk Actions */}
+          <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkSetAvailable}
+              disabled={bulkUpdating}
+              style={{ 
+                backgroundColor: "#dcfce7", 
+                borderColor: "#86efac",
+                color: "#166534",
+              }}
+            >
+              <Check style={{ width: "1rem", height: "1rem", marginRight: "0.25rem" }} />
+              {bulkUpdating ? "處理中..." : "全部標記可出勤"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkSetUnavailable}
+              disabled={bulkUpdating}
+              style={{ 
+                backgroundColor: "#fee2e2", 
+                borderColor: "#fca5a5",
+                color: "#991b1b",
+              }}
+            >
+              <X style={{ width: "1rem", height: "1rem", marginRight: "0.25rem" }} />
+              {bulkUpdating ? "處理中..." : "全部標記不可出勤"}
+            </Button>
+            <span style={{ fontSize: "0.75rem", color: "#6b7280", alignSelf: "center" }}>
+              (僅更新尚未設定的日期)
+            </span>
+          </div>
+
           {/* Legend */}
           <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", fontSize: "0.875rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
