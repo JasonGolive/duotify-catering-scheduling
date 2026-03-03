@@ -15,7 +15,6 @@ import {
   X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
@@ -73,20 +72,57 @@ function NavItem({
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  // 手機版不顯示固定側邊欄
+  if (!isDesktop) {
+    return null;
+  }
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0" style={{ backgroundColor: "#8BA4BC" }}>
+    <aside style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      width: '16rem',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#8BA4BC',
+    }}>
       {/* Logo */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/10">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        padding: '1rem',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      }}>
         <img
           src="/logo.png"
           alt="北歐餐桌"
-          className="h-10 w-auto rounded-lg"
+          style={{ height: '2.5rem', width: 'auto', borderRadius: '0.5rem' }}
         />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav style={{
+        flex: 1,
+        padding: '0.75rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.25rem',
+        overflowY: 'auto',
+      }}>
         {navItems.map((item) => (
           <NavItem
             key={item.href}
@@ -103,8 +139,15 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/10">
-        <p className="text-xs text-white/50 text-center">
+      <div style={{
+        padding: '1rem',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      }}>
+        <p style={{
+          fontSize: '0.75rem',
+          color: 'rgba(255, 255, 255, 0.5)',
+          textAlign: 'center',
+        }}>
           © 2026 北歐餐桌到府私廚
         </p>
       </div>
@@ -115,6 +158,17 @@ export function Sidebar() {
 export function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
+
+  // 檢測螢幕大小
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 防止背景滾動
   useEffect(() => {
@@ -128,16 +182,28 @@ export function MobileNav() {
     };
   }, [open]);
 
+  // 桌面版不顯示漢堡選單
+  if (!isMobile) {
+    return null;
+  }
+
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden"
+      <button
         onClick={() => setOpen(true)}
+        style={{
+          padding: '0.5rem',
+          background: 'transparent',
+          border: '1px solid #e5e7eb',
+          borderRadius: '0.375rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <Menu className="h-6 w-6" />
-      </Button>
+        <Menu style={{ width: '1.5rem', height: '1.5rem' }} />
+      </button>
 
       {/* Overlay */}
       {open && (
