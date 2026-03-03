@@ -17,6 +17,7 @@ import {
   ClipboardList,
   FileText,
   BarChart3,
+  CalendarDays,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -26,6 +27,7 @@ const managerNavItems = [
   { href: "/events", icon: Calendar, label: "活動管理" },
   { href: "/staff", icon: Users, label: "員工管理" },
   { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
+  { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
   { href: "/venues", icon: MapPin, label: "場地管理" },
   { href: "/salary", icon: Wallet, label: "薪資管理" },
   { href: "/leave-requests", icon: FileText, label: "請假管理" },

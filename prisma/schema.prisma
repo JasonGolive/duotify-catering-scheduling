@@ -58,6 +58,12 @@ model Staff {
   // 可用性行事曆
   availability   StaffAvailability[]
   
+  // 可用性編輯 Token
+  availabilityTokens AvailabilityToken[]
+  
+  // 可用性修改記錄
+  availabilityLogs   AvailabilityLog[]
+  
   // 打工記錄
   workLogs       WorkLog[]
   
@@ -411,4 +417,41 @@ model SalaryRule {
   @@index([isActive])
   @@index([priority])
   @@map("salary_rules")
+}
+
+// 員工可用性編輯 Token（用於員工自行編輯行事曆）
+model AvailabilityToken {
+  id          String    @id @default(cuid())
+  staffId     String
+  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  token       String    @unique @db.VarChar(64)   // 唯一存取 token
+  month       Int                                  // 1-12
+  year        Int                                  // e.g., 2026
+  expiresAt   DateTime                             // Token 過期時間
+  sentAt      DateTime?                            // 發送時間
+  completedAt DateTime?                            // 員工完成編輯時間
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([staffId, month, year])
+  @@index([token])
+  @@index([staffId])
+  @@map("availability_tokens")
+}
+
+// 可用性修改記錄（員工行事曆修改歷史）
+model AvailabilityLog {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date           // 被修改的日期
+  available   Boolean                     // 修改後的狀態
+  reason      String?  @db.VarChar(200)   // 原因
+  editedBy    String   @db.VarChar(50)    // 'STAFF' 或管理者 userId
+  ipAddress   String?  @db.VarChar(45)    // IP 地址
+  createdAt   DateTime @default(now())
+
+  @@index([staffId])
+  @@index([createdAt])
+  @@map("availability_logs")
 }
