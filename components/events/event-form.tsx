@@ -207,13 +207,13 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* 基本資訊 */}
-        <Card>
+        <Card style={{ backgroundColor: 'white', borderRadius: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: 'none' }}>
           <CardHeader>
-            <CardTitle>基本資訊</CardTitle>
+            <CardTitle style={{ fontSize: '1.125rem', fontWeight: 600 }}>基本資訊</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <FormField
               control={form.control}
               name="name"
@@ -228,7 +228,7 @@ export function EventForm({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
               <FormField
                 control={form.control}
                 name="date"

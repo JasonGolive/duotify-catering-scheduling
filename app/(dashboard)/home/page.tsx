@@ -226,24 +226,39 @@ export default function HomePage() {
       </div>
 
       {/* Main Content */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(1, 1fr)', 
+        gap: '1.5rem',
+      }}>
         {/* Upcoming Events */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Calendar className="w-4 h-4" style={{ color: "#5A7A9A" }} />
+        <Card style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '1rem', 
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          border: 'none',
+        }}>
+          <CardHeader style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            paddingBottom: '0.5rem' 
+          }}>
+            <CardTitle style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Calendar style={{ width: '1rem', height: '1rem', color: '#5A7A9A' }} />
               即將到來的活動
             </CardTitle>
             <Link
               href="/events"
-              className="text-sm flex items-center gap-1" style={{ color: "#5A7A9A" }}
+              style={{ fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#5A7A9A', textDecoration: 'none' }}
             >
-              查看全部 <ArrowRight className="w-3 h-3" />
+              查看全部 <ArrowRight style={{ width: '0.75rem', height: '0.75rem' }} />
             </Link>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {upcomingEvents.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
+              <p style={{ textAlign: 'center', color: '#6b7280', padding: '2rem 0' }}>
                 未來 7 天沒有排定的活動
               </p>
             ) : (
@@ -256,19 +271,38 @@ export default function HomePage() {
                   <Link
                     key={event.id}
                     href={`/events/${event.id}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.75rem',
+                      borderRadius: '0.75rem',
+                      backgroundColor: '#f9fafb',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                    }}
                   >
-                    <div className="w-11 h-11 shrink-0 rounded-xl flex flex-col items-center justify-center" style={{ backgroundColor: "#D9E2EC" }}>
-                      <span className="text-[10px] leading-tight" style={{ color: "#5A7A9A" }}>{month}月</span>
-                      <span className="text-base font-bold leading-tight" style={{ color: "#486A8C" }}>{day}</span>
+                    <div style={{ 
+                      width: '2.75rem', 
+                      height: '2.75rem', 
+                      flexShrink: 0, 
+                      borderRadius: '0.75rem', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      backgroundColor: '#D9E2EC' 
+                    }}>
+                      <span style={{ fontSize: '0.625rem', lineHeight: 1, color: '#5A7A9A' }}>{month}月</span>
+                      <span style={{ fontSize: '1rem', fontWeight: 'bold', lineHeight: 1, color: '#486A8C' }}>{day}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{event.name}</p>
-                      <p className="text-sm text-gray-500 truncate">{event.location}</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 500, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.name}</p>
+                      <p style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.location}</p>
                     </div>
-                    <div className="shrink-0 text-right flex items-center gap-2">
+                    <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <StatusBadge status={event.status} />
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
+                      <span style={{ fontSize: '0.75rem', color: '#9ca3af', whiteSpace: 'nowrap' }}>
                         {event.staffCount}人
                       </span>
                     </div>
@@ -280,42 +314,67 @@ export default function HomePage() {
         </Card>
 
         {/* Recent Activity */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Clock className="w-4 h-4" style={{ color: "#5A7A9A" }} />
+        <Card style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '1rem', 
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          border: 'none',
+        }}>
+          <CardHeader style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            paddingBottom: '0.5rem' 
+          }}>
+            <CardTitle style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Clock style={{ width: '1rem', height: '1rem', color: '#5A7A9A' }} />
               最近動態
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {recentActivity.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
+              <p style={{ textAlign: 'center', color: '#6b7280', padding: '2rem 0' }}>
                 尚無最近動態
               </p>
             ) : (
               recentActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-50"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem',
+                    borderRadius: '0.75rem',
+                    backgroundColor: '#f9fafb',
+                  }}
                 >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={
-                    activity.type === "NOTIFICATION_SENT" ? { backgroundColor: "#fce7f3" } : { backgroundColor: "#D9E2EC" }
-                  }>
+                  <div style={{ 
+                    width: '2rem', 
+                    height: '2rem', 
+                    borderRadius: '0.5rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    flexShrink: 0,
+                    backgroundColor: activity.type === "NOTIFICATION_SENT" ? '#fce7f3' : '#D9E2EC'
+                  }}>
                     {activity.type === "NOTIFICATION_SENT" ? (
-                      <Bell className="w-4 h-4" style={{ color: "#E8A5B8" }} />
+                      <Bell style={{ width: '1rem', height: '1rem', color: '#E8A5B8' }} />
                     ) : (
-                      <Users className="w-4 h-4" style={{ color: "#486A8C" }} />
+                      <Users style={{ width: '1rem', height: '1rem', color: '#486A8C' }} />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 500, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {activity.title}
                     </p>
-                    <p className="text-sm text-gray-500 truncate">
+                    <p style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {activity.description}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">
+                  <span style={{ fontSize: '0.75rem', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     {formatRelativeTime(activity.createdAt)}
                   </span>
                 </div>
@@ -326,35 +385,76 @@ export default function HomePage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">⚡ 快速操作</CardTitle>
+      <Card style={{ 
+        backgroundColor: 'white', 
+        borderRadius: '1rem', 
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        border: 'none',
+      }}>
+        <CardHeader style={{ paddingBottom: '0.5rem' }}>
+          <CardTitle style={{ fontSize: '1rem' }}>⚡ 快速操作</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/events/new" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#D9E2EC" }}>
-                <Plus className="w-6 h-6" style={{ color: "#486A8C" }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            <Link href="/events/new" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              padding: '1rem', 
+              borderRadius: '0.75rem', 
+              border: '1px solid #e5e7eb',
+              textDecoration: 'none',
+              color: 'inherit',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', backgroundColor: '#D9E2EC' }}>
+                <Plus style={{ width: '1.5rem', height: '1.5rem', color: '#486A8C' }} />
               </div>
-              <span className="text-sm font-medium text-gray-700">新增活動</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>新增活動</span>
             </Link>
-            <Link href="/scheduling" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#f3e8ff" }}>
-                <CalendarCheck className="w-6 h-6" style={{ color: "#9333ea" }} />
+            <Link href="/scheduling" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              padding: '1rem', 
+              borderRadius: '0.75rem', 
+              border: '1px solid #e5e7eb',
+              textDecoration: 'none',
+              color: 'inherit',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', backgroundColor: '#f3e8ff' }}>
+                <CalendarCheck style={{ width: '1.5rem', height: '1.5rem', color: '#9333ea' }} />
               </div>
-              <span className="text-sm font-medium text-gray-700">排班管理</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>排班管理</span>
             </Link>
-            <Link href="/notifications" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#fce7f3" }}>
-                <Bell className="w-6 h-6" style={{ color: "#E8A5B8" }} />
+            <Link href="/notifications" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              padding: '1rem', 
+              borderRadius: '0.75rem', 
+              border: '1px solid #e5e7eb',
+              textDecoration: 'none',
+              color: 'inherit',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', backgroundColor: '#fce7f3' }}>
+                <Bell style={{ width: '1.5rem', height: '1.5rem', color: '#E8A5B8' }} />
               </div>
-              <span className="text-sm font-medium text-gray-700">發送通知</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>發送通知</span>
             </Link>
-            <Link href="/salary/report" className="flex flex-col items-center p-4 rounded-xl border hover:bg-gray-50 transition">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: "#cffafe" }}>
-                <FileText className="w-6 h-6" style={{ color: "#0891b2" }} />
+            <Link href="/salary/report" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              padding: '1rem', 
+              borderRadius: '0.75rem', 
+              border: '1px solid #e5e7eb',
+              textDecoration: 'none',
+              color: 'inherit',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', backgroundColor: '#cffafe' }}>
+                <FileText style={{ width: '1.5rem', height: '1.5rem', color: '#0891b2' }} />
               </div>
-              <span className="text-sm font-medium text-gray-700">薪資報表</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>薪資報表</span>
             </Link>
           </div>
         </CardContent>
