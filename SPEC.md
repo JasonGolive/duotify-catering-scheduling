@@ -180,3 +180,31 @@ POST   /api/line/webhook          # LINE Webhook
 | 1.0 | 2026-03-01 | 初版上線 |
 | 1.1 | 2026-03-01 | 新增批次通知、異動通知 |
 | 1.2 | 2026-03-02 | 新增交通工具安排 |
+| 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，改用內聯樣式 |
+
+---
+
+## 已知問題與修復
+
+### Tailwind CSS v4 生產環境問題 (v1.3)
+
+**問題描述：**
+Tailwind CSS v4 的類名（如 `space-y-6`, `grid-cols-2`, `md:hidden` 等）在生產環境無法正確編譯，導致 UI 元素不顯示或佈局錯誤。
+
+**解決方案：**
+將關鍵 UI 元件改用內聯 `style` 屬性：
+- `components/layout/sidebar.tsx` - 側邊欄及漢堡選單
+- `app/(dashboard)/layout.tsx` - Dashboard 佈局
+- `app/(dashboard)/home/page.tsx` - Dashboard 首頁
+
+**響應式處理：**
+由於無法使用 Tailwind 的 `md:` 前綴，改用 `useEffect` + `useState` 檢測 `window.innerWidth`：
+```tsx
+const [isMobile, setIsMobile] = useState(true);
+useEffect(() => {
+  const checkMobile = () => setIsMobile(window.innerWidth < 768);
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
+```

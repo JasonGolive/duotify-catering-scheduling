@@ -108,126 +108,142 @@ export default function HomePage() {
         gridTemplateColumns: 'repeat(2, 1fr)', 
         gap: '1rem',
       }}>
-        <Card style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '1rem', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: 'none',
-        }}>
-          <CardContent style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>本月場次</p>
-                <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem' }}>{stats?.monthlyEvents ?? 0}</p>
-                {stats?.monthlyEventsChange !== undefined && (
-                  <p style={{ 
-                    fontSize: '0.75rem', 
-                    marginTop: '0.25rem', 
-                    color: (stats?.monthlyEventsChange ?? 0) >= 0 ? '#16a34a' : '#dc2626' 
-                  }}>
-                    {(stats?.monthlyEventsChange ?? 0) >= 0 ? "↑" : "↓"} {Math.abs(stats?.monthlyEventsChange ?? 0)} 較上月
-                  </p>
-                )}
+        <Link href="/events" style={{ textDecoration: 'none' }}>
+          <Card style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '1rem', 
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+          }}>
+            <CardContent style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>本月場次</p>
+                  <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem', color: '#111827' }}>{stats?.monthlyEvents ?? 0}</p>
+                  {stats?.monthlyEventsChange !== undefined && (
+                    <p style={{ 
+                      fontSize: '0.75rem', 
+                      marginTop: '0.25rem', 
+                      color: (stats?.monthlyEventsChange ?? 0) >= 0 ? '#16a34a' : '#dc2626' 
+                    }}>
+                      {(stats?.monthlyEventsChange ?? 0) >= 0 ? "↑" : "↓"} {Math.abs(stats?.monthlyEventsChange ?? 0)} 較上月
+                    </p>
+                  )}
+                </div>
+                <div style={{ 
+                  width: '2.5rem', 
+                  height: '2.5rem', 
+                  flexShrink: 0, 
+                  borderRadius: '0.75rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  backgroundColor: '#D9E2EC' 
+                }}>
+                  <Calendar style={{ width: '1.25rem', height: '1.25rem', color: '#5A7A9A' }} />
+                </div>
               </div>
-              <div style={{ 
-                width: '2.5rem', 
-                height: '2.5rem', 
-                flexShrink: 0, 
-                borderRadius: '0.75rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                backgroundColor: '#D9E2EC' 
-              }}>
-                <Calendar style={{ width: '1.25rem', height: '1.25rem', color: '#5A7A9A' }} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '1rem', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: 'none',
-        }}>
-          <CardContent style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>在職員工</p>
-                <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem' }}>{stats?.activeStaff ?? 0}</p>
+        <Link href="/staff" style={{ textDecoration: 'none' }}>
+          <Card style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '1rem', 
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+          }}>
+            <CardContent style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>在職員工</p>
+                  <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem', color: '#111827' }}>{stats?.activeStaff ?? 0}</p>
+                </div>
+                <div style={{ 
+                  width: '2.5rem', 
+                  height: '2.5rem', 
+                  flexShrink: 0, 
+                  borderRadius: '0.75rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  backgroundColor: '#dcfce7' 
+                }}>
+                  <Users style={{ width: '1.25rem', height: '1.25rem', color: '#6BAB73' }} />
+                </div>
               </div>
-              <div style={{ 
-                width: '2.5rem', 
-                height: '2.5rem', 
-                flexShrink: 0, 
-                borderRadius: '0.75rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                backgroundColor: '#dcfce7' 
-              }}>
-                <Users style={{ width: '1.25rem', height: '1.25rem', color: '#6BAB73' }} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '1rem', 
-          boxShadow: !!stats && stats.pendingEvents > 0 ? '0 0 0 2px #F5C242' : '0 1px 3px rgba(0,0,0,0.1)',
-          border: 'none',
-        }}>
-          <CardContent style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>待確認</p>
-                <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem' }}>{stats?.pendingEvents ?? 0}</p>
+        <Link href="/events?status=PENDING" style={{ textDecoration: 'none' }}>
+          <Card style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '1rem', 
+            boxShadow: !!stats && stats.pendingEvents > 0 ? '0 0 0 2px #F5C242' : '0 1px 3px rgba(0,0,0,0.1)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+          }}>
+            <CardContent style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>待確認</p>
+                  <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem', color: '#111827' }}>{stats?.pendingEvents ?? 0}</p>
+                </div>
+                <div style={{ 
+                  width: '2.5rem', 
+                  height: '2.5rem', 
+                  flexShrink: 0, 
+                  borderRadius: '0.75rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  backgroundColor: '#fef9c3' 
+                }}>
+                  <Clock style={{ width: '1.25rem', height: '1.25rem', color: '#F5C242' }} />
+                </div>
               </div>
-              <div style={{ 
-                width: '2.5rem', 
-                height: '2.5rem', 
-                flexShrink: 0, 
-                borderRadius: '0.75rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                backgroundColor: '#fef9c3' 
-              }}>
-                <Clock style={{ width: '1.25rem', height: '1.25rem', color: '#F5C242' }} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '1rem', 
-          boxShadow: !!stats && stats.pendingNotifications > 0 ? '0 0 0 2px #E8A5B8' : '0 1px 3px rgba(0,0,0,0.1)',
-          border: 'none',
-        }}>
-          <CardContent style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>待通知</p>
-                <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem' }}>{stats?.pendingNotifications ?? 0}</p>
+        <Link href="/notifications" style={{ textDecoration: 'none' }}>
+          <Card style={{ 
+            backgroundColor: 'white', 
+            borderRadius: '1rem', 
+            boxShadow: !!stats && stats.pendingNotifications > 0 ? '0 0 0 2px #E8A5B8' : '0 1px 3px rgba(0,0,0,0.1)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.2s',
+          }}>
+            <CardContent style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>待通知</p>
+                  <p style={{ fontSize: '1.875rem', fontWeight: 'bold', marginTop: '0.25rem', color: '#111827' }}>{stats?.pendingNotifications ?? 0}</p>
+                </div>
+                <div style={{ 
+                  width: '2.5rem', 
+                  height: '2.5rem', 
+                  flexShrink: 0, 
+                  borderRadius: '0.75rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  backgroundColor: '#fce7f3' 
+                }}>
+                  <Bell style={{ width: '1.25rem', height: '1.25rem', color: '#E8A5B8' }} />
+                </div>
               </div>
-              <div style={{ 
-                width: '2.5rem', 
-                height: '2.5rem', 
-                flexShrink: 0, 
-                borderRadius: '0.75rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                backgroundColor: '#fce7f3' 
-              }}>
-                <Bell style={{ width: '1.25rem', height: '1.25rem', color: '#E8A5B8' }} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Main Content */}
