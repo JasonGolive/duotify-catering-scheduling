@@ -8,21 +8,44 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
     
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Security: Verify request is from legitimate cron source
+    // Option 1: Check Authorization header with Bearer token
+    // Option 2: For Vercel Cron, check CRON_SECRET header
+    const vercelCronSecret = request.headers.get("x-vercel-cron-signature");
+    
+    if (cronSecret) {
+      const isValidBearer = authHeader === `Bearer ${cronSecret}`;
+      const isValidVercel = vercelCronSecret === cronSecret;
+      
+      if (!isValidBearer && !isValidVercel) {
+        console.warn("Unauthorized cron request attempt");
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
     }
 
     const result = await sendDailyReminders();
     
-    console.log(`Daily reminders sent: ${result.notificationsSent} notifications for ${result.eventsProcessed} events`);
+    console.log(
+      `Daily reminders: ${result.eventsFound} events found, ` +
+      `${result.notificationsSent} notifications sent, ` +
+      `${result.errors.length} errors`
+    );
     
     return NextResponse.json({
       success: true,
-      ...result,
+      eventsFound: result.eventsFound,
+      notificationsSent: result.notificationsSent,
+      errors: result.errors,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Cron job error:", error);
-    return NextResponse.json({ error: "執行失敗" }, { status: 500 });
+    return NextResponse.json(
+      { 
+        error: "執行失敗",
+        message: error instanceof Error ? error.message : "Unknown error",
+      }, 
+      { status: 500 }
+    );
   }
 }

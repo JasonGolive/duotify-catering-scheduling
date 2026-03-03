@@ -60,9 +60,13 @@
 
 | 功能 | 說明 |
 |------|------|
-| 月曆檢視 | 按月份顯示所有活動 |
+| 月曆檢視 | 按月份顯示所有活動，支援月/週/日檢視 |
+| 人員檢視 | 查看特定員工的月度排班 |
+| 拖拉排班 | 拖放方式快速指派人員 |
 | 人員指派 | 點選活動→查看可用員工→勾選指派 |
-| 衝突檢查 | 同日有其他場次的員工顯示警告 |
+| 衝突檢查 | 同日有其他場次的員工顯示警告，支援時間重疊檢測 |
+| 每日上限 | 可設定每人每日最多場次 (maxEventsPerDay) |
+| 職能篩選 | 依職稱自動推薦可排人員 |
 | 交通安排 | 為每位員工選擇交通工具（大餐車/小餐車/店長車/自行開車） |
 | 通知狀態 | 顯示已通知/待通知人數 |
 
@@ -73,13 +77,36 @@
 
 ---
 
+### 4.1 員工出勤 (`/my-schedule`)
+
+| 功能 | 說明 |
+|------|------|
+| 我的排班 | 員工查看個人月度排班 |
+| 確認出勤 | 員工確認參加活動 |
+| 請假申請 | 員工申請請假並填寫原因 |
+| GPS 打卡 | 上班/下班打卡，記錄 GPS 座標 |
+| 工時計算 | 自動計算實際工作時數 |
+
+---
+
+### 4.2 請假管理 (`/leave-requests`)
+
+| 功能 | 說明 |
+|------|------|
+| 請假審核 | 管理者審核員工請假申請 |
+| 核准/拒絕 | 一鍵核准或拒絕，可填寫原因 |
+| LINE 通知 | 審核結果自動通知員工 |
+
+---
+
 ### 5. 通知管理 (`/notifications`)
 
 | 功能 | 說明 |
 |------|------|
 | 批次通知 | 日期範圍篩選、勾選場次、預覽確認後發送 |
-| CSV 匯出 | 匯出通知總表（含 LINE/Email 狀態） |
+| CSV/Excel 匯出 | 匯出通知總表（含 LINE/Email 狀態） |
 | 異動通知 | 活動關鍵資訊變更時，可重發通知給已通知人員 |
+| 每日提醒 | 自動發送明日出勤提醒 (Cron job) |
 
 **通知管道：**
 - LINE Messaging API（透過加好友取得 userId）
@@ -88,6 +115,8 @@
 **通知觸發時機：**
 - 管理者手動批次發送
 - 活動異動（日期/時間/地點變更）後確認發送
+- 每日 Cron job 發送明日提醒
+- 請假審核結果通知
 
 ---
 
@@ -98,6 +127,20 @@
 | 薪資總表 | 按月份統計各員工薪資 |
 | 匯入打工記錄 | 支援 Excel/CSV 批次匯入 |
 | 薪資報表 | 產出月薪資報表 |
+| 加給規則管理 | 設定週末/節日/早班等加給條件 (`/salary/rules`) |
+| 自動計算 | 依規則自動計算加給與扣款 |
+
+---
+
+### 7. 數據分析 (`/analytics`)
+
+| 功能 | 說明 |
+|------|------|
+| 活動統計 | 總場次、已完成、待確認、取消數 |
+| 營收分析 | 總營收、平均每場營收、成本佔比 |
+| 人力分析 | 出勤率、請假率、平均每人場次 |
+| 員工排行 | Top 10 排班人員、出勤率排行 |
+| 趨勢圖表 | 月度活動數量、營收趨勢 |
 
 ---
 
@@ -112,6 +155,11 @@ PUT    /api/v1/staff/[id]         # 更新員工
 DELETE /api/v1/staff/[id]         # 刪除員工
 GET    /api/v1/staff/[id]/availability  # 可用性
 POST   /api/v1/staff/[id]/availability  # 設定可用性
+GET    /api/v1/staff/me/events    # 我的排班
+POST   /api/v1/staff/me/events/[id]/confirm   # 確認出勤
+POST   /api/v1/staff/me/events/[id]/leave     # 請假申請
+POST   /api/v1/staff/me/events/[id]/checkin   # GPS 打卡上班
+POST   /api/v1/staff/me/events/[id]/checkout  # GPS 打卡下班
 ```
 
 ### 活動 API
@@ -132,14 +180,23 @@ PATCH  /api/v1/events/[id]/notify # 發送異動通知
 ### 其他 API
 ```
 GET    /api/v1/venues             # 場地列表
-GET    /api/v1/availability       # 指定日期可用員工
+GET    /api/v1/availability       # 指定日期可用員工（含衝堂檢查）
 GET    /api/v1/notifications      # 通知記錄
+GET    /api/v1/settings           # 系統設定
+POST   /api/v1/settings           # 更新設定
 GET    /api/v1/reports/salary     # 薪資報表
-GET    /api/v1/reports/events     # 活動報表（支援日期/狀態篩選）
+GET    /api/v1/reports/events     # 活動報表
 GET    /api/v1/reports/scheduling # 排班統計報表
 GET    /api/v1/reports/notifications # 通知記錄報表
+GET    /api/v1/analytics          # 綜合分析數據
+GET    /api/v1/salary-rules       # 加給規則列表
+POST   /api/v1/salary-rules       # 新增加給規則
+POST   /api/v1/salary/calculate   # 計算薪資
+GET    /api/v1/leave-requests     # 請假申請列表
+PATCH  /api/v1/leave-requests/[id] # 審核請假
 POST   /api/v1/worklogs/import    # 匯入打工記錄
 POST   /api/line/webhook          # LINE Webhook
+GET    /api/cron/daily-reminders  # 每日提醒 Cron
 ```
 
 ---
@@ -185,6 +242,7 @@ POST   /api/line/webhook          # LINE Webhook
 | 1.2 | 2026-03-02 | 新增交通工具安排 |
 | 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，全面改用內聯樣式 |
 | 1.4 | 2026-03-03 | 新增報表匯出功能：活動報表、排班統計、通知記錄 (Excel) |
+| 2.0 | 2026-03-03 | 排班系統大升級：多檢視模式、拖拉排班、出勤確認、GPS打卡、加給規則、數據分析 |
 
 ---
 

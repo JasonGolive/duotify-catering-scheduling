@@ -32,6 +32,11 @@ import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCi
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
+import { SchedulingCalendar, CalendarEvent } from "@/components/scheduling/scheduling-calendar";
+import { StaffScheduleView } from "@/components/scheduling/staff-schedule-view";
+import { DragDropScheduler, SchedulerEvent, SchedulerStaff } from "@/components/scheduling/drag-drop-scheduler";
+
+type PageViewMode = 'month' | 'week' | 'day' | 'staff' | 'list' | 'dragdrop';
 
 interface Event {
   id: string;
@@ -65,6 +70,13 @@ interface Staff {
   unavailableReason: string | null;
   hasConflict: boolean;
   conflicts: { eventId: string; eventTitle: string }[];
+  conflictDetails?: {
+    eventsToday: number;
+    exceedsLimit: boolean;
+    maxEventsPerDay: number;
+    conflictingTimeSlots: { eventId: string; eventName: string; startTime: string | null; endTime: string | null }[];
+    hasTimeConflict: boolean;
+  };
 }
 
 interface AvailabilityData {
@@ -129,6 +141,9 @@ export default function SchedulingPage() {
   const [sending, setSending] = useState(false);
   const [vehicleUpdating, setVehicleUpdating] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [viewMode, setViewMode] = useState<PageViewMode>('list');
+  const [dragDropDate, setDragDropDate] = useState<string>('');
+  const [dragDropStaff, setDragDropStaff] = useState<SchedulerStaff[]>([]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -167,6 +182,97 @@ export default function SchedulingPage() {
     fetchEvents();
   }, [currentDate]);
 
+  // Initialize dragDropDate when events are loaded or view mode changes to dragdrop
+  useEffect(() => {
+    if (viewMode === 'dragdrop' && events.length > 0 && !dragDropDate) {
+      // Find first day with events, or use today
+      const sortedDates = events
+        .map(e => e.date.split('T')[0])
+        .sort();
+      const today = new Date().toISOString().split('T')[0];
+      const firstEventDate = sortedDates[0];
+      setDragDropDate(sortedDates.includes(today) ? today : firstEventDate || today);
+    } else if (viewMode === 'dragdrop' && events.length === 0 && !dragDropDate) {
+      setDragDropDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [viewMode, events, dragDropDate]);
+
+  // Fetch staff for drag-drop view
+  const fetchDragDropStaff = async (dateStr: string) => {
+    try {
+      const response = await fetch(`/api/v1/availability?date=${dateStr}`);
+      if (!response.ok) throw new Error("取得可用性失敗");
+      const data = await response.json();
+      const staffList: SchedulerStaff[] = data.available.map((s: Staff) => ({
+        id: s.id,
+        name: s.name,
+        skill: s.skill as 'FRONT' | 'HOT' | 'BOTH',
+        assignedEventsCount: s.conflicts?.length || 0,
+        maxEventsPerDay: 3,
+      }));
+      setDragDropStaff(staffList);
+    } catch (error) {
+      toast.error("無法載入員工資料");
+    }
+  };
+
+  useEffect(() => {
+    if (viewMode === 'dragdrop' && dragDropDate) {
+      fetchDragDropStaff(dragDropDate);
+    }
+  }, [viewMode, dragDropDate]);
+
+  // Callbacks for DragDropScheduler
+  const handleStaffAssigned = async (eventId: string, staffId: string, workRole: string) => {
+    const response = await fetch(`/api/v1/events/${eventId}/staff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staffId, workRole }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || '指派失敗');
+    }
+    await fetchEvents();
+    if (dragDropDate) {
+      await fetchDragDropStaff(dragDropDate);
+    }
+  };
+
+  const handleStaffRemoved = async (eventId: string, staffId: string) => {
+    const response = await fetch(`/api/v1/events/${eventId}/staff/${staffId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || '移除失敗');
+    }
+    await fetchEvents();
+    if (dragDropDate) {
+      await fetchDragDropStaff(dragDropDate);
+    }
+  };
+
+  // Get events for the selected drag-drop date
+  const getDragDropEvents = (): SchedulerEvent[] => {
+    if (!dragDropDate) return [];
+    return events
+      .filter(e => e.date.split('T')[0] === dragDropDate)
+      .map(e => ({
+        id: e.id,
+        name: e.name,
+        startTime: e.startTime || '',
+        endTime: '',
+        location: e.venue?.name || '',
+        assignedStaff: e.eventStaff.map(es => ({
+          id: es.id,
+          staffId: es.staff.id,
+          name: es.staff.name,
+          workRole: es.workRole as 'FRONT' | 'HOT' | 'ASSISTANT',
+        })),
+      }));
+  };
+
   const fetchAvailability = async (dateStr: string) => {
     try {
       const response = await fetch(`/api/v1/availability?date=${dateStr}`);
@@ -185,6 +291,27 @@ export default function SchedulingPage() {
     await fetchNotifyStatus(event.id);
     setDialogOpen(true);
   };
+
+  // Handler for calendar event clicks - finds the full event from our events list
+  const handleCalendarEventClick = (calendarEvent: CalendarEvent) => {
+    const fullEvent = events.find(e => e.id === calendarEvent.id);
+    if (fullEvent) {
+      handleEventClick(fullEvent);
+    }
+  };
+
+  // Convert events to CalendarEvent format for the calendar component
+  const calendarEvents: CalendarEvent[] = events.map(e => ({
+    id: e.id,
+    name: e.name,
+    date: e.date,
+    startTime: e.startTime,
+    status: e.status as CalendarEvent['status'],
+    eventStaff: e.eventStaff.map(es => ({
+      id: es.staff.id,
+      name: es.staff.name,
+    })),
+  }));
 
   const fetchNotifyStatus = async (eventId: string) => {
     try {
@@ -447,6 +574,29 @@ export default function SchedulingPage() {
     return acc;
   }, {} as Record<string, Event[]>);
 
+  // Determine required skill type from event (based on existing assigned staff roles)
+  const getEventRequiredSkills = (): Set<string> => {
+    if (!selectedEvent) return new Set();
+    const roles = new Set<string>();
+    selectedEvent.eventStaff.forEach(es => {
+      if (es.workRole === 'FRONT') roles.add('FRONT');
+      if (es.workRole === 'HOT') roles.add('HOT');
+    });
+    // If no staff assigned yet, assume both types are needed
+    if (roles.size === 0) {
+      roles.add('FRONT');
+      roles.add('HOT');
+    }
+    return roles;
+  };
+
+  // Check if staff skill matches event requirements
+  const isStaffRecommended = (staff: Staff): boolean => {
+    const requiredSkills = getEventRequiredSkills();
+    if (staff.skill === 'BOTH') return true;
+    return requiredSkills.has(staff.skill);
+  };
+
   // Get available staff list with filters
   const getFilteredStaff = () => {
     if (!availabilityData) return [];
@@ -461,6 +611,15 @@ export default function SchedulingPage() {
         (s) => s.skill === skillFilter || s.skill === "BOTH"
       );
     }
+
+    // Sort by recommendation: recommended staff first
+    staffList.sort((a, b) => {
+      const aRecommended = isStaffRecommended(a);
+      const bRecommended = isStaffRecommended(b);
+      if (aRecommended && !bRecommended) return -1;
+      if (!aRecommended && bRecommended) return 1;
+      return a.name.localeCompare(b.name, 'zh-TW');
+    });
     
     return staffList;
   };
@@ -516,42 +675,149 @@ export default function SchedulingPage() {
         </div>
       </div>
 
-      {/* Summary Card */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-        <Card>
-          <CardContent className="pt-4">
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{events.length}</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>本月活動總數</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>
-              {events.filter((e) => e.status === "CONFIRMED").length}
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>已確認</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ca8a04' }}>
-              {events.filter((e) => e.status === "PENDING").length}
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>待確認</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>
-              {events.filter((e) => e.eventStaff.length === 0).length}
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>未排班</div>
-          </CardContent>
-        </Card>
+      {/* View Mode Selector */}
+      <div style={{ 
+        display: 'flex', 
+        flexWrap: 'wrap',
+        gap: '0.5rem', 
+        marginBottom: '1.5rem',
+        padding: '0.5rem',
+        backgroundColor: '#f9fafb',
+        borderRadius: '0.5rem',
+        border: '1px solid #e5e7eb'
+      }}>
+        {([
+          { key: 'month', label: '月曆' },
+          { key: 'week', label: '週檢視' },
+          { key: 'day', label: '日檢視' },
+          { key: 'staff', label: '人員檢視' },
+          { key: 'list', label: '列表' },
+          { key: 'dragdrop', label: '拖拉排班' },
+        ] as { key: PageViewMode; label: string }[]).map((item) => (
+          <button
+            key={item.key}
+            onClick={() => setViewMode(item.key)}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '0.375rem',
+              border: viewMode === item.key ? '1px solid #3b82f6' : '1px solid transparent',
+              backgroundColor: viewMode === item.key ? '#dbeafe' : 'transparent',
+              color: viewMode === item.key ? '#1d4ed8' : '#374151',
+              fontWeight: viewMode === item.key ? '600' : '400',
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              flex: '1 1 auto',
+              minWidth: '80px',
+              textAlign: 'center' as const,
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      {/* Events Table */}
-      <Card>
+      {/* Calendar Views (Month, Week, Day) */}
+      {(viewMode === 'month' || viewMode === 'week' || viewMode === 'day') && (
+        <SchedulingCalendar
+          events={calendarEvents}
+          currentDate={currentDate}
+          viewMode={viewMode}
+          onDateChange={setCurrentDate}
+          onViewModeChange={(mode) => setViewMode(mode)}
+          onEventClick={handleCalendarEventClick}
+        />
+      )}
+
+      {/* Staff View */}
+      {viewMode === 'staff' && (
+        <StaffScheduleView
+          month={month}
+          year={year}
+        />
+      )}
+
+      {/* Drag-Drop View */}
+      {viewMode === 'dragdrop' && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '1rem', 
+            marginBottom: '1rem',
+            padding: '1rem',
+            backgroundColor: '#ffffff',
+            borderRadius: '0.5rem',
+            border: '1px solid #e5e7eb'
+          }}>
+            <label style={{ fontWeight: '500', color: '#374151' }}>選擇日期：</label>
+            <input
+              type="date"
+              value={dragDropDate}
+              onChange={(e) => setDragDropDate(e.target.value)}
+              style={{
+                padding: '0.5rem 0.75rem',
+                borderRadius: '0.375rem',
+                border: '1px solid #d1d5db',
+                fontSize: '0.875rem',
+                color: '#111827',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+              }}
+            />
+            <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+              {getDragDropEvents().length} 個活動
+            </span>
+          </div>
+          <DragDropScheduler
+            date={dragDropDate}
+            events={getDragDropEvents()}
+            staff={dragDropStaff}
+            onStaffAssigned={handleStaffAssigned}
+            onStaffRemoved={handleStaffRemoved}
+          />
+        </div>
+      )}
+
+      {/* List View - Events Table */}
+      {viewMode === 'list' && (
+        <>
+          {/* Summary Card */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <Card>
+              <CardContent className="pt-4">
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{events.length}</div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>本月活動總數</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>
+                  {events.filter((e) => e.status === "CONFIRMED").length}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>已確認</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ca8a04' }}>
+                  {events.filter((e) => e.status === "PENDING").length}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>待確認</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>
+                  {events.filter((e) => e.eventStaff.length === 0).length}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>未排班</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Events Table */}
+          <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
@@ -669,6 +935,8 @@ export default function SchedulingPage() {
           </Table>
         </CardContent>
       </Card>
+        </>
+      )}
 
       {/* Staff Assignment Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -895,7 +1163,12 @@ export default function SchedulingPage() {
           {/* Available Staff List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <h4 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#6b7280' }}>點擊加入排班</h4>
-            {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).map((staff) => (
+            {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).map((staff) => {
+              const recommended = isStaffRecommended(staff);
+              const eventsToday = staff.conflictDetails?.eventsToday || 0;
+              const maxEvents = staff.conflictDetails?.maxEventsPerDay || 2;
+              const exceedsLimit = staff.conflictDetails?.exceedsLimit || false;
+              return (
               <div
                 key={staff.id}
                 onClick={() => handleStaffToggle(staff.id, true)}
@@ -904,25 +1177,35 @@ export default function SchedulingPage() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.75rem',
-                  border: staff.hasConflict ? '1px solid #fde68a' : '1px solid #e5e7eb',
+                  border: recommended ? '2px solid #22c55e' : (staff.hasConflict ? '1px solid #fde68a' : '1px solid #e5e7eb'),
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
-                  backgroundColor: staff.hasConflict ? '#fefce8' : 'transparent',
+                  backgroundColor: recommended ? '#f0fdf4' : (staff.hasConflict ? '#fefce8' : 'transparent'),
                   transition: 'background-color 0.15s, border-color 0.15s'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: '500' }}>
+                  <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: recommended ? '#dcfce7' : '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: '500' }}>
                     {staff.name.charAt(0)}
                   </div>
                   <div>
-                    <div style={{ fontWeight: '500' }}>{staff.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontWeight: '500' }}>{staff.name}</span>
+                      {recommended && (
+                        <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.375rem', backgroundColor: '#16a34a', color: 'white', borderRadius: '0.25rem', fontWeight: '500' }}>推薦</span>
+                      )}
+                    </div>
                     <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                       {skillLabels[staff.skill]} | {staff.phone}
                     </div>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
+                  {eventsToday > 0 && (
+                    <div style={{ fontSize: '0.75rem', marginBottom: '0.25rem', color: exceedsLimit ? '#ea580c' : '#6b7280', fontWeight: exceedsLimit ? '500' : 'normal' }}>
+                      今日已排 {eventsToday} 場{exceedsLimit && ` (上限 ${maxEvents})`}
+                    </div>
+                  )}
                   {staff.hasConflict && (
                     <Badge variant="outline" style={{ color: '#ca8a04', marginBottom: '0.25rem' }}>
                       有其他場次
@@ -933,7 +1216,8 @@ export default function SchedulingPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             
             {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).length === 0 && (
               <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6b7280' }}>

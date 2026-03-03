@@ -312,12 +312,30 @@ export async function notifyEventStaff(params: EventNotifyParams): Promise<{
   };
 }
 
+// Map skill/role to Chinese display
+function getWorkRoleDisplay(skill: string): string {
+  switch (skill) {
+    case "FRONT": return "外場";
+    case "HOT": return "熱台";
+    case "BOTH": return "皆可";
+    default: return skill;
+  }
+}
+
+// Format weekday in Chinese
+function getWeekdayDisplay(date: Date): string {
+  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+  return `週${weekdays[date.getDay()]}`;
+}
+
 // Send daily reminders for events happening tomorrow
 export async function sendDailyReminders(): Promise<{
+  eventsFound: number;
   eventsProcessed: number;
   notificationsSent: number;
+  errors: Array<{ staffId: string; staffName: string; eventId: string; eventName: string; error: string }>;
 }> {
-  // Get tomorrow's date
+  // Get tomorrow's date range
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
@@ -325,7 +343,7 @@ export async function sendDailyReminders(): Promise<{
   const dayAfter = new Date(tomorrow);
   dayAfter.setDate(dayAfter.getDate() + 1);
   
-  // Find events happening tomorrow
+  // Find events happening tomorrow (not cancelled/completed)
   const events = await prisma.event.findMany({
     where: {
       date: {
@@ -337,26 +355,147 @@ export async function sendDailyReminders(): Promise<{
       },
     },
     include: {
+      venue: {
+        select: {
+          name: true,
+        },
+      },
       eventStaff: {
         include: {
-          staff: true,
+          staff: {
+            select: {
+              id: true,
+              name: true,
+              lineUserId: true,
+              lineNotify: true,
+              email: true,
+              emailNotify: true,
+            },
+          },
         },
       },
     },
   });
   
   let notificationsSent = 0;
+  const errors: Array<{ staffId: string; staffName: string; eventId: string; eventName: string; error: string }> = [];
   
   for (const event of events) {
-    const result = await notifyEventStaff({
-      eventId: event.id,
-      type: "REMINDER",
+    // Format date display
+    const dateStr = event.date.toLocaleDateString("zh-TW", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    notificationsSent += result.success;
+    const weekday = getWeekdayDisplay(event.date);
+    const assemblyTime = event.assemblyTime || event.startTime || "待確認";
+    const venueOrLocation = event.venue?.name || event.location;
+    
+    // Process each assigned staff
+    for (const es of event.eventStaff) {
+      const staff = es.staff;
+      
+      // Skip if staff doesn't have LINE userId or LINE notify is disabled
+      if (!staff.lineUserId || !staff.lineNotify) {
+        continue;
+      }
+      
+      // Check if reminder already sent for this event+staff combination
+      // Look for REMINDER type notification sent today for this event and staff
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const existingReminder = await prisma.notification.findFirst({
+        where: {
+          staffId: staff.id,
+          eventId: event.id,
+          type: "REMINDER",
+          channel: "LINE",
+          status: "SENT",
+          sentAt: {
+            gte: today,
+          },
+        },
+      });
+      
+      if (existingReminder) {
+        // Already sent reminder today, skip
+        continue;
+      }
+      
+      // Build reminder message
+      const workRole = getWorkRoleDisplay(es.role);
+      const message = `🔔 明日出勤提醒
+
+活動：${event.name}
+日期：${dateStr} (${weekday})
+集合時間：${assemblyTime}
+地點：${venueOrLocation}
+角色：${workRole}
+
+請準時出勤！如有問題請盡早聯繫。`;
+      
+      try {
+        // Send LINE message
+        const success = await sendLineMessage(staff.lineUserId, message);
+        
+        // Record notification
+        await prisma.notification.create({
+          data: {
+            staffId: staff.id,
+            eventId: event.id,
+            type: "REMINDER",
+            channel: "LINE",
+            title: "🔔 明日出勤提醒",
+            content: message,
+            status: success ? "SENT" : "FAILED",
+            sentAt: success ? new Date() : null,
+            error: success ? null : "LINE 訊息發送失敗",
+          },
+        });
+        
+        if (success) {
+          notificationsSent++;
+        } else {
+          errors.push({
+            staffId: staff.id,
+            staffName: staff.name,
+            eventId: event.id,
+            eventName: event.name,
+            error: "LINE 訊息發送失敗",
+          });
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "未知錯誤";
+        errors.push({
+          staffId: staff.id,
+          staffName: staff.name,
+          eventId: event.id,
+          eventName: event.name,
+          error: errorMsg,
+        });
+        
+        // Record failed notification
+        await prisma.notification.create({
+          data: {
+            staffId: staff.id,
+            eventId: event.id,
+            type: "REMINDER",
+            channel: "LINE",
+            title: "🔔 明日出勤提醒",
+            content: message,
+            status: "FAILED",
+            error: errorMsg,
+          },
+        });
+      }
+    }
   }
   
   return {
+    eventsFound: events.length,
     eventsProcessed: events.length,
     notificationsSent,
+    errors,
   };
 }

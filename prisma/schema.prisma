@@ -236,12 +236,17 @@ model Event {
 
 // 出勤狀態
 enum AttendanceStatus {
-  SCHEDULED     // 已排班
-  CONFIRMED     // 已確認出勤
-  ATTENDED      // 已出勤
-  LATE          // 遲到
-  ABSENT        // 缺勤
-  CANCELLED     // 取消
+  SCHEDULED        // 已排班
+  CONFIRMED        // 已確認出勤
+  LEAVE_REQUESTED  // 已請假（待審核）
+  LEAVE_APPROVED   // 請假已核准
+  LEAVE_REJECTED   // 請假被拒絕
+  ATTENDED         // 已出勤
+  LATE             // 遲到
+  ABSENT           // 缺勤
+  NO_SHOW          // 未到
+  COMPLETED        // 已完成
+  CANCELLED        // 取消
 }
 
 // EventStaff entity (活動人員指派 - 中間表)
@@ -264,8 +269,19 @@ model EventStaff {
   
   // 出勤資訊
   attendanceStatus AttendanceStatus @default(SCHEDULED)
-  actualHours      Decimal?         @db.Decimal(4, 1)   // 實際工作時數
+  confirmedAt      DateTime?                            // 確認出勤時間
+  leaveReason      String?          @db.VarChar(500)    // 請假原因
+  actualHours      Decimal?         @db.Decimal(4, 2)   // 實際工作時數
   adjustedSalary   Decimal?         @db.Decimal(10, 0)  // 調整後薪資
+  
+  // GPS 打卡資訊
+  checkInTime      DateTime?                            // 打卡上班時間
+  checkInLatitude  Float?                               // 打卡上班緯度
+  checkInLongitude Float?                               // 打卡上班經度
+  checkInPhotoUrl  String?                              // 打卡上班照片
+  checkOutTime     DateTime?                            // 打卡下班時間
+  checkOutLatitude Float?                               // 打卡下班緯度
+  checkOutLongitude Float?                              // 打卡下班經度
   
   // 通知狀態
   notified         Boolean          @default(false)     // 是否已發送通知
@@ -305,7 +321,9 @@ model WorkLog {
   baseSalary    Decimal   @db.Decimal(10, 0) // 基本薪資（從員工主檔）
   overtimePay   Decimal   @db.Decimal(10, 0) @default(0) // 加班費
   allowance     Decimal   @db.Decimal(10, 0) @default(0) // 雜費/補助（如開車補助）
-  totalSalary   Decimal   @db.Decimal(10, 0) // 總薪資 = 基本 + 加班 + 補助
+  bonusBreakdown Json?                          // 加給明細 [{ ruleId, ruleName, amount }]
+  deductions    Decimal   @db.Decimal(10, 0) @default(0) // 扣款（遲到、請假等）
+  totalSalary   Decimal   @db.Decimal(10, 0) // 總薪資 = 基本 + 加班 + 補助 + 加給 - 扣款
   
   // 來源
   source      WorkLogSource @default(IMPORT) // 資料來源
@@ -364,6 +382,7 @@ enum NotificationType {
   REMINDER        // 活動提醒
   EVENT_CHANGE    // 活動異動
   EVENT_CANCEL    // 活動取消
+  LEAVE_REQUEST   // 請假申請（通知管理員）
 }
 
 enum NotificationChannel {
@@ -375,4 +394,21 @@ enum NotificationStatus {
   PENDING   // 待發送
   SENT      // 已發送
   FAILED    // 發送失敗
+}
+
+// SalaryRule entity (薪資規則 - 加給/扣款條件)
+model SalaryRule {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(100)   // e.g., "週末加給", "節日加給", "早班補貼"
+  type        String   @db.VarChar(20)    // PERCENTAGE or FIXED
+  value       Decimal  @db.Decimal(10, 2) // percentage or fixed amount
+  condition   Json                        // conditions like { "dayOfWeek": [0, 6] } or { "holiday": true }
+  isActive    Boolean  @default(true)
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([priority])
+  @@map("salary_rules")
 }

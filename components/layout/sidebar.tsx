@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -13,17 +14,29 @@ import {
   Bell,
   Menu,
   X,
+  ClipboardList,
+  FileText,
+  BarChart3,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const navItems = [
+// Manager-only navigation items
+const managerNavItems = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "活動管理" },
   { href: "/staff", icon: Users, label: "員工管理" },
   { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/venues", icon: MapPin, label: "場地管理" },
   { href: "/salary", icon: Wallet, label: "薪資管理" },
+  { href: "/leave-requests", icon: FileText, label: "請假管理" },
   { href: "/notifications", icon: Bell, label: "通知管理" },
+  { href: "/analytics", icon: BarChart3, label: "數據分析" },
+];
+
+// Staff-only navigation items
+const staffNavItems = [
+  { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/my-schedule", icon: ClipboardList, label: "我的排班" },
 ];
 
 function NavItem({
@@ -72,6 +85,7 @@ function NavItem({
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useUser();
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -87,6 +101,10 @@ export function Sidebar() {
   if (!isDesktop) {
     return null;
   }
+
+  // Determine nav items based on user role
+  const userRole = user?.publicMetadata?.role as string | undefined;
+  const navItems = userRole === "STAFF" ? staffNavItems : managerNavItems;
 
   return (
     <aside style={{
@@ -157,6 +175,7 @@ export function Sidebar() {
 
 export function MobileNav() {
   const pathname = usePathname();
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
 
@@ -186,6 +205,10 @@ export function MobileNav() {
   if (!isMobile) {
     return null;
   }
+
+  // Determine nav items based on user role
+  const userRole = user?.publicMetadata?.role as string | undefined;
+  const navItems = userRole === "STAFF" ? staffNavItems : managerNavItems;
 
   return (
     <>
