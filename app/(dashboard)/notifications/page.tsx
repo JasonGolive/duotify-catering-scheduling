@@ -279,10 +279,10 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">批次通知管理</h1>
-        <p className="text-gray-500 text-sm mt-1">
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>批次通知管理</h1>
+        <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
           篩選場次、預覽通知清單、匯出報表、批次發送通知
         </p>
       </div>
@@ -296,9 +296,9 @@ export default function NotificationsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4 items-end">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
             <div>
-              <label className="text-sm text-gray-500 block mb-1">開始日期</label>
+              <label style={{ fontSize: '0.875rem', color: '#6b7280', display: 'block', marginBottom: '0.25rem' }}>開始日期</label>
               <Input
                 type="date"
                 value={startDate}
@@ -307,7 +307,7 @@ export default function NotificationsPage() {
               />
             </div>
             <div>
-              <label className="text-sm text-gray-500 block mb-1">結束日期</label>
+              <label style={{ fontSize: '0.875rem', color: '#6b7280', display: 'block', marginBottom: '0.25rem' }}>結束日期</label>
               <Input
                 type="date"
                 value={endDate}
@@ -323,52 +323,52 @@ export default function NotificationsPage() {
       </Card>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{stats.totalEvents}</div>
-            <div className="text-sm text-gray-500">總場次</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.totalEvents}</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>總場次</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-blue-600">{stats.selectedEvents}</div>
-            <div className="text-sm text-gray-500">已選場次</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{stats.selectedEvents}</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>已選場次</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{stats.totalStaff}</div>
-            <div className="text-sm text-gray-500">總排班人數</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.totalStaff}</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>總排班人數</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-yellow-600">
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ca8a04' }}>
               {stats.pendingNotifications}
             </div>
-            <div className="text-sm text-gray-500">待通知人數</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>待通知人數</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-green-600">
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>
               {stats.selectedPending}
             </div>
-            <div className="text-sm text-gray-500">本次將發送</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>本次將發送</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
         <Button variant="outline" onClick={selectAll}>
           全選待通知場次
         </Button>
         <Button variant="outline" onClick={deselectAll}>
           取消全選
         </Button>
-        <div className="flex-1" />
+        <div style={{ flex: 1 }} />
         <Button
           variant="outline"
           onClick={exportToCSV}
@@ -398,9 +398,9 @@ export default function NotificationsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">載入中...</div>
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6b7280' }}>載入中...</div>
           ) : events.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6b7280' }}>
               此日期範圍內沒有活動
             </div>
           ) : (
@@ -434,10 +434,10 @@ export default function NotificationsPage() {
                           />
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium">
+                          <div style={{ fontWeight: 500 }}>
                             {format(new Date(event.date), "M/d (E)", { locale: zhTW })}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                             {event.assemblyTime || event.startTime || "-"}
                           </div>
                         </TableCell>
@@ -460,26 +460,26 @@ export default function NotificationsPage() {
                         </TableCell>
                         <TableCell>
                           {totalCount === 0 ? (
-                            <span className="text-gray-400">未排班</span>
+                            <span style={{ color: '#9ca3af' }}>未排班</span>
                           ) : (
                             <span>{totalCount} 人</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {totalCount === 0 ? (
-                            <span className="text-gray-400">-</span>
+                            <span style={{ color: '#9ca3af' }}>-</span>
                           ) : notifiedCount === totalCount ? (
-                            <Badge className="bg-green-100 text-green-800">
+                            <Badge style={{ backgroundColor: '#dcfce7', color: '#166534' }}>
                               <CheckCircle2 className="w-3 h-3 mr-1" />
                               全部已通知
                             </Badge>
                           ) : notifiedCount === 0 ? (
-                            <Badge className="bg-yellow-100 text-yellow-800">
+                            <Badge style={{ backgroundColor: '#fef9c3', color: '#854d0e' }}>
                               <AlertCircle className="w-3 h-3 mr-1" />
                               待通知 {totalCount}
                             </Badge>
                           ) : (
-                            <Badge className="bg-blue-100 text-blue-800">
+                            <Badge style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>
                               <Bell className="w-3 h-3 mr-1" />
                               {notifiedCount}/{totalCount} 已通知
                             </Badge>
@@ -504,12 +504,12 @@ export default function NotificationsPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="py-4">
-            <div className="mb-4 p-4 bg-blue-50 rounded-lg text-sm">
-              <p className="font-medium text-blue-800">
+          <div style={{ padding: '1rem 0' }}>
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
+              <p style={{ fontWeight: 500, color: '#1e40af' }}>
                 即將發送 {previewData.length} 筆通知
               </p>
-              <p className="text-blue-600 mt-1">
+              <p style={{ color: '#2563eb', marginTop: '0.25rem' }}>
                 LINE 綁定: {previewData.filter((p) => p.hasLine).length} 人 |
                 Email: {previewData.filter((p) => p.hasEmail).length} 人
               </p>
@@ -535,15 +535,15 @@ export default function NotificationsPage() {
                     <TableCell>{item.staffName}</TableCell>
                     <TableCell>{item.staffPhone}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
                         {item.hasLine && (
-                          <Badge className="bg-green-100 text-green-800">LINE</Badge>
+                          <Badge style={{ backgroundColor: '#dcfce7', color: '#166534' }}>LINE</Badge>
                         )}
                         {item.hasEmail && (
-                          <Badge className="bg-blue-100 text-blue-800">Email</Badge>
+                          <Badge style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>Email</Badge>
                         )}
                         {!item.hasLine && !item.hasEmail && (
-                          <span className="text-gray-400">無通知管道</span>
+                          <span style={{ color: '#9ca3af' }}>無通知管道</span>
                         )}
                       </div>
                     </TableCell>

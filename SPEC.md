@@ -180,7 +180,7 @@ POST   /api/line/webhook          # LINE Webhook
 | 1.0 | 2026-03-01 | 初版上線 |
 | 1.1 | 2026-03-01 | 新增批次通知、異動通知 |
 | 1.2 | 2026-03-02 | 新增交通工具安排 |
-| 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，改用內聯樣式 |
+| 1.3 | 2026-03-03 | 修復 Tailwind CSS v4 生產環境編譯問題，全面改用內聯樣式 |
 
 ---
 
@@ -192,10 +192,20 @@ POST   /api/line/webhook          # LINE Webhook
 Tailwind CSS v4 的類名（如 `space-y-6`, `grid-cols-2`, `md:hidden` 等）在生產環境無法正確編譯，導致 UI 元素不顯示或佈局錯誤。
 
 **解決方案：**
-將關鍵 UI 元件改用內聯 `style` 屬性：
+將所有 UI 元件改用內聯 `style` 屬性：
 - `components/layout/sidebar.tsx` - 側邊欄及漢堡選單
 - `app/(dashboard)/layout.tsx` - Dashboard 佈局
 - `app/(dashboard)/home/page.tsx` - Dashboard 首頁
+- `app/(dashboard)/events/page.tsx` - 活動管理
+- `app/(dashboard)/staff/page.tsx` - 員工管理
+- `app/(dashboard)/scheduling/page.tsx` - 排班管理
+- `app/(dashboard)/notifications/page.tsx` - 通知管理
+- `app/(dashboard)/venues/page.tsx` - 場地管理
+- `app/(dashboard)/salary/page.tsx` - 薪資管理
+- `components/events/event-form.tsx` - 活動表單
+- `components/events/event-list-view.tsx` - 活動列表
+- `components/staff/staff-form.tsx` - 員工表單
+- `components/staff/staff-list-view.tsx` - 員工列表
 
 **響應式處理：**
 由於無法使用 Tailwind 的 `md:` 前綴，改用 `useEffect` + `useState` 檢測 `window.innerWidth`：

@@ -86,7 +86,7 @@ export default function EditStaffPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "400px" }}>
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -94,11 +94,11 @@ export default function EditStaffPage() {
 
   if (error || !staff) {
     return (
-      <div className="container max-w-2xl py-8">
+      <div style={{ maxWidth: "42rem", margin: "0 auto", paddingTop: "2rem", paddingBottom: "2rem" }}>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-destructive mb-4">{error || "找不到員工資料"}</p>
+            <div style={{ textAlign: "center" }}>
+              <p style={{ color: "var(--destructive, #ef4444)", marginBottom: "1rem" }}>{error || "找不到員工資料"}</p>
               <Button asChild>
                 <Link href="/staff">返回員工列表</Link>
               </Button>
@@ -110,8 +110,8 @@ export default function EditStaffPage() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
-      <div className="mb-6">
+    <div style={{ maxWidth: "42rem", margin: "0 auto", paddingTop: "2rem", paddingBottom: "2rem" }}>
+      <div style={{ marginBottom: "1.5rem" }}>
         <Button variant="ghost" asChild>
           <Link href="/staff">
             <ArrowLeft className="mr-2 h-4 w-4" />

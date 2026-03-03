@@ -97,7 +97,7 @@ export function StaffForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <FormField
           control={form.control}
           name="name"
@@ -207,23 +207,23 @@ export function StaffForm({
 
         {/* 駕駛能力 */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">交通相關</CardTitle>
+          <CardHeader style={{ paddingBottom: '0.75rem' }}>
+            <CardTitle style={{ fontSize: '1rem' }}>交通相關</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <FormField
               control={form.control}
               name="canDrive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', lineHeight: 1 }}>
+                    <FormLabel style={{ cursor: 'pointer' }}>
                       會開車（可擔任駕駛）
                     </FormLabel>
                     <FormDescription>
@@ -238,15 +238,15 @@ export function StaffForm({
               control={form.control}
               name="hasOwnCar"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', lineHeight: 1 }}>
+                    <FormLabel style={{ cursor: 'pointer' }}>
                       有自備車
                     </FormLabel>
                     <FormDescription>
@@ -290,7 +290,7 @@ export function StaffForm({
               <FormControl>
                 <Textarea
                   placeholder="關於此員工的其他備註..."
-                  className="min-h-[100px]"
+                  style={{ minHeight: '100px' }}
                   {...field}
                 />
               </FormControl>
@@ -299,11 +299,10 @@ export function StaffForm({
           )}
         />
 
-        <div className="flex gap-4">
+        <div style={{ display: 'flex', gap: '1rem' }}>
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 sm:flex-none"
           >
             {isSubmitting ? "儲存中..." : initialData ? "更新員工" : "新增員工"}
           </Button>
@@ -313,7 +312,6 @@ export function StaffForm({
               variant="outline"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="flex-1 sm:flex-none"
             >
               取消
             </Button>

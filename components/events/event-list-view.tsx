@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { EventCard } from "./event-card";
 import { useRouter } from "next/navigation";
 import {
@@ -40,6 +41,23 @@ const statusOptions = [
 
 export function EventListView({ events, currentStatus = "CONFIRMED" }: EventListViewProps) {
   const router = useRouter();
+  const [gridCols, setGridCols] = useState(1);
+
+  useEffect(() => {
+    const updateGridCols = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) {
+        setGridCols(3);
+      } else if (width >= 768) {
+        setGridCols(2);
+      } else {
+        setGridCols(1);
+      }
+    };
+    updateGridCols();
+    window.addEventListener("resize", updateGridCols);
+    return () => window.removeEventListener("resize", updateGridCols);
+  }, []);
 
   const handleEventClick = (id: string) => {
     router.push(`/events/${id}`);
@@ -50,10 +68,10 @@ export function EventListView({ events, currentStatus = "CONFIRMED" }: EventList
   };
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {/* 篩選器 */}
-      <div className="flex items-center gap-4">
-        <label className="text-sm font-medium">狀態篩選：</label>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <label style={{ fontSize: "0.875rem", fontWeight: "500" }}>狀態篩選：</label>
         <Select value={currentStatus} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="選擇狀態" />
@@ -66,18 +84,18 @@ export function EventListView({ events, currentStatus = "CONFIRMED" }: EventList
             ))}
           </SelectContent>
         </Select>
-        <span className="text-sm text-muted-foreground">
+        <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
           共 {events.length} 筆
         </span>
       </div>
 
       {/* 活動列表 */}
       {events.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">尚無活動資料</p>
+        <div style={{ textAlign: "center", paddingTop: "3rem", paddingBottom: "3rem" }}>
+          <p style={{ color: "#6b7280" }}>尚無活動資料</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
           {events.map((event) => (
             <EventCard
               key={event.id}

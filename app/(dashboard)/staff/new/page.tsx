@@ -42,10 +42,10 @@ export default function NewStaffPage() {
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div style={{ maxWidth: "42rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">新增員工</h1>
-        <p className="text-muted-foreground">
+        <h1 style={{ fontSize: "1.875rem", lineHeight: "2.25rem", fontWeight: 700, letterSpacing: "-0.025em" }}>新增員工</h1>
+        <p style={{ color: "var(--muted-foreground, #6b7280)" }}>
           為您的外燴服務建立新的員工資料
         </p>
       </div>

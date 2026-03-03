@@ -1,11 +1,8 @@
 import { prisma } from "@/lib/db";
 import { isAuthenticated, isManager } from "@/lib/auth";
-import { EventListView } from "@/components/events/event-list-view";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EventStatus } from "@prisma/client";
+import { EventsPageClient, AccessDeniedClient } from "./events-page-client";
 
 export const dynamic = "force-dynamic";
 
@@ -21,15 +18,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   const manager = await isManager();
   if (!manager) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-8">
-        <h1 className="text-2xl font-bold text-red-600">存取被拒絕</h1>
-        <p className="mt-4 text-gray-600">您沒有權限存取此頁面。需要管理員權限。</p>
-        <Link href="/" className="mt-6 text-blue-600 hover:underline">
-          返回首頁
-        </Link>
-      </div>
-    );
+    return <AccessDeniedClient />;
   }
 
   const params = await searchParams;
@@ -60,31 +49,18 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   // Convert Date and Decimal to string for client components
   const formattedEvents = events.map((event) => ({
-    ...event,
+    id: event.id,
+    name: event.name,
     date: event.date.toISOString(),
+    startTime: event.startTime,
+    location: event.location || "",
+    adultsCount: event.adultsCount,
+    childrenCount: event.childrenCount,
+    vegetarianCount: event.vegetarianCount,
+    eventType: event.eventType,
+    status: event.status,
     totalAmount: event.totalAmount ? Number(event.totalAmount) : null,
-    depositAmount: event.depositAmount ? Number(event.depositAmount) : null,
-    balanceAmount: event.balanceAmount ? Number(event.balanceAmount) : null,
   }));
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">活動管理</h1>
-          <p className="text-muted-foreground">
-            管理您的外燴活動場次
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/events/new">
-            <Plus className="mr-2 h-4 w-4" />
-            新增活動
-          </Link>
-        </Button>
-      </div>
-
-      <EventListView events={formattedEvents} currentStatus={statusFilter} />
-    </div>
-  );
+  return <EventsPageClient events={formattedEvents} currentStatus={statusFilter} />;
 }

@@ -151,21 +151,21 @@ export default function VenuesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">載入中...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ color: '#6b7280' }}>載入中...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingTop: '1.5rem', paddingBottom: '1.5rem', paddingLeft: '1rem', paddingRight: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
-          <h1 className="text-2xl font-bold">場地管理</h1>
-          <p className="text-gray-500 text-sm mt-1">管理活動場地（民宿）資訊</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>場地管理</h1>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>管理活動場地（民宿）資訊</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Switch
               id="show-inactive"
               checked={showInactive}
@@ -191,8 +191,8 @@ export default function VenuesPage() {
                   {editingVenue ? "編輯場地" : "新增場地"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Label htmlFor="name">場地名稱 *</Label>
                   <Input
                     id="name"
@@ -205,7 +205,7 @@ export default function VenuesPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Label htmlFor="address">地址</Label>
                   <Input
                     id="address"
@@ -217,8 +217,8 @@ export default function VenuesPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <Label htmlFor="contactName">聯絡人</Label>
                     <Input
                       id="contactName"
@@ -229,7 +229,7 @@ export default function VenuesPage() {
                       placeholder="聯絡人姓名"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <Label htmlFor="contactPhone">聯絡電話</Label>
                     <Input
                       id="contactPhone"
@@ -242,7 +242,7 @@ export default function VenuesPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Label htmlFor="equipment">設備資訊</Label>
                   <Textarea
                     id="equipment"
@@ -255,7 +255,7 @@ export default function VenuesPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Label htmlFor="notes">注意事項</Label>
                   <Textarea
                     id="notes"
@@ -269,7 +269,7 @@ export default function VenuesPage() {
                 </div>
 
                 {editingVenue && (
-                  <div className="flex items-center gap-2">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Switch
                       id="isActive"
                       checked={formData.isActive}
@@ -281,7 +281,7 @@ export default function VenuesPage() {
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2 pt-4">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', paddingTop: '1rem' }}>
                   <Button
                     type="button"
                     variant="outline"
@@ -326,7 +326,7 @@ export default function VenuesPage() {
                 venues.map((venue) => (
                   <TableRow key={venue.id}>
                     <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <MapPin className="w-4 h-4 text-gray-400" />
                         {venue.name}
                       </div>
@@ -339,7 +339,7 @@ export default function VenuesPage() {
                         <div>
                           <div>{venue.contactName}</div>
                           {venue.contactPhone && (
-                            <div className="text-sm text-gray-500">
+                            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                               {venue.contactPhone}
                             </div>
                           )}
@@ -356,7 +356,7 @@ export default function VenuesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                         <Button
                           variant="ghost"
                           size="icon"

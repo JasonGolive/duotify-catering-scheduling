@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft, ChevronLeft, ChevronRight, Check, X } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface Staff {
   id: string;
@@ -200,8 +199,8 @@ export default function StaffAvailabilityPage({
 
   if (loading || !staff) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">載入中...</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <div style={{ color: "#6b7280" }}>載入中...</div>
       </div>
     );
   }
@@ -219,14 +218,14 @@ export default function StaffAvailabilityPage({
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center gap-4 mb-6">
+    <div style={{ maxWidth: "1280px", margin: "0 auto", paddingTop: "1.5rem", paddingBottom: "1.5rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">{staff.name} - 出勤行事曆</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>{staff.name} - 出勤行事曆</h1>
+          <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
             {skillLabels[staff.skill]} | {staff.phone}
           </p>
         </div>
@@ -234,11 +233,11 @@ export default function StaffAvailabilityPage({
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <CardTitle className="text-lg">
               {year} 年 {month + 1} 月
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <Button variant="outline" size="sm" onClick={goToToday}>
                 今天
               </Button>
@@ -253,34 +252,34 @@ export default function StaffAvailabilityPage({
         </CardHeader>
         <CardContent>
           {/* Legend */}
-          <div className="flex gap-4 mb-4 text-sm">
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 bg-green-100 border border-green-300 rounded" />
+          <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", fontSize: "0.875rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <div style={{ width: "1rem", height: "1rem", backgroundColor: "#dcfce7", border: "1px solid #86efac", borderRadius: "0.25rem" }} />
               <span>可出勤</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 bg-red-100 border border-red-300 rounded" />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <div style={{ width: "1rem", height: "1rem", backgroundColor: "#fee2e2", border: "1px solid #fca5a5", borderRadius: "0.25rem" }} />
               <span>不可出勤</span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded" />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <div style={{ width: "1rem", height: "1rem", backgroundColor: "#dbeafe", border: "1px solid #93c5fd", borderRadius: "0.25rem" }} />
               <span>已排班</span>
             </div>
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "0.25rem" }}>
             {["日", "一", "二", "三", "四", "五", "六"].map((day) => (
               <div
                 key={day}
-                className="text-center font-medium text-gray-500 py-2"
+                style={{ textAlign: "center", fontWeight: 500, color: "#6b7280", paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
               >
                 {day}
               </div>
             ))}
             {calendarDays.map((day, index) => {
               if (day === null) {
-                return <div key={index} className="h-20" />;
+                return <div key={index} style={{ height: "5rem" }} />;
               }
 
               const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -289,51 +288,73 @@ export default function StaffAvailabilityPage({
               const isToday = dateStr === todayStr;
               const isPast = new Date(dateStr) < new Date(todayStr);
 
-              let bgColor = "";
+              // Compute background and border colors
+              let bgColor = "transparent";
+              let borderColor = "#e5e7eb";
               if (avail?.available === false) {
-                bgColor = "bg-red-50 border-red-200";
+                bgColor = "#fef2f2";
+                borderColor = "#fecaca";
               } else if (dayEvents.length > 0) {
-                bgColor = "bg-blue-50 border-blue-200";
+                bgColor = "#eff6ff";
+                borderColor = "#bfdbfe";
               } else if (avail?.available === true) {
-                bgColor = "bg-green-50 border-green-200";
+                bgColor = "#f0fdf4";
+                borderColor = "#bbf7d0";
               }
 
               return (
                 <div
                   key={index}
                   onClick={() => !isPast && handleDateClick(dateStr)}
-                  className={cn(
-                    "h-20 border rounded-lg p-1 cursor-pointer transition-colors hover:bg-gray-50",
-                    bgColor,
-                    isToday && "ring-2 ring-primary",
-                    isPast && "opacity-50 cursor-not-allowed"
-                  )}
+                  style={{
+                    height: "5rem",
+                    border: `1px solid ${borderColor}`,
+                    borderRadius: "0.5rem",
+                    padding: "0.25rem",
+                    cursor: isPast ? "not-allowed" : "pointer",
+                    backgroundColor: bgColor,
+                    opacity: isPast ? 0.5 : 1,
+                    boxShadow: isToday ? "0 0 0 2px var(--primary, #3b82f6)" : "none",
+                    transition: "background-color 0.15s",
+                  }}
                 >
-                  <div className={cn(
-                    "text-sm font-medium",
-                    isToday && "text-primary"
-                  )}>
+                  <div style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: isToday ? "var(--primary, #3b82f6)" : "inherit",
+                  }}>
                     {day}
                   </div>
                   {dayEvents.length > 0 && (
-                    <div className="mt-1">
+                    <div style={{ marginTop: "0.25rem" }}>
                       {dayEvents.slice(0, 2).map((e, i) => (
                         <div
                           key={i}
-                          className="text-xs bg-blue-100 text-blue-800 px-1 rounded truncate mb-0.5"
+                          style={{
+                            fontSize: "0.75rem",
+                            backgroundColor: "#dbeafe",
+                            color: "#1e40af",
+                            paddingLeft: "0.25rem",
+                            paddingRight: "0.25rem",
+                            borderRadius: "0.25rem",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            marginBottom: "0.125rem",
+                          }}
                         >
                           {e.eventTitle}
                         </div>
                       ))}
                       {dayEvents.length > 2 && (
-                        <div className="text-xs text-blue-600">
+                        <div style={{ fontSize: "0.75rem", color: "#2563eb" }}>
                           +{dayEvents.length - 2} 場
                         </div>
                       )}
                     </div>
                   )}
                   {avail?.available === false && dayEvents.length === 0 && (
-                    <div className="text-xs text-red-600 mt-1">
+                    <div style={{ fontSize: "0.75rem", color: "#dc2626", marginTop: "0.25rem" }}>
                       {avail.reason || "不可出勤"}
                     </div>
                   )}
@@ -350,8 +371,8 @@ export default function StaffAvailabilityPage({
           <DialogHeader>
             <DialogTitle>設定 {selectedDate} 出勤狀態</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <Label>不可出勤原因（選填）</Label>
               <Input
                 value={reason}
@@ -359,28 +380,28 @@ export default function StaffAvailabilityPage({
                 placeholder="例：私人行程"
               />
             </div>
-            <div className="flex gap-2">
+            <div style={{ display: "flex", gap: "0.5rem" }}>
               <Button
-                className="flex-1"
+                style={{ flex: 1 }}
                 variant="outline"
                 onClick={() => handleSetAvailability(true)}
               >
-                <Check className="w-4 h-4 mr-2 text-green-600" />
+                <Check style={{ width: "1rem", height: "1rem", marginRight: "0.5rem", color: "#16a34a" }} />
                 可出勤
               </Button>
               <Button
-                className="flex-1"
+                style={{ flex: 1 }}
                 variant="outline"
                 onClick={() => handleSetAvailability(false)}
               >
-                <X className="w-4 h-4 mr-2 text-red-600" />
+                <X style={{ width: "1rem", height: "1rem", marginRight: "0.5rem", color: "#dc2626" }} />
                 不可出勤
               </Button>
             </div>
             {availability[selectedDate || ""] && (
               <Button
                 variant="ghost"
-                className="w-full"
+                style={{ width: "100%" }}
                 onClick={handleClearAvailability}
               >
                 清除設定

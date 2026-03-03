@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,14 @@ export default function SalaryPage() {
   const [editingRow, setEditingRow] = useState<PreviewRow | null>(null);
   const [imported, setImported] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 640);
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   // 解析 Excel/CSV 檔案
   const parseFile = useCallback(async (file: File) => {
@@ -204,25 +212,31 @@ export default function SalaryPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex flex-col gap-6">
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* 標題與操作 */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-2xl font-bold">薪資管理</h1>
-          <div className="flex gap-2">
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isSmallScreen ? 'column' : 'row', 
+          justifyContent: 'space-between', 
+          alignItems: isSmallScreen ? 'flex-start' : 'center', 
+          gap: '1rem' 
+        }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>薪資管理</h1>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <Button variant="outline" onClick={downloadTemplate}>
               <Download className="h-4 w-4 mr-2" />
               下載範本
             </Button>
             <Button asChild>
-              <label className="cursor-pointer">
+              <label style={{ cursor: 'pointer' }}>
                 <Upload className="h-4 w-4 mr-2" />
                 匯入檔案
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept=".xlsx,.xls,.csv"
-                  className="hidden"
+                  style={{ display: 'none' }}
                   onChange={handleFileUpload}
                   disabled={loading}
                 />
@@ -240,14 +254,18 @@ export default function SalaryPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(3, 1fr)', 
+              gap: '1rem' 
+            }}>
               <div>
                 <Label>基本時數</Label>
-                <p className="text-sm text-muted-foreground">4 小時（固定）</p>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>4 小時（固定）</p>
               </div>
               <div>
                 <Label>加班計算單位</Label>
-                <p className="text-sm text-muted-foreground">每 10 分鐘</p>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>每 10 分鐘</p>
               </div>
               <div>
                 <Label htmlFor="overtimeRate">每 10 分鐘加班費</Label>
@@ -260,7 +278,7 @@ export default function SalaryPage() {
                 />
               </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-4">
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '1rem' }}>
               薪資計算：基本薪資（≤4小時）+ 加班費（超過4小時每10分鐘）+ 補助
             </p>
           </CardContent>
@@ -270,88 +288,88 @@ export default function SalaryPage() {
         {preview && (
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center flex-wrap gap-2">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <CardTitle>預覽結果</CardTitle>
-                <div className="flex gap-4 text-sm flex-wrap">
+                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', flexWrap: 'wrap' }}>
                   <span>
                     總筆數: <strong>{preview.summary.total}</strong>
                   </span>
-                  <span className="text-green-600">
+                  <span style={{ color: '#16a34a' }}>
                     有效: <strong>{preview.summary.valid}</strong>
                   </span>
                   {preview.summary.warnings > 0 && (
-                    <span className="text-yellow-600">
+                    <span style={{ color: '#ca8a04' }}>
                       警告: <strong>{preview.summary.warnings}</strong>
                     </span>
                   )}
                   {preview.summary.errors > 0 && (
-                    <span className="text-red-600">
+                    <span style={{ color: '#dc2626' }}>
                       錯誤: <strong>{preview.summary.errors}</strong>
                     </span>
                   )}
-                  <span className="text-blue-600">
+                  <span style={{ color: '#2563eb' }}>
                     總薪資: <strong>NT$ {preview.summary.totalSalary.toLocaleString()}</strong>
                   </span>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <div style={{ overflowX: 'auto' }}>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">#</TableHead>
+                      <TableHead style={{ width: '3rem' }}>#</TableHead>
                       <TableHead>員工</TableHead>
                       <TableHead>日期</TableHead>
                       <TableHead>活動</TableHead>
                       <TableHead>集合時間</TableHead>
                       <TableHead>下班打卡</TableHead>
-                      <TableHead className="text-right">時數</TableHead>
-                      <TableHead className="text-right">基本</TableHead>
-                      <TableHead className="text-right">加班</TableHead>
-                      <TableHead className="text-right">補助</TableHead>
-                      <TableHead className="text-right">總計</TableHead>
+                      <TableHead style={{ textAlign: 'right' }}>時數</TableHead>
+                      <TableHead style={{ textAlign: 'right' }}>基本</TableHead>
+                      <TableHead style={{ textAlign: 'right' }}>加班</TableHead>
+                      <TableHead style={{ textAlign: 'right' }}>補助</TableHead>
+                      <TableHead style={{ textAlign: 'right' }}>總計</TableHead>
                       <TableHead>狀態</TableHead>
-                      <TableHead className="w-12"></TableHead>
+                      <TableHead style={{ width: '3rem' }}></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {preview.results.map((row) => (
                       <TableRow
                         key={row.row}
-                        className={row.error ? "bg-red-50" : row.warning ? "bg-yellow-50" : ""}
+                        style={{ backgroundColor: row.error ? '#fef2f2' : row.warning ? '#fefce8' : undefined }}
                       >
                         <TableCell>{row.row}</TableCell>
                         <TableCell>{row.staffName || "-"}</TableCell>
                         <TableCell>{row.date}</TableCell>
-                        <TableCell className="max-w-[120px] truncate" title={row.eventName}>
-                          {row.eventName || <span className="text-muted-foreground">-</span>}
+                        <TableCell style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.eventName}>
+                          {row.eventName || <span style={{ color: '#6b7280' }}>-</span>}
                         </TableCell>
                         <TableCell>{row.assemblyTime}</TableCell>
                         <TableCell>{row.clockOut}</TableCell>
-                        <TableCell className="text-right">{row.hours}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell style={{ textAlign: 'right' }}>{row.hours}</TableCell>
+                        <TableCell style={{ textAlign: 'right' }}>
                           {row.baseSalary.toLocaleString()}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell style={{ textAlign: 'right' }}>
                           {row.overtimePay > 0 ? (
-                            <span className="text-orange-600">
+                            <span style={{ color: '#ea580c' }}>
                               +{row.overtimePay.toLocaleString()}
                             </span>
                           ) : (
                             "-"
                           )}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell style={{ textAlign: 'right' }}>
                           {row.allowance > 0 ? (
-                            <span className="text-blue-600">
+                            <span style={{ color: '#2563eb' }}>
                               +{row.allowance.toLocaleString()}
                             </span>
                           ) : (
                             "-"
                           )}
                         </TableCell>
-                        <TableCell className="text-right font-semibold">
+                        <TableCell style={{ textAlign: 'right', fontWeight: 600 }}>
                           {row.totalSalary.toLocaleString()}
                         </TableCell>
                         <TableCell>
@@ -390,7 +408,7 @@ export default function SalaryPage() {
               </div>
 
               {/* 確認匯入按鈕 */}
-              <div className="flex justify-end mt-4 gap-2">
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '0.5rem' }}>
                 <Button
                   variant="outline"
                   onClick={() => setPreview(null)}
@@ -431,27 +449,27 @@ export default function SalaryPage() {
             <CardHeader>
               <CardTitle>匯入說明</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <p>請上傳員工打卡記錄的 Excel (.xlsx, .xls) 或 CSV 檔案：</p>
-              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+              <ul style={{ listStyleType: 'disc', listStylePosition: 'inside', display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem', color: '#6b7280' }}>
                 <li><strong>員工姓名</strong> - 必須與系統中的員工名稱完全相同</li>
                 <li><strong>日期</strong> - 格式：YYYY-MM-DD 或 YYYY/MM/DD</li>
                 <li><strong>上班時間</strong> - 打卡上班時間（格式：HH:mm）</li>
                 <li><strong>下班時間</strong> - 打卡下班時間（格式：HH:mm）</li>
               </ul>
-              <div className="bg-muted p-4 rounded-lg text-sm">
-                <p className="font-medium mb-2">薪資計算方式：</p>
-                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+              <div style={{ backgroundColor: '#f4f4f5', padding: '1rem', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
+                <p style={{ fontWeight: 500, marginBottom: '0.5rem' }}>薪資計算方式：</p>
+                <ol style={{ listStyleType: 'decimal', listStylePosition: 'inside', display: 'flex', flexDirection: 'column', gap: '0.25rem', color: '#6b7280' }}>
                   <li>系統會根據員工+日期自動比對活動排班</li>
                   <li>從活動的<strong>集合時間</strong>到打卡<strong>下班時間</strong>計算工時</li>
                   <li>≤4 小時發基本薪資，超過每 10 分鐘加班費</li>
                   <li>匯入後可在預覽畫面調整加班費和補助</li>
                 </ol>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 <strong>提示：</strong>請確保活動已設定集合時間，且員工已排班到該活動
               </p>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link href="/salary/report">
                   <Button variant="outline">查看薪資報表</Button>
                 </Link>
@@ -483,8 +501,8 @@ function EditRowForm({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4 text-sm">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', fontSize: '0.875rem' }}>
         <div>
           <Label>員工</Label>
           <p>{row.staffName}</p>
@@ -507,11 +525,11 @@ function EditRowForm({
         </div>
       </div>
 
-      <div className="border-t pt-4">
-        <div className="grid grid-cols-2 gap-4">
+      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           <div>
             <Label>基本薪資</Label>
-            <p className="text-lg font-semibold">NT$ {row.baseSalary.toLocaleString()}</p>
+            <p style={{ fontSize: '1.125rem', fontWeight: 600 }}>NT$ {row.baseSalary.toLocaleString()}</p>
           </div>
           <div>
             <Label htmlFor="edit-overtime">加班費（可調整）</Label>
@@ -533,14 +551,14 @@ function EditRowForm({
           </div>
           <div>
             <Label>總計</Label>
-            <p className="text-lg font-semibold text-green-600">
+            <p style={{ fontSize: '1.125rem', fontWeight: 600, color: '#16a34a' }}>
               NT$ {(row.baseSalary + overtimePay + allowance).toLocaleString()}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', paddingTop: '1rem' }}>
         <Button variant="outline" onClick={onCancel}>
           取消
         </Button>

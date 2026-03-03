@@ -60,6 +60,107 @@ const fieldLabels: Record<string, string> = {
   address: "地址",
 };
 
+// Inline style constants
+const styles = {
+  loadingContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "400px",
+  } as React.CSSProperties,
+  errorContainer: {
+    maxWidth: "42rem",
+    margin: "0 auto",
+    padding: "2rem 1rem",
+  } as React.CSSProperties,
+  errorText: {
+    textAlign: "center" as const,
+  } as React.CSSProperties,
+  errorMessage: {
+    color: "hsl(var(--destructive))",
+    marginBottom: "1rem",
+  } as React.CSSProperties,
+  mainContainer: {
+    maxWidth: "48rem",
+    margin: "0 auto",
+    padding: "2rem 1rem",
+  } as React.CSSProperties,
+  headerRow: {
+    marginBottom: "1.5rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  } as React.CSSProperties,
+  arrowIcon: {
+    marginRight: "0.5rem",
+    height: "1rem",
+    width: "1rem",
+  } as React.CSSProperties,
+  dialogPadding: {
+    padding: "1rem 0",
+  } as React.CSSProperties,
+  changesContainer: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "0.5rem",
+    marginBottom: "1rem",
+  } as React.CSSProperties,
+  changeItem: {
+    padding: "0.75rem",
+    backgroundColor: "#fefce8",
+    borderRadius: "0.5rem",
+    fontSize: "0.875rem",
+  } as React.CSSProperties,
+  changeLabel: {
+    fontWeight: 500,
+  } as React.CSSProperties,
+  changeValues: {
+    marginTop: "0.25rem",
+    color: "#4b5563",
+  } as React.CSSProperties,
+  oldValue: {
+    textDecoration: "line-through",
+  } as React.CSSProperties,
+  arrow: {
+    margin: "0 0.5rem",
+  } as React.CSSProperties,
+  newValue: {
+    color: "#2563eb",
+    fontWeight: 500,
+  } as React.CSSProperties,
+  noticeBox: {
+    padding: "0.75rem",
+    backgroundColor: "#eff6ff",
+    borderRadius: "0.5rem",
+    fontSize: "0.875rem",
+  } as React.CSSProperties,
+  noticeText: {
+    color: "#1e40af",
+  } as React.CSSProperties,
+  footerGap: {
+    gap: "0.5rem",
+  } as React.CSSProperties,
+  sendButton: {
+    backgroundColor: "#2563eb",
+  } as React.CSSProperties,
+  bellIcon: {
+    width: "1.25rem",
+    height: "1.25rem",
+    color: "#ca8a04",
+  } as React.CSSProperties,
+  buttonIcon: {
+    width: "1rem",
+    height: "1rem",
+    marginRight: "0.5rem",
+  } as React.CSSProperties,
+  spinnerIcon: {
+    width: "1rem",
+    height: "1rem",
+    marginRight: "0.5rem",
+    animation: "spin 1s linear infinite",
+  } as React.CSSProperties,
+};
+
 export default function EditEventPage() {
   const router = useRouter();
   const params = useParams();
@@ -180,7 +281,7 @@ export default function EditEventPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div style={styles.loadingContainer}>
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -188,11 +289,11 @@ export default function EditEventPage() {
 
   if (error || !event) {
     return (
-      <div className="container max-w-2xl py-8">
+      <div style={styles.errorContainer}>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-destructive mb-4">{error || "找不到活動資料"}</p>
+            <div style={styles.errorText}>
+              <p style={styles.errorMessage}>{error || "找不到活動資料"}</p>
               <Button asChild>
                 <Link href="/events">返回活動列表</Link>
               </Button>
@@ -204,11 +305,11 @@ export default function EditEventPage() {
   }
 
   return (
-    <div className="container max-w-3xl py-8">
-      <div className="mb-6 flex items-center justify-between">
+    <div style={styles.mainContainer}>
+      <div style={styles.headerRow}>
         <Button variant="ghost" asChild>
           <Link href="/events">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft style={styles.arrowIcon} />
             返回活動列表
           </Link>
         </Button>
@@ -263,8 +364,8 @@ export default function EditEventPage() {
       <Dialog open={notifyDialogOpen} onOpenChange={setNotifyDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-yellow-600" />
+            <DialogTitle style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Bell style={styles.bellIcon} />
               活動異動通知
             </DialogTitle>
             <DialogDescription>
@@ -272,29 +373,29 @@ export default function EditEventPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
-            <div className="space-y-2 mb-4">
+          <div style={styles.dialogPadding}>
+            <div style={styles.changesContainer}>
               {pendingChanges.map((change, idx) => (
-                <div key={idx} className="p-3 bg-yellow-50 rounded-lg text-sm">
-                  <span className="font-medium">{fieldLabels[change.field] || change.field}：</span>
-                  <div className="mt-1 text-gray-600">
-                    <span className="line-through">{change.oldValue || "無"}</span>
-                    <span className="mx-2">→</span>
-                    <span className="text-blue-600 font-medium">{change.newValue || "無"}</span>
+                <div key={idx} style={styles.changeItem}>
+                  <span style={styles.changeLabel}>{fieldLabels[change.field] || change.field}：</span>
+                  <div style={styles.changeValues}>
+                    <span style={styles.oldValue}>{change.oldValue || "無"}</span>
+                    <span style={styles.arrow}>→</span>
+                    <span style={styles.newValue}>{change.newValue || "無"}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="p-3 bg-blue-50 rounded-lg text-sm">
-              <p className="text-blue-800">
+            <div style={styles.noticeBox}>
+              <p style={styles.noticeText}>
                 目前有 <strong>{notifiedStaffCount}</strong> 位已通知的員工，
                 是否要發送異動通知？
               </p>
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter style={styles.footerGap}>
             <Button
               variant="outline"
               onClick={handleSkipNotify}
@@ -305,7 +406,7 @@ export default function EditEventPage() {
             <Button
               onClick={handleSendChangeNotify}
               disabled={isSendingNotify}
-              className="bg-blue-600 hover:bg-blue-700"
+              style={styles.sendButton}
             >
               {isSendingNotify ? (
                 <>
@@ -314,7 +415,7 @@ export default function EditEventPage() {
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send style={styles.buttonIcon} />
                   發送異動通知
                 </>
               )}

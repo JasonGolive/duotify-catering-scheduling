@@ -57,13 +57,136 @@ const attendanceLabels: Record<string, string> = {
   CANCELLED: "取消",
 };
 
-const attendanceColors: Record<string, string> = {
-  SCHEDULED: "bg-gray-100 text-gray-800",
-  CONFIRMED: "bg-blue-100 text-blue-800",
-  ATTENDED: "bg-green-100 text-green-800",
-  LATE: "bg-yellow-100 text-yellow-800",
-  ABSENT: "bg-red-100 text-red-800",
-  CANCELLED: "bg-gray-100 text-gray-500",
+const attendanceInlineColors: Record<string, React.CSSProperties> = {
+  SCHEDULED: { backgroundColor: "#f3f4f6", color: "#1f2937" },
+  CONFIRMED: { backgroundColor: "#dbeafe", color: "#1e40af" },
+  ATTENDED: { backgroundColor: "#dcfce7", color: "#166534" },
+  LATE: { backgroundColor: "#fef9c3", color: "#854d0e" },
+  ABSENT: { backgroundColor: "#fee2e2", color: "#991b1b" },
+  CANCELLED: { backgroundColor: "#f3f4f6", color: "#6b7280" },
+};
+
+// Inline style constants
+const styles = {
+  loadingContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "400px",
+  } as React.CSSProperties,
+  spinner: {
+    width: "2rem",
+    height: "2rem",
+    borderWidth: "4px",
+    borderStyle: "solid",
+    borderColor: "hsl(var(--primary))",
+    borderTopColor: "transparent",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+  } as React.CSSProperties,
+  mainContainer: {
+    maxWidth: "56rem",
+    margin: "0 auto",
+    padding: "2rem 1rem",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "1.5rem",
+  } as React.CSSProperties,
+  headerRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1rem",
+  } as React.CSSProperties,
+  arrowIcon: {
+    marginRight: "0.5rem",
+    height: "1rem",
+    width: "1rem",
+  } as React.CSSProperties,
+  pageTitle: {
+    fontSize: "1.875rem",
+    fontWeight: 700,
+  } as React.CSSProperties,
+  pageSubtitle: {
+    color: "hsl(var(--muted-foreground))",
+  } as React.CSSProperties,
+  addStaffRow: {
+    display: "flex",
+    gap: "1rem",
+  } as React.CSSProperties,
+  helperText: {
+    fontSize: "0.875rem",
+    color: "hsl(var(--muted-foreground))",
+    marginTop: "0.5rem",
+  } as React.CSSProperties,
+  emptyState: {
+    textAlign: "center" as const,
+    color: "hsl(var(--muted-foreground))",
+    padding: "2rem 0",
+  } as React.CSSProperties,
+  staffList: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "1rem",
+  } as React.CSSProperties,
+  staffCard: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "1rem",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: "0.5rem",
+  } as React.CSSProperties,
+  staffInfo: {
+    flex: 1,
+  } as React.CSSProperties,
+  staffNameRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  } as React.CSSProperties,
+  staffName: {
+    fontWeight: 500,
+  } as React.CSSProperties,
+  staffDetails: {
+    fontSize: "0.875rem",
+    color: "hsl(var(--muted-foreground))",
+    marginTop: "0.25rem",
+  } as React.CSSProperties,
+  adjustedSalary: {
+    color: "#16a34a",
+    marginLeft: "0.5rem",
+  } as React.CSSProperties,
+  actionRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  } as React.CSSProperties,
+  deleteIcon: {
+    height: "1rem",
+    width: "1rem",
+    color: "hsl(var(--destructive))",
+  } as React.CSSProperties,
+  cardTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  } as React.CSSProperties,
+  cardTitleLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  } as React.CSSProperties,
+  totalSalary: {
+    fontSize: "1.125rem",
+  } as React.CSSProperties,
+  iconSmall: {
+    height: "1.25rem",
+    width: "1.25rem",
+  } as React.CSSProperties,
+  conflictIcon: {
+    height: "0.75rem",
+    width: "0.75rem",
+  } as React.CSSProperties,
 };
 
 export default function EventStaffPage() {
@@ -208,28 +331,28 @@ export default function EventStaffPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div style={styles.loadingContainer}>
+        <div style={styles.spinner} />
       </div>
     );
   }
 
   return (
-    <div className="container max-w-4xl py-8 space-y-6">
+    <div style={styles.mainContainer}>
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div style={styles.headerRow}>
         <Button variant="ghost" asChild>
           <Link href={`/events/${eventId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft style={styles.arrowIcon} />
             返回活動
           </Link>
         </Button>
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold">人員排班</h1>
+        <h1 style={styles.pageTitle}>人員排班</h1>
         {event && (
-          <p className="text-muted-foreground">
+          <p style={styles.pageSubtitle}>
             {event.name} -{" "}
             {new Date(event.date).toLocaleDateString("zh-TW", {
               year: "numeric",
@@ -243,13 +366,13 @@ export default function EventStaffPage() {
       {/* Add Staff */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
+          <CardTitle style={styles.cardTitleLeft}>
+            <Plus style={styles.iconSmall} />
             新增人員
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
+          <div style={styles.addStaffRow}>
             <Select value={selectedStaffId} onValueChange={setSelectedStaffId}>
               <SelectTrigger className="flex-1">
                 <SelectValue placeholder="選擇員工" />
@@ -271,7 +394,7 @@ export default function EventStaffPage() {
             </Button>
           </div>
           {unassignedStaff.length === 0 && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p style={styles.helperText}>
               所有員工都已指派到此活動
             </p>
           )}
@@ -281,54 +404,54 @@ export default function EventStaffPage() {
       {/* Staff List */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+          <CardTitle style={styles.cardTitleRow}>
+            <span style={styles.cardTitleLeft}>
+              <User style={styles.iconSmall} />
               已指派人員 ({eventStaff.length})
             </span>
-            <span className="text-lg">
+            <span style={styles.totalSalary}>
               總薪資: TWD {totalSalary.toLocaleString()}
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {eventStaff.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+            <p style={styles.emptyState}>
               尚未指派人員
             </p>
           ) : (
-            <div className="space-y-4">
+            <div style={styles.staffList}>
               {eventStaff.map((es) => (
                 <div
                   key={es.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  style={styles.staffCard}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{es.staff.name}</span>
+                  <div style={styles.staffInfo}>
+                    <div style={styles.staffNameRow}>
+                      <span style={styles.staffName}>{es.staff.name}</span>
                       <Badge variant="outline">{roleLabels[es.role]}</Badge>
-                      <Badge className={attendanceColors[es.attendanceStatus]}>
+                      <Badge style={attendanceInlineColors[es.attendanceStatus]}>
                         {attendanceLabels[es.attendanceStatus]}
                       </Badge>
                       {es.conflicts && es.conflicts.length > 0 && (
-                        <Badge variant="destructive" className="flex items-center gap-1">
-                          <AlertTriangle className="h-3 w-3" />
+                        <Badge variant="destructive" style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                          <AlertTriangle style={styles.conflictIcon} />
                           衝突
                         </Badge>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div style={styles.staffDetails}>
                       {es.staff.phone} • TWD {es.salary.toLocaleString()}
                       {es.adjustedSalary !== null &&
                         es.adjustedSalary !== es.salary && (
-                          <span className="text-green-600 ml-2">
+                          <span style={styles.adjustedSalary}>
                             → TWD {es.adjustedSalary.toLocaleString()}
                           </span>
                         )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div style={styles.actionRow}>
                     <Select
                       value={es.attendanceStatus}
                       onValueChange={(v) => handleUpdateAttendance(es.staffId, v)}
@@ -349,7 +472,7 @@ export default function EventStaffPage() {
                       size="icon"
                       onClick={() => handleRemoveStaff(es.staffId)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 style={styles.deleteIcon} />
                     </Button>
                   </div>
                 </div>

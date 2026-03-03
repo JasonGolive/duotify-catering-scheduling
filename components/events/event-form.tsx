@@ -286,7 +286,7 @@ export function EventForm({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
               <FormField
                 control={form.control}
                 name="eventType"
@@ -345,24 +345,24 @@ export function EventForm({
           <CardHeader>
             <CardTitle>餐車需求</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-[0.8rem] text-muted-foreground">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <p style={{ fontSize: '0.8rem', color: '#6b7280' }}>
               若已承諾客人需開餐車前往，請勾選以便排班時提醒
             </p>
-            <div className="flex flex-wrap gap-6">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
               <FormField
                 control={form.control}
                 name="requireBigTruck"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0.75rem' }}>
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="cursor-pointer">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', lineHeight: 1 }}>
+                      <FormLabel style={{ cursor: 'pointer' }}>
                         需要大餐車
                       </FormLabel>
                       <FormDescription>
@@ -377,15 +377,15 @@ export function EventForm({
                 control={form.control}
                 name="requireSmallTruck"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0.75rem' }}>
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="cursor-pointer">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', lineHeight: 1 }}>
+                      <FormLabel style={{ cursor: 'pointer' }}>
                         需要小餐車
                       </FormLabel>
                       <FormDescription>
@@ -404,9 +404,9 @@ export function EventForm({
           <CardHeader>
             <CardTitle>場地資訊</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">選擇常用場地</label>
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>選擇常用場地</label>
               <Select
                 onValueChange={handleVenueChange}
                 value={form.watch("venueId") || undefined}
@@ -426,7 +426,7 @@ export function EventForm({
             </div>
 
             {showNewVenue && (
-              <div className="space-y-2 p-4 border rounded-lg bg-muted/50">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', backgroundColor: '#f9fafb' }}>
                 <Input
                   placeholder="場地名稱"
                   value={newVenueName}
@@ -437,7 +437,7 @@ export function EventForm({
                   value={newVenueAddress}
                   onChange={(e) => setNewVenueAddress(e.target.value)}
                 />
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Button type="button" size="sm" onClick={handleAddVenue}>
                     儲存場地
                   </Button>
@@ -489,7 +489,7 @@ export function EventForm({
             <CardTitle>訂餐人數</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
               <FormField
                 control={form.control}
                 name="adultsCount"
@@ -559,7 +559,7 @@ export function EventForm({
             <CardTitle>聯絡人</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
               <FormField
                 control={form.control}
                 name="contactName"
@@ -596,7 +596,7 @@ export function EventForm({
           <CardHeader>
             <CardTitle>金額與付款</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <FormField
               control={form.control}
               name="totalAmount"
@@ -618,9 +618,9 @@ export function EventForm({
             />
 
             {/* 訂金 */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <h4 className="font-medium">訂金</h4>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div style={{ padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <h4 style={{ fontWeight: 500 }}>訂金</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                 <FormField
                   control={form.control}
                   name="depositAmount"
@@ -686,9 +686,9 @@ export function EventForm({
             </div>
 
             {/* 尾款 */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <h4 className="font-medium">尾款</h4>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div style={{ padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <h4 style={{ fontWeight: 500 }}>尾款</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                 <FormField
                   control={form.control}
                   name="balanceAmount"
@@ -751,7 +751,7 @@ export function EventForm({
                   )}
                 />
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 ※ 當尾款支付完成時，狀態會自動變更為「已完成」
               </p>
             </div>
@@ -763,7 +763,7 @@ export function EventForm({
           <CardHeader>
             <CardTitle>員工通知內容</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <FormField
               control={form.control}
               name="menu"
@@ -773,7 +773,7 @@ export function EventForm({
                   <FormControl>
                     <Textarea
                       placeholder="菜單內容（會顯示在員工詳情頁）..."
-                      className="min-h-[100px]"
+                      style={{ minHeight: '100px' }}
                       {...field}
                     />
                   </FormControl>
@@ -791,7 +791,7 @@ export function EventForm({
                   <FormControl>
                     <Textarea
                       placeholder="給員工的提醒事項，例如：&#10;1. 帶工作桌子+桌巾&#10;2. 果醋25瓶(口味各半)&#10;3. 客人很注重擺盤，請注意"
-                      className="min-h-[120px]"
+                      style={{ minHeight: '120px' }}
                       {...field}
                     />
                   </FormControl>
@@ -812,7 +812,7 @@ export function EventForm({
               <FormControl>
                 <Textarea
                   placeholder="內部備註，不會顯示在員工詳情頁..."
-                  className="min-h-[100px]"
+                  style={{ minHeight: '100px' }}
                   {...field}
                 />
               </FormControl>
@@ -821,11 +821,10 @@ export function EventForm({
           )}
         />
 
-        <div className="flex gap-4">
+        <div style={{ display: 'flex', gap: '1rem' }}>
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 sm:flex-none"
           >
             {isSubmitting ? "儲存中..." : initialData?.name ? "更新活動" : "新增活動"}
           </Button>
@@ -835,7 +834,6 @@ export function EventForm({
               variant="outline"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="flex-1 sm:flex-none"
             >
               取消
             </Button>

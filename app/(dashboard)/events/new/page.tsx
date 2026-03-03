@@ -37,11 +37,11 @@ export default function NewEventPage() {
   };
 
   return (
-    <div className="container max-w-3xl py-8">
-      <div className="mb-6">
+    <div style={{ maxWidth: "48rem", margin: "0 auto", padding: "2rem 1rem" }}>
+      <div style={{ marginBottom: "1.5rem" }}>
         <Button variant="ghost" asChild>
           <Link href="/events">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }} />
             返回活動列表
           </Link>
         </Button>

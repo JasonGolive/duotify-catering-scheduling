@@ -31,7 +31,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Users, ChevronLeft, ChevronRight, Filter, Bell, Send, CheckCircle2, AlertCircle, Car, Truck } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface Event {
   id: string;
@@ -399,22 +398,22 @@ export default function SchedulingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">載入中...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ color: '#6b7280' }}>載入中...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <div>
-          <h1 className="text-2xl font-bold">排班管理</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>排班管理</h1>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
             依月份檢視活動並整批指派人員
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* 通知管理按鈕 */}
           <Button asChild className="bg-blue-600 hover:bg-blue-700">
             <Link href="/notifications">
@@ -423,11 +422,11 @@ export default function SchedulingPage() {
             </Link>
           </Button>
           
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Button variant="outline" size="icon" onClick={prevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <div className="text-lg font-medium px-4">
+            <div style={{ fontSize: '1.125rem', fontWeight: '500', padding: '0 1rem' }}>
               {year} 年 {month + 1} 月
             </div>
             <Button variant="outline" size="icon" onClick={nextMonth}>
@@ -438,35 +437,35 @@ export default function SchedulingPage() {
       </div>
 
       {/* Summary Card */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold">{events.length}</div>
-            <div className="text-sm text-gray-500">本月活動總數</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{events.length}</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>本月活動總數</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-green-600">
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>
               {events.filter((e) => e.status === "CONFIRMED").length}
             </div>
-            <div className="text-sm text-gray-500">已確認</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>已確認</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-yellow-600">
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ca8a04' }}>
               {events.filter((e) => e.status === "PENDING").length}
             </div>
-            <div className="text-sm text-gray-500">待確認</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>待確認</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-blue-600">
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>
               {events.filter((e) => e.eventStaff.length === 0).length}
             </div>
-            <div className="text-sm text-gray-500">未排班</div>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>未排班</div>
           </CardContent>
         </Card>
       </div>
@@ -495,7 +494,7 @@ export default function SchedulingPage() {
             <TableBody>
               {events.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} style={{ textAlign: 'center', padding: '2rem 0', color: '#6b7280' }}>
                     本月尚無活動
                   </TableCell>
                 </TableRow>
@@ -509,16 +508,16 @@ export default function SchedulingPage() {
                     return (
                     <TableRow key={event.id}>
                       <TableCell>
-                        <div className="font-medium">
+                        <div style={{ fontWeight: '500' }}>
                           {new Date(event.date).toLocaleDateString("zh-TW", {
                             month: "numeric",
                             day: "numeric",
                             weekday: "short",
                           })}
                         </div>
-                        <div className="text-sm text-gray-500">{event.startTime}</div>
+                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>{event.startTime}</div>
                       </TableCell>
-                      <TableCell className="font-medium">{event.name}</TableCell>
+                      <TableCell style={{ fontWeight: '500' }}>{event.name}</TableCell>
                       <TableCell>{event.venue?.name || "-"}</TableCell>
                       <TableCell>
                         <Badge
@@ -535,9 +534,9 @@ export default function SchedulingPage() {
                       </TableCell>
                       <TableCell>
                         {totalCount === 0 ? (
-                          <span className="text-gray-400">尚未排班</span>
+                          <span style={{ color: '#9ca3af' }}>尚未排班</span>
                         ) : (
-                          <div className="flex flex-wrap gap-1">
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                             {event.eventStaff.slice(0, 3).map((es) => (
                               <Badge key={es.id} variant="outline">
                                 {es.staff.name}
@@ -553,26 +552,26 @@ export default function SchedulingPage() {
                       </TableCell>
                       <TableCell>
                         {totalCount === 0 ? (
-                          <span className="text-gray-400">-</span>
+                          <span style={{ color: '#9ca3af' }}>-</span>
                         ) : notifiedCount === totalCount ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                          <Badge style={{ backgroundColor: '#dcfce7', color: '#166534' }}>
                             <CheckCircle2 className="w-3 h-3 mr-1" />
                             全部已通知
                           </Badge>
                         ) : notifiedCount === 0 ? (
-                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                          <Badge style={{ backgroundColor: '#fef9c3', color: '#854d0e' }}>
                             <AlertCircle className="w-3 h-3 mr-1" />
                             待通知 {totalCount}
                           </Badge>
                         ) : (
-                          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                          <Badge style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>
                             <Bell className="w-3 h-3 mr-1" />
                             {notifiedCount}/{totalCount}
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <TableCell style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -599,7 +598,7 @@ export default function SchedulingPage() {
               {selectedEvent?.name} - 人員排班
             </DialogTitle>
             {selectedEvent && (
-              <div className="text-sm text-gray-500">
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 {new Date(selectedEvent.date).toLocaleDateString("zh-TW")} {selectedEvent.startTime}
                 {selectedEvent.venue && ` | ${selectedEvent.venue.name}`}
               </div>
@@ -608,22 +607,22 @@ export default function SchedulingPage() {
 
           {/* Already Assigned Staff */}
           {selectedStaff.size > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium flex items-center gap-2">
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '0.875rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Users className="w-4 h-4" />
                   已排班人員 ({selectedStaff.size})
                 </h4>
                 {notifyStatus && (
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ fontSize: '0.875rem' }}>
                       {notifyStatus.pending > 0 ? (
-                        <span className="text-yellow-600">
+                        <span style={{ color: '#ca8a04' }}>
                           <Bell className="w-4 h-4 inline mr-1" />
                           {notifyStatus.pending} 人待通知
                         </span>
                       ) : (
-                        <span className="text-green-600">
+                        <span style={{ color: '#16a34a' }}>
                           ✓ 已全部通知
                         </span>
                       )}
@@ -644,9 +643,9 @@ export default function SchedulingPage() {
 
               {/* 餐車需求提示 */}
               {selectedEvent && (selectedEvent.requireBigTruck || selectedEvent.requireSmallTruck) && (
-                <div className="mb-3 p-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
+                <div style={{ marginBottom: '0.75rem', padding: '0.5rem', backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '0.5rem', fontSize: '0.875rem' }}>
                   <Truck className="w-4 h-4 inline mr-1 text-orange-600" />
-                  <span className="text-orange-700">
+                  <span style={{ color: '#c2410c' }}>
                     此場次需要：
                     {selectedEvent.requireBigTruck && " 大餐車"}
                     {selectedEvent.requireBigTruck && selectedEvent.requireSmallTruck && "、"}
@@ -664,22 +663,22 @@ export default function SchedulingPage() {
                 if (!hasVehicleAssignment) return null;
                 
                 return (
-                  <div className="mb-3 grid grid-cols-3 gap-2 text-xs">
+                  <div style={{ marginBottom: '0.75rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', fontSize: '0.75rem' }}>
                     {Object.entries(usage).map(([type, { driver, passengers }]) => {
                       const capacity = vehicleCapacity[type] || 0;
                       const total = (driver ? 1 : 0) + passengers.length;
                       if (total === 0) return null;
                       
                       return (
-                        <div key={type} className="p-2 bg-gray-50 rounded border">
-                          <div className="font-medium">{vehicleLabels[type]}</div>
-                          <div className="text-gray-600">
+                        <div key={type} style={{ padding: '0.5rem', backgroundColor: '#f9fafb', borderRadius: '0.25rem', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: '500' }}>{vehicleLabels[type]}</div>
+                          <div style={{ color: '#4b5563' }}>
                             {driver && <span>🚗 {driver}</span>}
                             {passengers.length > 0 && (
-                              <span className="ml-1">👥 {passengers.join(", ")}</span>
+                              <span style={{ marginLeft: '0.25rem' }}>👥 {passengers.join(", ")}</span>
                             )}
                           </div>
-                          <div className="text-gray-400">
+                          <div style={{ color: '#9ca3af' }}>
                             {total}/{capacity} 人
                           </div>
                         </div>
@@ -690,7 +689,7 @@ export default function SchedulingPage() {
               })()}
 
               {/* 已排班人員列表（含車輛選擇） */}
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {selectedEvent?.eventStaff.map((es) => {
                   const staff = availabilityData?.available.find(s => s.id === es.staff.id) ||
                                availabilityData?.conflicting.find(s => s.id === es.staff.id);
@@ -699,14 +698,14 @@ export default function SchedulingPage() {
                   return (
                     <div
                       key={es.id}
-                      className="flex items-center justify-between p-2 border rounded-lg bg-gray-50"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem', backgroundColor: '#f9fafb' }}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-medium text-blue-700">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: '500', color: '#1d4ed8' }}>
                           {es.staff.name.charAt(0)}
                         </div>
                         <div>
-                          <div className="font-medium flex items-center gap-1">
+                          <div style={{ fontWeight: '500', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                             {es.staff.name}
                             {canDrive && (
                               <span title="可當駕駛">
@@ -714,13 +713,13 @@ export default function SchedulingPage() {
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                             {skillLabels[es.staff.skill]}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         {/* 車輛選擇 */}
                         <Select
                           value={es.vehicle ? `${es.vehicle}${es.isDriver ? '_DRIVER' : '_PASSENGER'}` : "NONE"}
@@ -760,7 +759,7 @@ export default function SchedulingPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
+                          style={{ height: '2rem', width: '2rem', padding: 0, color: '#9ca3af' }}
                           onClick={() => handleStaffToggle(es.staff.id, false)}
                         >
                           ✕
@@ -774,8 +773,8 @@ export default function SchedulingPage() {
           )}
 
           {/* Filters */}
-          <div className="flex gap-4 mb-4">
-            <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Filter className="w-4 h-4 text-gray-400" />
               <Select value={skillFilter} onValueChange={setSkillFilter}>
                 <SelectTrigger className="w-32">
@@ -789,61 +788,67 @@ export default function SchedulingPage() {
                 </SelectContent>
               </Select>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
               <Checkbox
                 checked={showConflicting}
                 onCheckedChange={(checked) => setShowConflicting(!!checked)}
               />
-              <span className="text-sm">顯示有衝突的員工</span>
+              <span style={{ fontSize: '0.875rem' }}>顯示有衝突的員工</span>
             </label>
           </div>
 
           {/* Summary */}
           {availabilityData && (
-            <div className="flex gap-4 text-sm mb-4">
-              <span className="text-green-600">
+            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', marginBottom: '1rem' }}>
+              <span style={{ color: '#16a34a' }}>
                 可用: {availabilityData.summary.available}
               </span>
-              <span className="text-yellow-600">
+              <span style={{ color: '#ca8a04' }}>
                 有衝突: {availabilityData.summary.conflicting}
               </span>
-              <span className="text-red-600">
+              <span style={{ color: '#dc2626' }}>
                 不可用: {availabilityData.summary.unavailable}
               </span>
             </div>
           )}
 
           {/* Available Staff List */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-500">點擊加入排班</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#6b7280' }}>點擊加入排班</h4>
             {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).map((staff) => (
               <div
                 key={staff.id}
                 onClick={() => handleStaffToggle(staff.id, true)}
-                className={cn(
-                  "flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors",
-                  "hover:bg-blue-50 hover:border-blue-200",
-                  staff.hasConflict && "border-yellow-200 bg-yellow-50 hover:bg-yellow-100"
-                )}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.75rem',
+                  border: staff.hasConflict ? '1px solid #fde68a' : '1px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  backgroundColor: staff.hasConflict ? '#fefce8' : 'transparent',
+                  transition: 'background-color 0.15s, border-color 0.15s'
+                }}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: '500' }}>
                     {staff.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="font-medium">{staff.name}</div>
-                    <div className="text-sm text-gray-500">
+                    <div style={{ fontWeight: '500' }}>{staff.name}</div>
+                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                       {skillLabels[staff.skill]} | {staff.phone}
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div style={{ textAlign: 'right' }}>
                   {staff.hasConflict && (
-                    <Badge variant="outline" className="text-yellow-600 mb-1">
+                    <Badge variant="outline" style={{ color: '#ca8a04', marginBottom: '0.25rem' }}>
                       有其他場次
                     </Badge>
                   )}
-                  <div className="text-sm text-gray-500">
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                     NT$ {staff.perEventSalary.toLocaleString()}
                   </div>
                 </div>
@@ -851,7 +856,7 @@ export default function SchedulingPage() {
             ))}
             
             {getFilteredStaff().filter(s => !selectedStaff.has(s.id)).length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6b7280' }}>
                 {selectedStaff.size > 0 ? "所有可用員工已排班" : "沒有符合條件的員工"}
               </div>
             )}
@@ -859,18 +864,18 @@ export default function SchedulingPage() {
 
           {/* Unavailable Staff */}
           {availabilityData && availabilityData.unavailable.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-medium text-gray-500 mb-2">
+            <div style={{ marginTop: '1rem' }}>
+              <h4 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.5rem' }}>
                 不可出勤員工
               </h4>
-              <div className="space-y-1">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 {availabilityData.unavailable.map((staff) => (
                   <div
                     key={staff.id}
-                    className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded text-sm"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.25rem', fontSize: '0.875rem' }}
                   >
                     <span>{staff.name}</span>
-                    <span className="text-red-600">
+                    <span style={{ color: '#dc2626' }}>
                       {staff.unavailableReason || "不可出勤"}
                     </span>
                   </div>
