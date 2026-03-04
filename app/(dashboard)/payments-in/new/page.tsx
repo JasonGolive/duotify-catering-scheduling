@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,20 +31,29 @@ interface BankAccount {
 
 export default function NewPaymentInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  
+  // 從 URL 參數讀取場次資訊
+  const eventIdFromUrl = searchParams.get("eventId");
+  const eventNameFromUrl = searchParams.get("eventName");
+  const categoryFromUrl = searchParams.get("category");
+  const customerNameFromUrl = searchParams.get("customerName");
+  const customerPhoneFromUrl = searchParams.get("customerPhone");
+  
   const [formData, setFormData] = useState({
-    customerName: "",
-    customerPhone: "",
-    eventId: "",
+    customerName: customerNameFromUrl || "",
+    customerPhone: customerPhoneFromUrl || "",
+    eventId: eventIdFromUrl || "",
     paymentDate: new Date().toISOString().split("T")[0],
     amount: "",
     paymentMethod: "CASH",
     bankAccountId: "",
     checkNumber: "",
     transactionReference: "",
-    paymentCategory: "DEPOSIT",
+    paymentCategory: categoryFromUrl || "DEPOSIT",
     receiptNumber: "",
     notes: "",
   });

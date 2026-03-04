@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { EventForm } from "@/components/events/event-form";
+import { EventPayments } from "@/components/events/event-payments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -359,6 +360,14 @@ export default function EditEventPage() {
           />
         </CardContent>
       </Card>
+
+      {/* 收款管理區塊 */}
+      <EventPayments
+        eventId={eventId}
+        eventName={event.name}
+        contactName={event.contactName || undefined}
+        contactPhone={event.contactPhone || undefined}
+      />
 
       {/* 異動通知確認對話框 */}
       <Dialog open={notifyDialogOpen} onOpenChange={setNotifyDialogOpen}>
