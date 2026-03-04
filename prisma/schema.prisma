@@ -139,11 +139,12 @@ enum VehicleType {
 // Venue entity (場地/民宿主檔)
 model Venue {
   id           String  @id @default(cuid())
-  name         String  @db.VarChar(200)
-  address      String? @db.Text
+  name         String  @db.VarChar(200) // 場地名稱
+  address      String? @db.Text // 地址
   contactName  String? @db.VarChar(100) // 聯絡人
   contactPhone String? @db.VarChar(20) // 聯絡電話
-  equipment    String? @db.Text // 設備說明
+  contactEmail String? @db.VarChar(100) // 聯絡Email
+  equipment    String? @db.Text // 環境/設備說明
   notes        String? @db.Text // 注意事項
   isActive     Boolean @default(true) // 是否啟用
 

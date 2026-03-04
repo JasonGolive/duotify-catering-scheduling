@@ -21,90 +21,184 @@ import {
   DollarSign,
   Building2,
   CreditCard,
+  ChevronDown,
+  ChevronRight,
+  Database,
+  MapPin,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+// Navigation item type
+type NavItem = {
+  href?: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  children?: NavItem[];
+};
+
 // Manager-only navigation items (full access)
-const managerNavItems = [
+const managerNavItems: NavItem[] = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "場次管理" },
   { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/menu", icon: UtensilsCrossed, label: "菜單管理" },
   { href: "/notifications", icon: Bell, label: "通知管理" },
   { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
-  { href: "/staff", icon: Users, label: "員工管理" },
+  {
+    icon: Database,
+    label: "主檔管理",
+    children: [
+      { href: "/staff", icon: Users, label: "員工管理" },
+      { href: "/venues", icon: MapPin, label: "場地管理" },
+      { href: "/suppliers", icon: Building2, label: "供應商管理" },
+    ],
+  },
+  {
+    icon: Wallet,
+    label: "帳務管理",
+    children: [
+      { href: "/payments-in", icon: DollarSign, label: "收款管理" },
+      { href: "/payments-out", icon: CreditCard, label: "付款管理" },
+      { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
+    ],
+  },
   { href: "/salary", icon: Wallet, label: "薪資管理" },
-  { href: "/payments-in", icon: DollarSign, label: "收款管理" },
-  { href: "/payments-out", icon: CreditCard, label: "應付管理" },
-  { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
-  { href: "/suppliers", icon: Building2, label: "供應商管理" },
   { href: "/leave-requests", icon: FileText, label: "請假管理" },
   { href: "/analytics", icon: BarChart3, label: "數據分析" },
 ];
 
 // Admin navigation items (no salary access)
-const adminNavItems = [
+const adminNavItems: NavItem[] = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "場次管理" },
   { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/menu", icon: UtensilsCrossed, label: "菜單管理" },
   { href: "/notifications", icon: Bell, label: "通知管理" },
   { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
-  { href: "/staff", icon: Users, label: "員工管理" },
-  { href: "/payments-in", icon: DollarSign, label: "收款管理" },
-  { href: "/payments-out", icon: CreditCard, label: "應付管理" },
-  { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
-  { href: "/suppliers", icon: Building2, label: "供應商管理" },
+  {
+    icon: Database,
+    label: "主檔管理",
+    children: [
+      { href: "/staff", icon: Users, label: "員工管理" },
+      { href: "/venues", icon: MapPin, label: "場地管理" },
+      { href: "/suppliers", icon: Building2, label: "供應商管理" },
+    ],
+  },
+  {
+    icon: Wallet,
+    label: "帳務管理",
+    children: [
+      { href: "/payments-in", icon: DollarSign, label: "收款管理" },
+      { href: "/payments-out", icon: CreditCard, label: "付款管理" },
+      { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
+    ],
+  },
   { href: "/leave-requests", icon: FileText, label: "請假管理" },
   { href: "/analytics", icon: BarChart3, label: "數據分析" },
 ];
 
 // Staff-only navigation items
-const staffNavItems = [
+const staffNavItems: NavItem[] = [
   { href: "/my-schedule", icon: ClipboardList, label: "我的排班" },
 ];
 
 function NavItem({
-  href,
-  icon: Icon,
-  label,
-  isActive,
+  item,
+  pathname,
   onClick,
+  level = 0,
 }: {
-  href: string;
-  icon: typeof LayoutDashboard;
-  label: string;
-  isActive: boolean;
+  item: NavItem;
+  pathname: string;
   onClick?: () => void;
+  level?: number;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const Icon = item.icon;
+  const hasChildren = item.children && item.children.length > 0;
+
+  // Check if this item or any of its children is active
+  const isActive = item.href
+    ? item.href === "/home"
+      ? pathname === "/home" || pathname === "/"
+      : pathname.startsWith(item.href)
+    : false;
+
+  const isChildActive = hasChildren
+    ? item.children?.some((child) =>
+        child.href ? pathname.startsWith(child.href) : false
+      )
+    : false;
+
+  // Auto-expand if a child is active
+  useEffect(() => {
+    if (isChildActive) {
+      setExpanded(true);
+    }
+  }, [isChildActive]);
+
   const handleClick = (e: React.MouseEvent) => {
-    // 無論是否在當前頁面，都執行 onClick（關閉側邊欄）
-    if (onClick) {
+    if (hasChildren) {
+      e.preventDefault();
+      setExpanded(!expanded);
+    } else if (onClick) {
       onClick();
     }
   };
 
-  return (
-    <Link
-      href={href}
+  const content = (
+    <div
       onClick={handleClick}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.75rem',
         padding: '0.75rem 1rem',
+        paddingLeft: `${1 + level * 1}rem`,
         borderRadius: '0.75rem',
         transition: 'all 0.2s',
         backgroundColor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-        color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
-        fontWeight: isActive ? 500 : 400,
+        color: isActive || isChildActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
+        fontWeight: isActive || isChildActive ? 500 : 400,
         textDecoration: 'none',
         cursor: 'pointer',
       }}
     >
       <Icon style={{ width: '1.25rem', height: '1.25rem' }} />
-      <span>{label}</span>
-    </Link>
+      <span style={{ flex: 1 }}>{item.label}</span>
+      {hasChildren && (
+        expanded ? (
+          <ChevronDown style={{ width: '1rem', height: '1rem' }} />
+        ) : (
+          <ChevronRight style={{ width: '1rem', height: '1rem' }} />
+        )
+      )}
+    </div>
+  );
+
+  return (
+    <div>
+      {item.href ? (
+        <Link href={item.href} style={{ textDecoration: 'none' }}>
+          {content}
+        </Link>
+      ) : (
+        content
+      )}
+      {hasChildren && expanded && (
+        <div>
+          {item.children?.map((child) => (
+            <NavItem
+              key={child.href || child.label}
+              item={child}
+              pathname={pathname}
+              onClick={onClick}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -172,15 +266,9 @@ export function Sidebar() {
       }}>
         {navItems.map((item) => (
           <NavItem
-            key={item.href}
-            href={item.href}
-            icon={item.icon}
-            label={item.label}
-            isActive={
-              item.href === "/home"
-                ? pathname === "/home" || pathname === "/"
-                : pathname.startsWith(item.href)
-            }
+            key={item.href || item.label}
+            item={item}
+            pathname={pathname}
           />
         ))}
       </nav>
@@ -328,15 +416,9 @@ export function MobileNav() {
         <nav style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           {navItems.map((item) => (
             <NavItem
-              key={item.href}
-              href={item.href}
-              icon={item.icon}
-              label={item.label}
-              isActive={
-                item.href === "/home"
-                  ? pathname === "/home" || pathname === "/"
-                  : pathname.startsWith(item.href)
-              }
+              key={item.href || item.label}
+              item={item}
+              pathname={pathname}
               onClick={() => setOpen(false)}
             />
           ))}

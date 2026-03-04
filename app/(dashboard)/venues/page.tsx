@@ -33,6 +33,7 @@ interface Venue {
   address: string | null;
   contactName: string | null;
   contactPhone: string | null;
+  contactEmail: string | null;
   equipment: string | null;
   notes: string | null;
   isActive: boolean;
@@ -53,6 +54,7 @@ export default function VenuesPage() {
     address: "",
     contactName: "",
     contactPhone: "",
+    contactEmail: "",
     equipment: "",
     notes: "",
     isActive: true,
@@ -82,6 +84,7 @@ export default function VenuesPage() {
       address: "",
       contactName: "",
       contactPhone: "",
+      contactEmail: "",
       equipment: "",
       notes: "",
       isActive: true,
@@ -96,6 +99,7 @@ export default function VenuesPage() {
       address: venue.address || "",
       contactName: venue.contactName || "",
       contactPhone: venue.contactPhone || "",
+      contactEmail: venue.contactEmail || "",
       equipment: venue.equipment || "",
       notes: venue.notes || "",
       isActive: venue.isActive,
@@ -240,6 +244,19 @@ export default function VenuesPage() {
                       placeholder="電話號碼"
                     />
                   </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <Label htmlFor="contactEmail">聯絡Email</Label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    value={formData.contactEmail}
+                    onChange={(e) =>
+                      setFormData({ ...formData, contactEmail: e.target.value })
+                    }
+                    placeholder="email@example.com"
+                  />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

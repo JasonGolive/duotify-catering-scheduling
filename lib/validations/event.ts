@@ -121,6 +121,7 @@ export const venueSchema = z.object({
   address: z.string().optional().nullable(),
   contactName: z.string().max(100).optional().nullable(),
   contactPhone: z.string().max(20).optional().nullable(),
+  contactEmail: z.string().email("Email 格式不正確").optional().nullable().or(z.literal("")),
   equipment: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
