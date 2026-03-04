@@ -233,3 +233,66 @@ export async function PUT(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "批量更新失敗" }, { status: 500 });
   }
 }
+
+// DELETE /api/v1/staff/availability-edit/[token] - Clear all availability for the month
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const { token } = await params;
+
+    const availabilityToken = await prisma.availabilityToken.findUnique({
+      where: { token },
+    });
+
+    if (!availabilityToken) {
+      return NextResponse.json({ error: "無效的連結" }, { status: 404 });
+    }
+
+    // Check expiration
+    if (new Date() > new Date(availabilityToken.expiresAt)) {
+      return NextResponse.json(
+        { error: "連結已過期" },
+        { status: 410 }
+      );
+    }
+
+    // Delete all availability records for this month
+    const monthStart = new Date(availabilityToken.year, availabilityToken.month - 1, 1);
+    const monthEnd = new Date(availabilityToken.year, availabilityToken.month, 0, 23, 59, 59);
+
+    const deletedCount = await prisma.staffAvailability.deleteMany({
+      where: {
+        staffId: availabilityToken.staffId,
+        date: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+      },
+    });
+
+    // Log the clear action
+    const headersList = await headers();
+    const ipAddress = headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "unknown";
+    
+    await prisma.availabilityLog.create({
+      data: {
+        staffId: availabilityToken.staffId,
+        date: monthStart,
+        available: false,
+        reason: `清除重填 ${availabilityToken.year}/${availabilityToken.month} 月份行事曆`,
+        editedBy: "STAFF",
+        ipAddress,
+      },
+    });
+
+    console.log(`✅ Cleared ${deletedCount.count} availability records for staff ${availabilityToken.staffId} (${availabilityToken.year}/${availabilityToken.month})`);
+
+    return NextResponse.json({
+      success: true,
+      deletedCount: deletedCount.count,
+      message: "已清除所有行事曆記錄",
+    });
+  } catch (error) {
+    console.error("Error clearing availability:", error);
+    return NextResponse.json({ error: "清除失敗" }, { status: 500 });
+  }
+}

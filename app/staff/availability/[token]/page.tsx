@@ -189,6 +189,31 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
     }
   };
 
+  const handleClearAll = async () => {
+    if (!tokenInfo) return;
+    
+    if (!confirm("確定要清除所有已填寫的行事曆記錄嗎？此動作無法復原。")) {
+      return;
+    }
+
+    setBulkUpdating(true);
+    try {
+      const response = await fetch(`/api/v1/staff/availability-edit/${token}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("清除失敗");
+
+      const result = await response.json();
+      setAvailability({});
+      toast.success(`已清除 ${result.deletedCount} 筆記錄，可以重新填寫`);
+    } catch (err) {
+      toast.error("清除失敗");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   const handleComplete = async () => {
     setSaving(true);
     try {
@@ -287,7 +312,7 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
         {/* Bulk Actions */}
         <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "16px", marginBottom: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <p style={{ margin: "0 0 12px 0", fontSize: "14px", color: "#666" }}>快速填寫（僅套用到未設定的日期）：</p>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
             <Button
               onClick={handleBulkSetAvailable}
               disabled={bulkUpdating}
@@ -304,6 +329,16 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
               {bulkUpdating ? "處理中..." : "✗ 全部不可出勤"}
             </Button>
           </div>
+          {completedDays > 0 && (
+            <Button
+              onClick={handleClearAll}
+              disabled={bulkUpdating}
+              variant="outline"
+              style={{ width: "100%", color: "#dc2626", borderColor: "#dc2626" }}
+            >
+              {bulkUpdating ? "處理中..." : "🗑️ 清除重填"}
+            </Button>
+          )}
         </div>
 
         {/* Calendar */}
