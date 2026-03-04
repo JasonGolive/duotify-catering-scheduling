@@ -429,17 +429,17 @@ model SalaryRule {
 // 員工可用性編輯 Token（用於員工自行編輯行事曆）
 model AvailabilityToken {
   id          String    @id @default(cuid())
-  staffId     String
+  staffId     String    @map("staff_id")
   staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
   token       String    @unique @db.VarChar(64)   // 唯一存取 token
   month       Int                                  // 1-12
   year        Int                                  // e.g., 2026
-  expiresAt   DateTime                             // Token 過期時間
-  sentAt      DateTime?                            // 發送時間
-  completedAt DateTime?                            // 員工完成編輯時間
-  notes       String?   @db.VarChar(600)           // 員工備註（最多200中文字 = 600 bytes）
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  expiresAt   DateTime  @map("expires_at")        // Token 過期時間
+  sentAt      DateTime? @map("sent_at")           // 發送時間
+  completedAt DateTime? @map("completed_at")      // 員工完成編輯時間
+  notes       String?   @db.VarChar(600)          // 員工備註（最多200中文字 = 600 bytes）
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   @@unique([staffId, month, year])
   @@index([token])
