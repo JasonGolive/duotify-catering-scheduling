@@ -12,69 +12,72 @@ datasource db {
 
 // User entity (authentication & authorization)
 model User {
-  id         String   @id // Clerk user ID
-  email      String   @unique
-  role       Role
-  firstName  String?
-  lastName   String?
-  imageUrl   String?
-  
+  id        String  @id // Clerk user ID
+  email     String  @unique
+  role      Role
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+
   // Relationship to Staff (optional - managers don't have staff records)
-  staff      Staff?
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  staff Staff?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }
 
 // Staff entity (core business object)
 model Staff {
-  id             String   @id @default(cuid())
-  name           String   @db.VarChar(100)
-  phone          String   @unique @db.VarChar(20)
-  email          String?  @db.VarChar(200)
-  skill          Skill    @default(FRONT)
-  perEventSalary Decimal  @db.Decimal(10, 2)
-  notes          String?  @db.Text
-  status         Status   @default(ACTIVE)
-  
+  id             String  @id @default(cuid())
+  name           String  @db.VarChar(100)
+  phone          String  @unique @db.VarChar(20)
+  email          String? @db.VarChar(200)
+  skill          Skill   @default(FRONT)
+  perEventSalary Decimal @db.Decimal(10, 2)
+  notes          String? @db.Text
+  status         Status  @default(ACTIVE)
+
   // 駕駛能力
-  canDrive       Boolean  @default(false)  // 是否會開車（可當駕駛）
-  hasOwnCar      Boolean  @default(false)  // 是否有自備車
-  
+  canDrive  Boolean @default(false) // 是否會開車（可當駕駛）
+  hasOwnCar Boolean @default(false) // 是否有自備車
+
   // 通知設定
-  lineUserId      String?  @db.VarChar(50)  // LINE User ID (透過加好友取得)
-  lineNotify      Boolean  @default(true)   // 是否接收 LINE 通知
-  emailNotify     Boolean  @default(true)   // 是否接收 Email 通知
-  
+  lineUserId  String? @db.VarChar(50) // LINE User ID (透過加好友取得)
+  lineNotify  Boolean @default(true) // 是否接收 LINE 通知
+  emailNotify Boolean @default(true) // 是否接收 Email 通知
+
   // Relationship to User (optional - staff may exist before login account created)
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   // 排班關聯
-  eventStaff     EventStaff[]
-  
+  eventStaff EventStaff[]
+
   // 可用性行事曆
-  availability   StaffAvailability[]
-  
+  availability StaffAvailability[]
+
   // 可用性編輯 Token
   availabilityTokens AvailabilityToken[]
-  
+
   // 可用性修改記錄
-  availabilityLogs   AvailabilityLog[]
-  
+  availabilityLogs AvailabilityLog[]
+
   // 邀請 Token
-  inviteTokens       InviteToken[]
-  
+  inviteTokens InviteToken[]
+
   // 打工記錄
-  workLogs       WorkLog[]
-  
+  workLogs WorkLog[]
+
   // 通知記錄
-  notifications  Notification[]
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  notifications Notification[]
+
+  // 付款記錄（薪資）
+  paymentsOut PaymentOut[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([name])
@@ -90,64 +93,64 @@ enum Status {
 }
 
 enum Role {
-  MANAGER   // 管理者 - 全功能
-  ADMIN     // 行政人員 - 除薪資外全功能
-  STAFF     // 員工 - 只能看自己的資料
+  MANAGER // 管理者 - 全功能
+  ADMIN // 行政人員 - 除薪資外全功能
+  STAFF // 員工 - 只能看自己的資料
 }
 
 enum Skill {
-  FRONT   // 外場
-  HOT     // 熱台
-  BOTH    // 皆可
+  FRONT // 外場
+  HOT // 熱台
+  BOTH // 皆可
 }
 
 enum EventType {
-  WEDDING     // 婚宴
-  YEAREND     // 尾牙
-  SPRING      // 春酒
-  BIRTHDAY    // 生日宴
-  CORPORATE   // 企業活動
-  OTHER       // 其他
+  WEDDING // 婚宴
+  YEAREND // 尾牙
+  SPRING // 春酒
+  BIRTHDAY // 生日宴
+  CORPORATE // 企業活動
+  OTHER // 其他
 }
 
 enum EventStatus {
-  PENDING       // 待確認
-  CONFIRMED     // 已確認
-  IN_PROGRESS   // 進行中
-  COMPLETED     // 已完成
-  CANCELLED     // 已取消
+  PENDING // 待確認
+  CONFIRMED // 已確認
+  IN_PROGRESS // 進行中
+  COMPLETED // 已完成
+  CANCELLED // 已取消
 }
 
 enum PaymentMethod {
-  TRANSFER      // 匯款
-  CASH          // 現金
-  HOTEL_PAID    // 民宿代付
-  OTHER         // 其他
+  TRANSFER // 匯款
+  CASH // 現金
+  HOTEL_PAID // 民宿代付
+  OTHER // 其他
 }
 
 // 車輛類型
 enum VehicleType {
-  BIG_TRUCK     // 大餐車
-  SMALL_TRUCK   // 小餐車
-  MANAGER_CAR   // 店長車
-  OWN_CAR       // 自行開車
+  BIG_TRUCK // 大餐車
+  SMALL_TRUCK // 小餐車
+  MANAGER_CAR // 店長車
+  OWN_CAR // 自行開車
 }
 
 // Venue entity (場地/民宿主檔)
 model Venue {
-  id          String   @id @default(cuid())
-  name        String   @db.VarChar(200)
-  address     String?  @db.Text
-  contactName String?  @db.VarChar(100)  // 聯絡人
-  contactPhone String? @db.VarChar(20)   // 聯絡電話
-  equipment   String?  @db.Text          // 設備說明
-  notes       String?  @db.Text          // 注意事項
-  isActive    Boolean  @default(true)    // 是否啟用
-  
-  events      Event[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(200)
+  address      String? @db.Text
+  contactName  String? @db.VarChar(100) // 聯絡人
+  contactPhone String? @db.VarChar(20) // 聯絡電話
+  equipment    String? @db.Text // 設備說明
+  notes        String? @db.Text // 注意事項
+  isActive     Boolean @default(true) // 是否啟用
+
+  events Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([isActive])
   @@map("venues")
@@ -159,13 +162,13 @@ model StaffAvailability {
   staffId   String
   staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
   date      DateTime @db.Date
-  available Boolean  @default(true)      // 當天是否可出勤
-  reason    String?  @db.VarChar(200)    // 不可用原因
-  
+  available Boolean  @default(true) // 當天是否可出勤
+  reason    String?  @db.VarChar(200) // 不可用原因
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([staffId, date])  // 每人每天只有一筆
+  @@unique([staffId, date]) // 每人每天只有一筆
   @@index([staffId])
   @@index([date])
   @@map("staff_availability")
@@ -173,72 +176,75 @@ model StaffAvailability {
 
 // Event entity (catering event/function)
 model Event {
-  id             String       @id @default(cuid())
-  name           String       @db.VarChar(200)
-  date           DateTime     @db.Date
-  assemblyTime   String?      @db.VarChar(5)  // HH:mm format - 集合時間（用於通知與計薪）
-  startTime      String?      @db.VarChar(5)  // HH:mm format - 活動開始時間
-  mealTime       String?      @db.VarChar(5)  // HH:mm format - 用餐時間
-  
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(200)
+  date         DateTime @db.Date
+  assemblyTime String?  @db.VarChar(5) // HH:mm format - 集合時間（用於通知與計薪）
+  startTime    String?  @db.VarChar(5) // HH:mm format - 活動開始時間
+  mealTime     String?  @db.VarChar(5) // HH:mm format - 用餐時間
+
   // 場地
-  venueId        String?
-  venue          Venue?       @relation(fields: [venueId], references: [id])
-  location       String       @db.VarChar(200)  // 可手動輸入或從場地帶入
-  address        String?      @db.Text
-  
+  venueId  String?
+  venue    Venue?  @relation(fields: [venueId], references: [id])
+  location String  @db.VarChar(200) // 可手動輸入或從場地帶入
+  address  String? @db.Text
+
   // 訂餐人數
-  adultsCount    Int?         // 大人
-  childrenCount  Int?         // 小孩
-  vegetarianCount Int?        // 素食
-  
+  adultsCount     Int? // 大人
+  childrenCount   Int? // 小孩
+  vegetarianCount Int? // 素食
+
   // 聯絡資訊
-  contactName    String?      @db.VarChar(100)
-  contactPhone   String?      @db.VarChar(20)
-  
+  contactName  String? @db.VarChar(100)
+  contactPhone String? @db.VarChar(20)
+
   // 活動類型
-  eventType      EventType    @default(OTHER)
-  
+  eventType EventType @default(OTHER)
+
   // 餐車需求（承諾客人）
-  requireBigTruck   Boolean   @default(false)  // 需要大餐車
-  requireSmallTruck Boolean   @default(false)  // 需要小餐車
-  
+  requireBigTruck   Boolean @default(false) // 需要大餐車
+  requireSmallTruck Boolean @default(false) // 需要小餐車
+
   // 菜單與提醒
-  menu           String?      @db.Text  // 菜單內容
-  reminders      String?      @db.Text  // 提醒事項（給員工看的注意事項）
-  
+  menu      String? @db.Text // 菜單內容
+  reminders String? @db.Text // 提醒事項（給員工看的注意事項）
+
   // 金額
-  totalAmount    Decimal?     @db.Decimal(10, 0)  // 訂單總金額
-  
+  totalAmount Decimal? @db.Decimal(10, 0) // 訂單總金額
+
   // 訂金
-  depositAmount  Decimal?     @db.Decimal(10, 0)  // 訂金金額
-  depositMethod  PaymentMethod?                   // 訂金支付方式
-  depositDate    DateTime?    @db.Date            // 訂金支付日期
-  
+  depositAmount Decimal?       @db.Decimal(10, 0) // 訂金金額
+  depositMethod PaymentMethod? // 訂金支付方式
+  depositDate   DateTime?      @db.Date // 訂金支付日期
+
   // 尾款
-  balanceAmount  Decimal?     @db.Decimal(10, 0)  // 尾款金額
-  balanceMethod  PaymentMethod?                   // 尾款支付方式
-  balanceDate    DateTime?    @db.Date            // 尾款支付日期
-  
+  balanceAmount Decimal?       @db.Decimal(10, 0) // 尾款金額
+  balanceMethod PaymentMethod? // 尾款支付方式
+  balanceDate   DateTime?      @db.Date // 尾款支付日期
+
   // 員工詳情頁存取 token
-  staffToken     String?      @unique @db.VarChar(64)  // 加密 token 供員工查看詳情
-  
-  notes          String?      @db.Text
-  status         EventStatus  @default(PENDING)
-  
+  staffToken String? @unique @db.VarChar(64) // 加密 token 供員工查看詳情
+
+  notes  String?     @db.Text
+  status EventStatus @default(PENDING)
+
   // 排班人員關聯
-  eventStaff     EventStaff[]
-  
+  eventStaff EventStaff[]
+
   // 打工記錄關聯
-  workLogs       WorkLog[]
-  
+  workLogs WorkLog[]
+
   // 通知記錄關聯
-  notifications  Notification[]
-  
+  notifications Notification[]
+
   // 場次菜單關聯
-  eventMenu      EventMenu?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  eventMenu EventMenu?
+
+  // 收款記錄關聯
+  paymentsIn PaymentIn[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([date])
   @@index([status])
@@ -249,63 +255,63 @@ model Event {
 
 // 出勤狀態
 enum AttendanceStatus {
-  SCHEDULED        // 已排班
-  CONFIRMED        // 已確認出勤
-  LEAVE_REQUESTED  // 已請假（待審核）
-  LEAVE_APPROVED   // 請假已核准
-  LEAVE_REJECTED   // 請假被拒絕
-  ATTENDED         // 已出勤
-  LATE             // 遲到
-  ABSENT           // 缺勤
-  NO_SHOW          // 未到
-  COMPLETED        // 已完成
-  CANCELLED        // 取消
+  SCHEDULED // 已排班
+  CONFIRMED // 已確認出勤
+  LEAVE_REQUESTED // 已請假（待審核）
+  LEAVE_APPROVED // 請假已核准
+  LEAVE_REJECTED // 請假被拒絕
+  ATTENDED // 已出勤
+  LATE // 遲到
+  ABSENT // 缺勤
+  NO_SHOW // 未到
+  COMPLETED // 已完成
+  CANCELLED // 取消
 }
 
 // EventStaff entity (活動人員指派 - 中間表)
 model EventStaff {
-  id               String           @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // 關聯
-  eventId          String
-  event            Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  staffId          String
-  staff            Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
   // 工作資訊
-  role             Skill            // 工作角色（使用 Staff 的 Skill enum）
-  salary           Decimal          @db.Decimal(10, 0)  // 該場薪資
-  
+  role   Skill // 工作角色（使用 Staff 的 Skill enum）
+  salary Decimal @db.Decimal(10, 0) // 該場薪資
+
   // 交通安排
-  vehicle          VehicleType?     // 搭乘車輛
-  isDriver         Boolean          @default(false)  // 是否為駕駛
-  
+  vehicle  VehicleType? // 搭乘車輛
+  isDriver Boolean      @default(false) // 是否為駕駛
+
   // 出勤資訊
   attendanceStatus AttendanceStatus @default(SCHEDULED)
-  confirmedAt      DateTime?                            // 確認出勤時間
-  leaveReason      String?          @db.VarChar(500)    // 請假原因
-  actualHours      Decimal?         @db.Decimal(4, 2)   // 實際工作時數
-  adjustedSalary   Decimal?         @db.Decimal(10, 0)  // 調整後薪資
-  
-  // GPS 打卡資訊
-  checkInTime      DateTime?                            // 打卡上班時間
-  checkInLatitude  Float?                               // 打卡上班緯度
-  checkInLongitude Float?                               // 打卡上班經度
-  checkInPhotoUrl  String?                              // 打卡上班照片
-  checkOutTime     DateTime?                            // 打卡下班時間
-  checkOutLatitude Float?                               // 打卡下班緯度
-  checkOutLongitude Float?                              // 打卡下班經度
-  
-  // 通知狀態
-  notified         Boolean          @default(false)     // 是否已發送通知
-  notifiedAt       DateTime?                            // 通知發送時間
-  
-  notes            String?          @db.Text
-  
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  confirmedAt      DateTime? // 確認出勤時間
+  leaveReason      String?          @db.VarChar(500) // 請假原因
+  actualHours      Decimal?         @db.Decimal(4, 2) // 實際工作時數
+  adjustedSalary   Decimal?         @db.Decimal(10, 0) // 調整後薪資
 
-  @@unique([eventId, staffId])  // 同一活動不可重複指派同一員工
+  // GPS 打卡資訊
+  checkInTime       DateTime? // 打卡上班時間
+  checkInLatitude   Float? // 打卡上班緯度
+  checkInLongitude  Float? // 打卡上班經度
+  checkInPhotoUrl   String? // 打卡上班照片
+  checkOutTime      DateTime? // 打卡下班時間
+  checkOutLatitude  Float? // 打卡下班緯度
+  checkOutLongitude Float? // 打卡下班經度
+
+  // 通知狀態
+  notified   Boolean   @default(false) // 是否已發送通知
+  notifiedAt DateTime? // 通知發送時間
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, staffId]) // 同一活動不可重複指派同一員工
   @@index([eventId])
   @@index([staffId])
   @@index([attendanceStatus])
@@ -314,37 +320,37 @@ model EventStaff {
 
 // WorkLog entity (獨立打工記錄 - 用於匯入外部資料或非活動相關的工作)
 model WorkLog {
-  id          String    @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // 員工關聯
-  staffId     String
-  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
   // 時間資訊
-  date        DateTime  @db.Date
-  startTime   String    @db.VarChar(5)    // HH:mm 格式（集合時間）
-  endTime     String    @db.VarChar(5)    // HH:mm 格式（下班時間）
-  hours       Decimal   @db.Decimal(4, 1) // 計算的工時
-  
+  date      DateTime @db.Date
+  startTime String   @db.VarChar(5) // HH:mm 格式（集合時間）
+  endTime   String   @db.VarChar(5) // HH:mm 格式（下班時間）
+  hours     Decimal  @db.Decimal(4, 1) // 計算的工時
+
   // 活動關聯（可選）
-  eventId     String?
-  event       Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
-  
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
   // 薪資明細
-  baseSalary    Decimal   @db.Decimal(10, 0) // 基本薪資（從員工主檔）
-  overtimePay   Decimal   @db.Decimal(10, 0) @default(0) // 加班費
-  allowance     Decimal   @db.Decimal(10, 0) @default(0) // 雜費/補助（如開車補助）
-  bonusBreakdown Json?                          // 加給明細 [{ ruleId, ruleName, amount }]
-  deductions    Decimal   @db.Decimal(10, 0) @default(0) // 扣款（遲到、請假等）
-  totalSalary   Decimal   @db.Decimal(10, 0) // 總薪資 = 基本 + 加班 + 補助 + 加給 - 扣款
-  
+  baseSalary     Decimal @db.Decimal(10, 0) // 基本薪資（從員工主檔）
+  overtimePay    Decimal @default(0) @db.Decimal(10, 0) // 加班費
+  allowance      Decimal @default(0) @db.Decimal(10, 0) // 雜費/補助（如開車補助）
+  bonusBreakdown Json? // 加給明細 [{ ruleId, ruleName, amount }]
+  deductions     Decimal @default(0) @db.Decimal(10, 0) // 扣款（遲到、請假等）
+  totalSalary    Decimal @db.Decimal(10, 0) // 總薪資 = 基本 + 加班 + 補助 + 加給 - 扣款
+
   // 來源
-  source      WorkLogSource @default(IMPORT) // 資料來源
-  
-  notes       String?   @db.Text
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  source WorkLogSource @default(IMPORT) // 資料來源
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([staffId])
   @@index([date])
@@ -353,35 +359,35 @@ model WorkLog {
 }
 
 enum WorkLogSource {
-  IMPORT    // Excel/CSV 匯入
-  MANUAL    // 手動輸入
-  SYSTEM    // 系統自動產生
+  IMPORT // Excel/CSV 匯入
+  MANUAL // 手動輸入
+  SYSTEM // 系統自動產生
 }
 
 // Notification entity (通知記錄)
 model Notification {
-  id          String              @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // 接收者
-  staffId     String
-  staff       Staff               @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
   // 關聯活動（可選）
-  eventId     String?
-  event       Event?              @relation(fields: [eventId], references: [id], onDelete: SetNull)
-  
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
   // 通知內容
-  type        NotificationType
-  channel     NotificationChannel
-  title       String              @db.VarChar(200)
-  content     String              @db.Text
-  
+  type    NotificationType
+  channel NotificationChannel
+  title   String              @db.VarChar(200)
+  content String              @db.Text
+
   // 發送狀態
-  status      NotificationStatus  @default(PENDING)
-  sentAt      DateTime?
-  error       String?             @db.Text
-  
-  createdAt   DateTime            @default(now())
+  status NotificationStatus @default(PENDING)
+  sentAt DateTime?
+  error  String?            @db.Text
+
+  createdAt DateTime @default(now())
 
   @@index([staffId])
   @@index([eventId])
@@ -391,11 +397,11 @@ model Notification {
 }
 
 enum NotificationType {
-  ASSIGNMENT      // 排班指派
-  REMINDER        // 活動提醒
-  EVENT_CHANGE    // 活動異動
-  EVENT_CANCEL    // 活動取消
-  LEAVE_REQUEST   // 請假申請（通知管理員）
+  ASSIGNMENT // 排班指派
+  REMINDER // 活動提醒
+  EVENT_CHANGE // 活動異動
+  EVENT_CANCEL // 活動取消
+  LEAVE_REQUEST // 請假申請（通知管理員）
 }
 
 enum NotificationChannel {
@@ -404,22 +410,22 @@ enum NotificationChannel {
 }
 
 enum NotificationStatus {
-  PENDING   // 待發送
-  SENT      // 已發送
-  FAILED    // 發送失敗
+  PENDING // 待發送
+  SENT // 已發送
+  FAILED // 發送失敗
 }
 
 // SalaryRule entity (薪資規則 - 加給/扣款條件)
 model SalaryRule {
-  id          String   @id @default(cuid())
-  name        String   @db.VarChar(100)   // e.g., "週末加給", "節日加給", "早班補貼"
-  type        String   @db.VarChar(20)    // PERCENTAGE or FIXED
-  value       Decimal  @db.Decimal(10, 2) // percentage or fixed amount
-  condition   Json                        // conditions like { "dayOfWeek": [0, 6] } or { "holiday": true }
-  isActive    Boolean  @default(true)
-  priority    Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(100) // e.g., "週末加給", "節日加給", "早班補貼"
+  type      String   @db.VarChar(20) // PERCENTAGE or FIXED
+  value     Decimal  @db.Decimal(10, 2) // percentage or fixed amount
+  condition Json // conditions like { "dayOfWeek": [0, 6] } or { "holiday": true }
+  isActive  Boolean  @default(true)
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([isActive])
   @@index([priority])
@@ -431,13 +437,13 @@ model AvailabilityToken {
   id          String    @id @default(cuid())
   staffId     String
   staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  token       String    @unique @db.VarChar(64)   // 唯一存取 token
-  month       Int                                  // 1-12
-  year        Int                                  // e.g., 2026
-  expiresAt   DateTime                            // Token 過期時間
-  sentAt      DateTime?                           // 發送時間
-  completedAt DateTime?                           // 員工完成編輯時間
-  notes       String?   @db.VarChar(600)          // 員工備註（最多200中文字 = 600 bytes）
+  token       String    @unique @db.VarChar(64) // 唯一存取 token
+  month       Int // 1-12
+  year        Int // e.g., 2026
+  expiresAt   DateTime // Token 過期時間
+  sentAt      DateTime? // 發送時間
+  completedAt DateTime? // 員工完成編輯時間
+  notes       String?   @db.VarChar(600) // 員工備註（最多200中文字 = 600 bytes）
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -449,15 +455,15 @@ model AvailabilityToken {
 
 // 可用性修改記錄（員工行事曆修改歷史）
 model AvailabilityLog {
-  id          String   @id @default(cuid())
-  staffId     String
-  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  date        DateTime @db.Date           // 被修改的日期
-  available   Boolean                     // 修改後的狀態
-  reason      String?  @db.VarChar(200)   // 原因
-  editedBy    String   @db.VarChar(50)    // 'STAFF' 或管理者 userId
-  ipAddress   String?  @db.VarChar(45)    // IP 地址
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date // 被修改的日期
+  available Boolean // 修改後的狀態
+  reason    String?  @db.VarChar(200) // 原因
+  editedBy  String   @db.VarChar(50) // 'STAFF' 或管理者 userId
+  ipAddress String?  @db.VarChar(45) // IP 地址
+  createdAt DateTime @default(now())
 
   @@index([staffId])
   @@index([createdAt])
@@ -466,16 +472,16 @@ model AvailabilityLog {
 
 // 員工邀請 Token（用於員工帳號註冊綁定）
 model InviteToken {
-  id          String    @id @default(cuid())
-  staffId     String
-  staff       Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  token       String    @unique @db.VarChar(64)   // 唯一邀請 token
-  email       String?   @db.VarChar(200)          // 發送到的 email（可選）
-  expiresAt   DateTime                             // Token 過期時間
-  sentAt      DateTime?                            // 發送時間
-  usedAt      DateTime?                            // 使用（註冊）時間
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  staffId   String
+  staff     Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  token     String    @unique @db.VarChar(64) // 唯一邀請 token
+  email     String?   @db.VarChar(200) // 發送到的 email（可選）
+  expiresAt DateTime // Token 過期時間
+  sentAt    DateTime? // 發送時間
+  usedAt    DateTime? // 使用（註冊）時間
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([token])
   @@index([staffId])
@@ -489,24 +495,24 @@ model InviteToken {
 // 品項主檔（料理/食材）
 model MenuItem {
   id                       String           @id @default(cuid())
-  name                     String           @db.VarChar(100)  // 品項名稱
-  category                 MenuItemCategory                   // 類別
-  unit                     String           @db.VarChar(20)   // 單位（份/g/ml）
-  defaultQuantityPerPerson Decimal          @db.Decimal(10, 2) @default(1) // 預設每人份量
+  name                     String           @db.VarChar(100) // 品項名稱
+  category                 MenuItemCategory // 類別
+  unit                     String           @db.VarChar(20) // 單位（份/g/ml）
+  defaultQuantityPerPerson Decimal          @default(1) @db.Decimal(10, 2) // 預設每人份量
   description              String?          @db.Text
   isActive                 Boolean          @default(true)
-  
+
   // BOM 材料組成
-  bomItems                 BOMItem[]
-  
+  bomItems BOMItem[]
+
   // 關聯到範本
-  templateItems            MenuTemplateItem[]
-  
+  templateItems MenuTemplateItem[]
+
   // 關聯到場次菜單
-  eventMenuItems           EventMenuItem[]
-  
-  createdAt                DateTime         @default(now())
-  updatedAt                DateTime         @updatedAt
+  eventMenuItems EventMenuItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([isActive])
@@ -514,29 +520,29 @@ model MenuItem {
 }
 
 enum MenuItemCategory {
-  APPETIZER   // 前菜
-  MAIN        // 主菜
-  SIDE        // 配菜
-  SOUP        // 湯品
-  SALAD       // 沙拉
-  DESSERT     // 甜點
-  BEVERAGE    // 飲品
-  OTHER       // 其他
+  APPETIZER // 前菜
+  MAIN // 主菜
+  SIDE // 配菜
+  SOUP // 湯品
+  SALAD // 沙拉
+  DESSERT // 甜點
+  BEVERAGE // 飲品
+  OTHER // 其他
 }
 
 // BOM 材料組成（品項的材料清單）
 model BOMItem {
-  id             String   @id @default(cuid())
-  menuItemId     String
-  menuItem       MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  
-  ingredientName String   @db.VarChar(100)  // 材料名稱
-  quantity       Decimal  @db.Decimal(10, 3) // 單位用量
-  unit           String   @db.VarChar(20)   // 單位（g/ml/個/包）
-  notes          String?  @db.VarChar(200)
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id         String   @id @default(cuid())
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  ingredientName String  @db.VarChar(100) // 材料名稱
+  quantity       Decimal @db.Decimal(10, 3) // 單位用量
+  unit           String  @db.VarChar(20) // 單位（g/ml/個/包）
+  notes          String? @db.VarChar(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([menuItemId])
   @@map("bom_items")
@@ -544,21 +550,21 @@ model BOMItem {
 
 // 菜單範本
 model MenuTemplate {
-  id          String             @id @default(cuid())
-  name        String             @db.VarChar(100)  // 範本名稱
-  type        MenuTemplateType                     // 類型
-  description String?            @db.Text
-  version     Int                @default(1)       // 版本號
-  isActive    Boolean            @default(true)
-  
+  id          String           @id @default(cuid())
+  name        String           @db.VarChar(100) // 範本名稱
+  type        MenuTemplateType // 類型
+  description String?          @db.Text
+  version     Int              @default(1) // 版本號
+  isActive    Boolean          @default(true)
+
   // 品項清單
-  items       MenuTemplateItem[]
-  
+  items MenuTemplateItem[]
+
   // 關聯的場次菜單
-  eventMenus  EventMenu[]
-  
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  eventMenus EventMenu[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([type])
   @@index([isActive])
@@ -566,27 +572,27 @@ model MenuTemplate {
 }
 
 enum MenuTemplateType {
-  BBQ            // 燒烤
-  WINE           // 餐酒
+  BBQ // 燒烤
+  WINE // 餐酒
   ITALIAN_FRENCH // 義法
-  MIXED          // 混合
-  CUSTOM         // 客製
+  MIXED // 混合
+  CUSTOM // 客製
 }
 
 // 範本品項（範本內的品項）
 model MenuTemplateItem {
-  id             String       @id @default(cuid())
-  templateId     String
-  template       MenuTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  menuItemId     String
-  menuItem       MenuItem     @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  
-  quantity       Decimal      @db.Decimal(10, 2) @default(1) // 每人份量
-  sortOrder      Int          @default(0)                    // 排序
-  notes          String?      @db.VarChar(200)
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id         String       @id @default(cuid())
+  templateId String
+  template   MenuTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem     @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  quantity  Decimal @default(1) @db.Decimal(10, 2) // 每人份量
+  sortOrder Int     @default(0) // 排序
+  notes     String? @db.VarChar(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([templateId, menuItemId])
   @@index([templateId])
@@ -596,27 +602,27 @@ model MenuTemplateItem {
 
 // 場次菜單（活動的實際菜單 - 歷史凍結）
 model EventMenu {
-  id              String          @id @default(cuid())
-  eventId         String          @unique
-  event           Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  
+  id      String @id @default(cuid())
+  eventId String @unique
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
   // 來源範本（可為 null 表示完全客製）
   templateId      String?
-  template        MenuTemplate?   @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  templateVersion Int?                              // 使用的範本版本（凍結用）
-  templateName    String?         @db.VarChar(100)  // 範本名稱（凍結用）
-  
+  template        MenuTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  templateVersion Int? // 使用的範本版本（凍結用）
+  templateName    String?       @db.VarChar(100) // 範本名稱（凍結用）
+
   // 鎖定狀態
-  lockedAt        DateTime?                         // 鎖定時間（鎖定後不可改）
-  lockedBy        String?         @db.VarChar(50)   // 鎖定者
-  
+  lockedAt DateTime? // 鎖定時間（鎖定後不可改）
+  lockedBy String?   @db.VarChar(50) // 鎖定者
+
   // 場次品項
-  items           EventMenuItem[]
-  
-  notes           String?         @db.Text
-  
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  items EventMenuItem[]
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([eventId])
   @@index([templateId])
@@ -625,33 +631,255 @@ model EventMenu {
 
 // 場次菜單品項（場次實際使用的品項 - 快照）
 model EventMenuItem {
-  id             String    @id @default(cuid())
-  eventMenuId    String
-  eventMenu      EventMenu @relation(fields: [eventMenuId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(cuid())
+  eventMenuId String
+  eventMenu   EventMenu @relation(fields: [eventMenuId], references: [id], onDelete: Cascade)
+
   // 品項關聯（可為 null 表示品項已刪除但保留快照）
-  menuItemId     String?
-  menuItem       MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
-  
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
   // 快照資料（凍結後保留）
-  itemName       String    @db.VarChar(100)  // 品項名稱
-  itemCategory   String    @db.VarChar(50)   // 品項類別
-  itemUnit       String    @db.VarChar(20)   // 單位
-  
+  itemName     String @db.VarChar(100) // 品項名稱
+  itemCategory String @db.VarChar(50) // 品項類別
+  itemUnit     String @db.VarChar(20) // 單位
+
   // 份量（已計算人數後的總量）
   quantityPerPerson Decimal @db.Decimal(10, 2) // 每人份量
   totalQuantity     Decimal @db.Decimal(10, 2) // 總份量（= 每人 × 人數）
-  
+
   // BOM 快照（凍結時複製）
-  bomSnapshot    Json?                        // [{ ingredientName, quantity, unit }]
-  
-  sortOrder      Int       @default(0)
-  notes          String?   @db.VarChar(200)
-  
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  bomSnapshot Json? // [{ ingredientName, quantity, unit }]
+
+  sortOrder Int     @default(0)
+  notes     String? @db.VarChar(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([eventMenuId])
   @@index([menuItemId])
   @@map("event_menu_items")
+}
+
+// ============================================
+// 收付款管理模組
+// ============================================
+
+// 銀行帳戶
+model BankAccount {
+  id             String          @id @default(cuid())
+  accountName    String          @db.VarChar(100) // 帳戶名稱（如：XX銀行營運帳戶）
+  bankName       String?         @db.VarChar(100) // 銀行名稱
+  accountNumber  String?         @db.VarChar(50) // 帳號
+  accountType    BankAccountType @default(CHECKING) // 帳戶類型
+  currency       String          @default("TWD") @db.VarChar(3) // 幣別
+  initialBalance Decimal         @default(0) @db.Decimal(12, 2) // 期初餘額
+  currentBalance Decimal         @default(0) @db.Decimal(12, 2) // 當前餘額
+  status         Status          @default(ACTIVE)
+  notes          String?         @db.Text
+
+  // 關聯的收付款記錄
+  paymentsIn  PaymentIn[]
+  paymentsOut PaymentOut[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("bank_accounts")
+}
+
+enum BankAccountType {
+  CHECKING // 支票帳戶
+  SAVINGS // 存款帳戶
+  CASH // 現金
+}
+
+// 供應商
+model Supplier {
+  id            String           @id @default(cuid())
+  supplierCode  String?          @unique @db.VarChar(50) // 供應商編號
+  name          String           @db.VarChar(100) // 供應商名稱
+  category      SupplierCategory // 類別
+  contactPerson String?          @db.VarChar(100) // 聯絡人
+  phone         String?          @db.VarChar(20)
+  email         String?          @db.VarChar(100)
+  address       String?          @db.Text
+  taxId         String?          @db.VarChar(20) // 統一編號
+  paymentTerms  String?          @db.VarChar(100) // 付款條件
+  notes         String?          @db.Text
+  status        Status           @default(ACTIVE)
+
+  // 關聯的付款記錄
+  payments PaymentOut[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([category])
+  @@map("suppliers")
+}
+
+enum SupplierCategory {
+  INGREDIENT // 食材
+  EQUIPMENT // 設備
+  SERVICE // 服務
+  OTHER // 其他
+}
+
+// 收款記錄
+model PaymentIn {
+  id            String @id @default(cuid())
+  paymentNumber String @unique @db.VarChar(50) // 收款單號（自動生成）
+
+  // 客戶資訊（使用場次的聯絡人資訊）
+  customerName  String  @db.VarChar(100)
+  customerPhone String? @db.VarChar(20)
+
+  // 關聯場次（可選）
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  // 收款資訊
+  paymentDate   DateTime          @db.Date // 收款日期
+  amount        Decimal           @db.Decimal(10, 2) // 金額
+  paymentMethod PaymentMethodType // 付款方式
+
+  // 銀行帳戶（如果是轉帳/信用卡）
+  bankAccountId String?
+  bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+
+  // 付款細節
+  checkNumber          String? @db.VarChar(50) // 支票號碼
+  transactionReference String? @db.VarChar(100) // 交易參考號（如轉帳序號）
+
+  // 類別
+  paymentCategory PaymentInCategory // 訂金/尾款/追加/退款
+
+  // 收據
+  receiptNumber String? @db.VarChar(50) // 收據號碼
+
+  // 狀態
+  status PaymentStatus @default(CONFIRMED)
+
+  notes String? @db.Text
+
+  // 登記人員
+  createdBy String // User ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymentDate])
+  @@index([eventId])
+  @@index([status])
+  @@index([paymentCategory])
+  @@map("payments_in")
+}
+
+enum PaymentMethodType {
+  CASH // 現金
+  BANK_TRANSFER // 銀行轉帳
+  CREDIT_CARD // 信用卡
+  CHECK // 支票
+  OTHER // 其他
+}
+
+enum PaymentInCategory {
+  DEPOSIT // 訂金
+  FINAL_PAYMENT // 尾款
+  ADDITIONAL // 追加
+  REFUND // 退款
+}
+
+enum PaymentStatus {
+  PENDING // 待確認
+  CONFIRMED // 已確認
+  CANCELLED // 已作廢
+}
+
+// 付款記錄
+model PaymentOut {
+  id            String @id @default(cuid())
+  paymentNumber String @unique @db.VarChar(50) // 付款單號
+
+  // 付款資訊
+  paymentDate   DateTime          @db.Date // 付款日期
+  amount        Decimal           @db.Decimal(10, 2) // 金額
+  paymentMethod PaymentMethodType // 付款方式
+
+  // 銀行帳戶
+  bankAccountId String?
+  bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+
+  // 付款細節
+  checkNumber          String? @db.VarChar(50)
+  transactionReference String? @db.VarChar(100)
+
+  // 類別
+  paymentCategory PaymentOutCategory // 薪資/食材/租金等
+
+  // 收款對象
+  payeeType PayeeType // 員工/供應商/其他
+
+  // 員工付款（薪資）
+  staffId String?
+  staff   Staff?  @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  // 供應商付款
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  // 其他收款人
+  payeeName String? @db.VarChar(100) // 收款對象名稱（當 payeeType = OTHER）
+
+  // 發票
+  invoiceNumber String? @db.VarChar(50) // 發票號碼
+
+  // 狀態
+  status PaymentOutStatus @default(PENDING)
+
+  // 審核
+  approvedBy String? // 審核者 User ID
+  approvedAt DateTime?
+
+  notes String? @db.Text
+
+  // 登記人員
+  createdBy String // User ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymentDate])
+  @@index([paymentCategory])
+  @@index([status])
+  @@index([staffId])
+  @@index([supplierId])
+  @@map("payments_out")
+}
+
+enum PaymentOutCategory {
+  SALARY // 薪資
+  INGREDIENT // 食材
+  RENT // 租金
+  UTILITIES // 水電
+  EQUIPMENT // 設備
+  OTHER // 其他
+}
+
+enum PayeeType {
+  STAFF // 員工
+  SUPPLIER // 供應商
+  VENDOR // 廠商
+  OTHER // 其他
+}
+
+enum PaymentOutStatus {
+  PENDING // 待審核
+  APPROVED // 已審核
+  PAID // 已付款
+  CANCELLED // 已作廢
 }
