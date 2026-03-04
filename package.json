@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "db:deploy:force": "prisma migrate resolve --rolled-back 20260304_add_notes_to_availability_token || true && prisma migrate deploy || true",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",

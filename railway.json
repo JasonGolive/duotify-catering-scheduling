@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "sleep 5 && npx prisma migrate deploy && node node_modules/next/dist/bin/next start -H 0.0.0.0 -p 8080",
+    "startCommand": "sleep 5 && (npx prisma migrate resolve --rolled-back 20260304_add_notes_to_availability_token || true) && npx prisma migrate deploy && node node_modules/next/dist/bin/next start -H 0.0.0.0 -p 8080",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
