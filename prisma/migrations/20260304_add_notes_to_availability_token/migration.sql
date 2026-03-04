@@ -1,2 +1,3 @@
 -- Add notes field to AvailabilityToken for staff remarks
-ALTER TABLE "AvailabilityToken" ADD COLUMN "notes" VARCHAR(600);
+-- Using IF NOT EXISTS to make it safe to run multiple times
+ALTER TABLE "AvailabilityToken" ADD COLUMN IF NOT EXISTS "notes" VARCHAR(600);
