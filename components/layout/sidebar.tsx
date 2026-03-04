@@ -20,6 +20,7 @@ import {
   UtensilsCrossed,
   DollarSign,
   Building2,
+  CreditCard,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -34,6 +35,7 @@ const managerNavItems = [
   { href: "/staff", icon: Users, label: "員工管理" },
   { href: "/salary", icon: Wallet, label: "薪資管理" },
   { href: "/payments-in", icon: DollarSign, label: "收款管理" },
+  { href: "/payments-out", icon: CreditCard, label: "應付管理" },
   { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
   { href: "/suppliers", icon: Building2, label: "供應商管理" },
   { href: "/leave-requests", icon: FileText, label: "請假管理" },
@@ -50,6 +52,7 @@ const adminNavItems = [
   { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
   { href: "/staff", icon: Users, label: "員工管理" },
   { href: "/payments-in", icon: DollarSign, label: "收款管理" },
+  { href: "/payments-out", icon: CreditCard, label: "應付管理" },
   { href: "/bank-accounts", icon: Building2, label: "銀行帳戶" },
   { href: "/suppliers", icon: Building2, label: "供應商管理" },
   { href: "/leave-requests", icon: FileText, label: "請假管理" },
