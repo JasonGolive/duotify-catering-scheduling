@@ -850,6 +850,9 @@ model PaymentOut {
   // 登記人員
   createdBy String // User ID
 
+  // 附件
+  attachments PaymentOutAttachment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -859,6 +862,26 @@ model PaymentOut {
   @@index([staffId])
   @@index([supplierId])
   @@map("payments_out")
+}
+
+// 付款附件
+model PaymentOutAttachment {
+  id        String     @id @default(cuid())
+  paymentId String // PaymentOut ID
+  payment   PaymentOut @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  fileName     String  @db.VarChar(255) // 檔案名稱
+  originalName String  @db.VarChar(255) // 原始檔案名稱
+  filePath     String  @db.VarChar(500) // 檔案路徑
+  fileSize     Int // 檔案大小（bytes）
+  mimeType     String  @db.VarChar(100) // MIME 類型
+  description  String? @db.Text // 檔案說明
+
+  uploadedBy String // User ID
+  uploadedAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@map("payment_out_attachments")
 }
 
 enum PaymentOutCategory {
