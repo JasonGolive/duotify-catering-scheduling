@@ -19,6 +19,7 @@ interface TokenInfo {
   year: number;
   expiresAt: string;
   completedAt: string | null;
+  notes: string | null;
 }
 
 export default function StaffAvailabilityEditPage({ params }: { params: Promise<{ token: string }> }) {
@@ -30,6 +31,7 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
   const [expired, setExpired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     fetchTokenInfo();
@@ -52,6 +54,7 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
 
       const data = await response.json();
       setTokenInfo(data.tokenInfo);
+      setNotes(data.tokenInfo.notes || "");
       
       // Convert availability array to record
       const availRecord: Record<string, AvailabilityRecord> = {};
@@ -219,6 +222,8 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
     try {
       const response = await fetch(`/api/v1/staff/availability-edit/${token}/complete`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes }),
       });
 
       if (!response.ok) {
@@ -226,7 +231,7 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
       }
 
       toast.success("已完成行事曆填寫！");
-      setTokenInfo((prev) => prev ? { ...prev, completedAt: new Date().toISOString() } : null);
+      setTokenInfo((prev) => prev ? { ...prev, completedAt: new Date().toISOString(), notes } : null);
     } catch (err) {
       toast.error("完成失敗");
     } finally {
@@ -416,12 +421,40 @@ export default function StaffAvailabilityEditPage({ params }: { params: Promise<
           </div>
         </div>
 
+        {/* Notes Section */}
+        <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "16px", marginTop: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>
+            📝 備註說明
+          </label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            maxLength={200}
+            placeholder="可填寫特殊需求、時間調整或其他說明事項..."
+            disabled={!!tokenInfo.completedAt}
+            style={{
+              width: "100%",
+              minHeight: "100px",
+              padding: "12px",
+              border: "1px solid #d1d5db",
+              borderRadius: "8px",
+              fontSize: "14px",
+              resize: "vertical",
+              fontFamily: "inherit",
+              backgroundColor: tokenInfo.completedAt ? "#f9fafb" : "white",
+            }}
+          />
+          <div style={{ textAlign: "right", fontSize: "12px", color: "#9ca3af", marginTop: "4px" }}>
+            {notes.length}/200 字元
+          </div>
+        </div>
+
         {/* Complete Button */}
         {!tokenInfo.completedAt && (
           <Button
             onClick={handleComplete}
             disabled={saving}
-            style={{ width: "100%", padding: "16px", fontSize: "16px", backgroundColor: "#3b82f6", color: "white" }}
+            style={{ width: "100%", padding: "16px", fontSize: "16px", backgroundColor: "#3b82f6", color: "white", marginTop: "16px" }}
           >
             {saving ? "處理中..." : "✓ 完成填寫"}
           </Button>

@@ -437,6 +437,7 @@ model AvailabilityToken {
   expiresAt   DateTime                             // Token 過期時間
   sentAt      DateTime?                            // 發送時間
   completedAt DateTime?                            // 員工完成編輯時間
+  notes       String?   @db.VarChar(600)           // 員工備註（最多200中文字 = 600 bytes）
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

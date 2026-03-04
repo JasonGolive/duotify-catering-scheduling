@@ -313,7 +313,7 @@ export default function StaffAvailabilityPage({
   return (
     <div style={{ maxWidth: "1280px", margin: "0 auto", paddingTop: "1.5rem", paddingBottom: "1.5rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <Button variant="ghost" size="icon" onClick={() => router.push(`/staff/${staffId}`)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>

@@ -69,6 +69,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         year: availabilityToken.year,
         expiresAt: availabilityToken.expiresAt.toISOString(),
         completedAt: availabilityToken.completedAt?.toISOString() || null,
+        notes: availabilityToken.notes || null,
       },
       availability,
     });
