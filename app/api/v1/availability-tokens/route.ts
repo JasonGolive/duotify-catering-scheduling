@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import crypto from "crypto";
+import { Client } from "@line/bot-sdk";
 
 // GET /api/v1/availability-tokens - List all tokens (for management dashboard)
 export async function GET(request: Request) {
@@ -114,17 +115,26 @@ export async function POST(request: Request) {
           
           const message = `📅 ${year}年${month}月行事曆填寫通知\n\n請點擊以下連結填寫您的可出勤時間：\n${editUrl}\n\n⏰ 填寫期限：${expiresAt.toLocaleDateString("zh-TW")}\n\n請盡早填寫，謝謝！`;
 
-          try {
-            await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/line/send`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId: availabilityToken.staff.lineUserId,
-                message,
-              }),
-            });
-          } catch (lineError) {
-            console.error("Failed to send LINE notification:", lineError);
+          // Send via LINE SDK directly
+          const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+          if (channelAccessToken) {
+            try {
+              const client = new Client({ channelAccessToken });
+              await client.pushMessage(availabilityToken.staff.lineUserId, {
+                type: "text",
+                text: message,
+              });
+              console.log(`✅ LINE notification sent to ${availabilityToken.staff.name} (${availabilityToken.staff.lineUserId})`);
+            } catch (lineError) {
+              console.error("❌ Failed to send LINE notification:", lineError);
+              errors.push({ 
+                staffId, 
+                error: `LINE 發送失敗: ${lineError instanceof Error ? lineError.message : "未知錯誤"}` 
+              });
+            }
+          } else {
+            console.error("❌ LINE_CHANNEL_ACCESS_TOKEN not configured");
+            errors.push({ staffId, error: "LINE 未設定" });
           }
         }
 
