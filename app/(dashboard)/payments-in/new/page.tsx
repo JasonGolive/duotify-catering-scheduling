@@ -171,16 +171,16 @@ export default function NewPaymentInPage() {
               <div className="md:col-span-2">
                 <Label htmlFor="eventId">關聯場次（選填）</Label>
                 <Select
-                  value={formData.eventId}
+                  value={formData.eventId || "__none__"}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, eventId: value })
+                    setFormData({ ...formData, eventId: value === "__none__" ? "" : value })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="選擇場次或留空" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">無關聯場次</SelectItem>
+                    <SelectItem value="__none__">無關聯場次</SelectItem>
                     {events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         {event.name} -{" "}
