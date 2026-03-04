@@ -69,12 +69,12 @@ export default function BankAccountsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-2xl font-bold">銀行帳戶管理</h1>
-          <p className="text-gray-500 text-sm">管理所有銀行帳戶和現金</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em' }}>銀行帳戶管理</h1>
+          <p style={{ color: '#6b7280' }}>管理所有銀行帳戶和現金</p>
         </div>
         <Button onClick={() => router.push("/bank-accounts/new")}>
           <Plus className="w-4 h-4 mr-2" />

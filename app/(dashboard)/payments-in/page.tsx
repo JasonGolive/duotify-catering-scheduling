@@ -98,11 +98,11 @@ export default function PaymentsInPage() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 className="text-3xl font-bold">收款管理</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em' }}>收款管理</h1>
+          <p style={{ color: '#6b7280' }}>
             共 {payments.length} 筆收款記錄
           </p>
         </div>

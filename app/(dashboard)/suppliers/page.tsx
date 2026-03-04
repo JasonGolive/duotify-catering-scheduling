@@ -105,11 +105,11 @@ export default function SuppliersPage() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 className="text-3xl font-bold">供應商管理</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em' }}>供應商管理</h1>
+          <p style={{ color: '#6b7280' }}>
             共 {suppliers.length} 個供應商（啟用 {activeCount} / 停用{" "}
             {inactiveCount}）
           </p>

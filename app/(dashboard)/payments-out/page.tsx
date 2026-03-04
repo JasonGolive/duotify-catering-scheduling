@@ -123,12 +123,12 @@ export default function PaymentsOutPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* 標題與新增按鈕 */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-3xl font-bold">應付管理</h1>
-          <p className="text-gray-500 mt-1">管理所有支出和付款</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em' }}>付款管理</h1>
+          <p style={{ color: '#6b7280' }}>管理所有支出和付款</p>
         </div>
         <Button onClick={() => router.push("/payments-out/new")}>
           <Plus className="h-4 w-4 mr-2" />
