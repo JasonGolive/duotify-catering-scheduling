@@ -37,6 +37,13 @@ interface EventAssignment {
   startTime: string;
 }
 
+interface MonthlyNotes {
+  month: number;
+  year: number;
+  notes: string | null;
+  completedAt: string | null;
+}
+
 export default function StaffAvailabilityPage({
   params,
 }: {
@@ -48,6 +55,7 @@ export default function StaffAvailabilityPage({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availability, setAvailability] = useState<Record<string, AvailabilityRecord>>({});
   const [events, setEvents] = useState<Record<string, EventAssignment[]>>({});
+  const [monthlyNotes, setMonthlyNotes] = useState<MonthlyNotes | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -91,6 +99,23 @@ export default function StaffAvailabilityPage({
         availMap[a.date] = a;
       });
       setAvailability(availMap);
+
+      // Fetch monthly notes from availability token
+      const tokenRes = await fetch(`/api/v1/availability-tokens?month=${month + 1}&year=${year}`);
+      if (tokenRes.ok) {
+        const tokens = await tokenRes.json();
+        const staffToken = tokens.find((t: { staffId: string }) => t.staffId === staffId);
+        if (staffToken) {
+          setMonthlyNotes({
+            month: staffToken.month,
+            year: staffToken.year,
+            notes: staffToken.notes,
+            completedAt: staffToken.completedAt,
+          });
+        } else {
+          setMonthlyNotes(null);
+        }
+      }
 
       // Fetch events for the month
       const eventsRes = await fetch(`/api/v1/events?startDate=${startDate}&endDate=${endDate}`);
@@ -313,10 +338,10 @@ export default function StaffAvailabilityPage({
   return (
     <div style={{ maxWidth: "1280px", margin: "0 auto", paddingTop: "1.5rem", paddingBottom: "1.5rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
-        <Button variant="ghost" size="icon" onClick={() => router.push(`/staff/${staffId}`)}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/availability-management')}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700 }}>{staff.name} - 出勤行事曆</h1>
           <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>
             {skillLabels[staff.skill]} | {staff.phone}
@@ -342,6 +367,28 @@ export default function StaffAvailabilityPage({
               </Button>
             </div>
           </div>
+          {/* Monthly Notes Display */}
+          {monthlyNotes?.notes && (
+            <div style={{ 
+              marginTop: "1rem", 
+              padding: "0.75rem", 
+              backgroundColor: "#fef3c7", 
+              borderLeft: "4px solid #f59e0b",
+              borderRadius: "0.5rem"
+            }}>
+              <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "#92400e", marginBottom: "0.25rem" }}>
+                📝 員工備註
+              </div>
+              <div style={{ fontSize: "0.875rem", color: "#78350f", whiteSpace: "pre-wrap" }}>
+                {monthlyNotes.notes}
+              </div>
+              {monthlyNotes.completedAt && (
+                <div style={{ fontSize: "0.75rem", color: "#92400e", marginTop: "0.5rem" }}>
+                  填寫時間：{new Date(monthlyNotes.completedAt).toLocaleString("zh-TW")}
+                </div>
+              )}
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {/* Bulk Actions */}
