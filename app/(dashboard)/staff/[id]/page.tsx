@@ -73,19 +73,20 @@ export default function EditStaffPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "發送失敗");
+        if (data.alreadyBound) {
+          toast.info("此員工已綁定 LINE 帳號");
+        } else {
+          throw new Error(data.error || "發送失敗");
+        }
+        return;
       }
 
-      toast.success(`邀請已發送給 ${staff.name}`);
-      
-      if (data.sentViaLine) {
-        toast.info("已透過 LINE 發送邀請連結");
-      } else {
-        // Show the invite URL for manual sharing
-        const inviteUrl = data.inviteUrl;
-        await navigator.clipboard.writeText(inviteUrl);
-        toast.info("邀請連結已複製到剪貼簿");
-      }
+      // Show LINE binding instructions
+      toast.success(`請通知 ${staff.name} 完成 LINE 綁定`, { duration: 5000 });
+      toast.info(
+        `步驟：加入 LINE 官方帳號 → 輸入「綁定 ${staff.phone}」`,
+        { duration: 8000 }
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "發送邀請失敗");
     } finally {
@@ -164,26 +165,26 @@ export default function EditStaffPage() {
         <CardHeader>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
             <CardTitle>編輯員工資料</CardTitle>
-            {staff.userId ? (
+            {staff.lineUserId ? (
               <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", backgroundColor: "#dcfce7", borderRadius: "6px", fontSize: "14px", color: "#166534" }}>
-                <UserCheck style={{ width: "16px", height: "16px" }} />
-                已有帳號
+                <CheckCircle style={{ width: "16px", height: "16px" }} />
+                已綁定 LINE
               </div>
             ) : (
               <Button
                 onClick={handleSendInvite}
                 disabled={isSendingInvite}
-                style={{ backgroundColor: "#8BA4BC" }}
+                style={{ backgroundColor: "#00B900" }}
               >
                 {isSendingInvite ? (
                   <>
                     <Loader2 style={{ width: "16px", height: "16px", marginRight: "6px", animation: "spin 1s linear infinite" }} />
-                    發送中...
+                    處理中...
                   </>
                 ) : (
                   <>
                     <Mail style={{ width: "16px", height: "16px", marginRight: "6px" }} />
-                    發送帳號邀請
+                    LINE 綁定指引
                   </>
                 )}
               </Button>

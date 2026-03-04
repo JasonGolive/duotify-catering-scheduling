@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
-import crypto from "crypto";
 
 /**
  * POST /api/v1/invite
- * Send invitation to staff for account registration
+ * Send LINE binding invitation to staff
+ * (Simple version - no Clerk registration required)
  */
 export async function POST(request: NextRequest) {
   try {
     await requireManager();
 
     const body = await request.json();
-    const { staffId, expiresInDays = 7, sendNotification = true } = body as {
-      staffId: string;
-      expiresInDays?: number;
-      sendNotification?: boolean;
-    };
+    const { staffId } = body as { staffId: string };
 
     if (!staffId) {
       return NextResponse.json({ error: "staffId 為必填" }, { status: 400 });
@@ -29,10 +25,8 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         phone: true,
-        email: true,
         lineUserId: true,
         lineNotify: true,
-        userId: true,
       },
     });
 
@@ -40,57 +34,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "找不到員工資料" }, { status: 404 });
     }
 
-    // Check if already has account
-    if (staff.userId) {
+    // Check if already bound LINE
+    if (staff.lineUserId) {
       return NextResponse.json(
-        { error: "此員工已有登入帳號" },
+        { error: "此員工已綁定 LINE 帳號", alreadyBound: true },
         { status: 400 }
       );
     }
 
-    // Generate unique token
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expiresInDays);
-
-    // Create invite token
-    const inviteToken = await prisma.inviteToken.create({
-      data: {
-        staffId,
-        token,
-        email: staff.email,
-        expiresAt,
-        sentAt: sendNotification ? new Date() : null,
-      },
-    });
-
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://duotify-catering-scheduling-production.up.railway.app";
-    const inviteUrl = `${baseUrl}/invite/${token}`;
-
-    // Send LINE notification if enabled
-    if (sendNotification && staff.lineUserId && staff.lineNotify) {
-      const message = `🎉 帳號註冊邀請\n\n${staff.name} 您好！\n\n請點擊以下連結完成帳號註冊，註冊後即可使用排班系統：\n\n${inviteUrl}\n\n⏰ 連結有效期限：${expiresAt.toLocaleDateString("zh-TW")}\n\n如有問題請聯繫管理員。`;
-
-      try {
-        await fetch(`${baseUrl}/api/line/send`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: staff.lineUserId,
-            message,
-          }),
-        });
-      } catch (lineError) {
-        console.error("Failed to send LINE notification:", lineError);
-      }
-    }
-
+    // 無法發送通知給尚未綁定的員工 - 需要員工主動加好友並綁定
+    // 這裡只是回傳綁定指引
     return NextResponse.json({
-      message: "邀請已發送",
-      inviteUrl,
-      token: inviteToken.token,
-      expiresAt: inviteToken.expiresAt.toISOString(),
-      sentViaLine: sendNotification && !!staff.lineUserId,
+      success: true,
+      message: "請通知員工加入 LINE 好友並完成綁定",
+      instructions: {
+        step1: "請員工加入北歐餐桌到府私廚 LINE 官方帳號",
+        step2: `員工加入後，輸入：綁定 ${staff.phone}`,
+        step3: "綁定成功後即可收到排班通知",
+      },
+      staffName: staff.name,
+      staffPhone: staff.phone,
     });
   } catch (error) {
     console.error("Error sending invite:", error);
