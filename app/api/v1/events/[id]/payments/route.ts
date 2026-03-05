@@ -35,6 +35,12 @@ export async function GET(
       },
     });
 
+    const serializedPayments = payments.map((payment) => ({
+      ...payment,
+      amount: payment.amount.toNumber(),
+      paymentDate: payment.paymentDate.toISOString(),
+    }));
+
     // 計算統計
     const depositPayments = payments.filter((p) => p.paymentCategory === "DEPOSIT");
     const finalPayments = payments.filter((p) => p.paymentCategory === "FINAL_PAYMENT");
@@ -55,7 +61,7 @@ export async function GET(
     const totalReceived = depositTotal + finalTotal + additionalTotal;
 
     return NextResponse.json({
-      payments,
+      payments: serializedPayments,
       stats: {
         depositTotal,
         finalTotal,

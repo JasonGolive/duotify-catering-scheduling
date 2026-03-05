@@ -142,9 +142,18 @@ export function EventForm({
   // Fetch venues on mount
   useEffect(() => {
     fetch("/api/v1/venues")
-      .then((res) => res.json())
-      .then((data) => setVenues(data))
-      .catch((err) => console.error("Error fetching venues:", err));
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("載入場地失敗");
+        }
+        const data = await res.json();
+        const venuesList = Array.isArray(data) ? data : data?.venues || [];
+        setVenues(venuesList);
+      })
+      .catch((err) => {
+        console.error("Error fetching venues:", err);
+        setVenues([]);
+      });
   }, []);
 
   // Auto-calculate balance when total or deposit changes
