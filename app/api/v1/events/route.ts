@@ -50,7 +50,18 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { date: sortOrder === "desc" ? "desc" : "asc" },
       include: {
-        venue: true,
+        venue: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            contactName: true,
+            contactPhone: true,
+            equipment: true,
+            notes: true,
+            isActive: true,
+          },
+        },
       },
     });
 

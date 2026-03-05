@@ -20,7 +20,18 @@ export async function GET(
     const event = await prisma.event.findUnique({
       where: { id },
       include: {
-        venue: true,
+        venue: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            contactName: true,
+            contactPhone: true,
+            equipment: true,
+            notes: true,
+            isActive: true,
+          },
+        },
       },
     });
 
@@ -187,7 +198,18 @@ export async function PUT(
         status: status,
       },
       include: {
-        venue: true,
+        venue: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            contactName: true,
+            contactPhone: true,
+            equipment: true,
+            notes: true,
+            isActive: true,
+          },
+        },
       },
     });
 
