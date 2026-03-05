@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireManager } from "@/lib/auth";
+import { requireAdminOrAbove } from "@/lib/auth";
 import { updateEventSchema } from "@/lib/validations/event";
 import { z } from "zod";
 
 /**
  * GET /api/v1/events/[id]
- * Get a single event by ID (Manager only)
+ * Get a single event by ID (Admin or Manager)
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireManager();
+    await requireAdminOrAbove();
 
     const { id } = await params;
 
@@ -54,14 +54,14 @@ export async function GET(
 
 /**
  * PUT /api/v1/events/[id]
- * Update an event by ID (Manager only)
+ * Update an event by ID (Admin or Manager)
  */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireManager();
+    await requireAdminOrAbove();
 
     const { id } = await params;
     const body = await request.json();
@@ -233,14 +233,14 @@ export async function PUT(
 
 /**
  * DELETE /api/v1/events/[id]
- * Delete an event by ID (Manager only)
+ * Delete an event by ID (Admin or Manager)
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireManager();
+    await requireAdminOrAbove();
 
     const { id } = await params;
 

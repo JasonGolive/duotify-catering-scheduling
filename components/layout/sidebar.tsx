@@ -40,8 +40,8 @@ type NavItem = {
 const managerNavItems: NavItem[] = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "場次管理" },
-  { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/menu", icon: UtensilsCrossed, label: "菜單管理" },
+  { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/notifications", icon: Bell, label: "通知管理" },
   { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
   {
@@ -70,8 +70,8 @@ const managerNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/events", icon: Calendar, label: "場次管理" },
-  { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/menu", icon: UtensilsCrossed, label: "菜單管理" },
+  { href: "/scheduling", icon: CalendarCheck, label: "排班管理" },
   { href: "/notifications", icon: Bell, label: "通知管理" },
   { href: "/availability-management", icon: CalendarDays, label: "行事曆管理" },
   {
