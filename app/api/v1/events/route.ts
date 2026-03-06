@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireManager } from "@/lib/auth";
+import { requireManager, requireAdminOrAbove } from "@/lib/auth";
 import { createEventSchema } from "@/lib/validations/event";
 import { z } from "zod";
 import { randomBytes } from "crypto";
@@ -17,7 +17,7 @@ function generateStaffToken(): string {
  */
 export async function GET(request: NextRequest) {
   try {
-    await requireManager();
+    await requireAdminOrAbove();
 
     const searchParams = request.nextUrl.searchParams;
     const statusFilter = searchParams.get("status");
@@ -60,6 +60,24 @@ export async function GET(request: NextRequest) {
             equipment: true,
             notes: true,
             isActive: true,
+          },
+        },
+        eventMenu: {
+          select: {
+            id: true,
+            lockedAt: true,
+          },
+        },
+        eventStaff: {
+          select: {
+            id: true,
+            notified: true,
+            staff: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
